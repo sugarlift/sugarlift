@@ -25,10 +25,23 @@ export default function ExhibitionCard({
   isCurrent = false,
 }: ExhibitionCardProps) {
   const handleMouseEnter = () => {
-    // Use window.Image instead of Image
+    // Use a Set to prevent duplicate preloads
+    const preloadedUrls = new Set<string>();
+
     exhibition.frontmatter.galleryImages.slice(1).forEach((src) => {
-      const img = new window.Image();
-      img.src = src;
+      // Skip if already preloaded in this session
+      if (preloadedUrls.has(src)) return;
+
+      // Mark as preloaded
+      preloadedUrls.add(src);
+
+      // Create a hidden next/image to trigger optimization
+      const imgEl = document.createElement("link");
+      imgEl.rel = "preload";
+      imgEl.as = "image";
+      // Use the same size configuration as your visible images
+      imgEl.href = `/_next/image?url=${encodeURIComponent(src)}&w=1200&q=75`;
+      document.head.appendChild(imgEl);
     });
   };
 
