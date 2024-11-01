@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { COMPANY_METADATA } from "../app/lib/constants";
 import { Dialog, DialogPanel } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
 import Logo from "../components/Logo";
 
@@ -61,7 +60,7 @@ export default function Example() {
             className="inline-flex items-center justify-center rounded-md px-6 py-7 text-gray-700 lg:p-8"
           >
             <span className="sr-only">Open main menu</span>
-            <Bars3Icon aria-hidden="true" className="h-6 w-6" />
+            OPEN
           </button>
         </div>
         <div className="hidden lg:flex">
@@ -111,7 +110,7 @@ export default function Example() {
               className="-m-2.5 rounded-md p-2.5 text-gray-700"
             >
               <span className="sr-only">Close menu</span>
-              <XMarkIcon aria-hidden="true" className="h-6 w-6" />
+              CLOSE
             </button>
           </div>
           <div className="mt-6 flow-root">
