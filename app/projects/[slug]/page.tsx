@@ -52,19 +52,19 @@ export default async function ProjectPage({
 
   const relatedProjects = await getRelatedProjects(
     resolvedParams.slug,
-    project.frontmatter.category
+    project.frontmatter.category,
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
+    <div className="mx-auto max-w-7xl px-4 py-12">
       {/* Project Header */}
       <div className="mb-12">
-        <h1 className="text-3xl font-bold mb-4">{project.frontmatter.title}</h1>
+        <h1 className="mb-4 text-3xl font-bold">{project.frontmatter.title}</h1>
         <p className="text-xl text-gray-600">{project.frontmatter.location}</p>
       </div>
 
       {/* Main Image Grid - First image full width */}
-      <div className="grid grid-cols-1 gap-8 mb-16">
+      <div className="mb-16 grid grid-cols-1 gap-8">
         <div className="relative aspect-[16/9]">
           <Image
             src={project.frontmatter.galleryImages[0]}
@@ -93,28 +93,28 @@ export default async function ProjectPage({
       </div>
 
       {/* Project Details Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+      <div className="mb-16 grid grid-cols-1 gap-12 md:grid-cols-3">
         {/* Content Column */}
-        <div className="md:col-span-2 prose prose-lg max-w-none">
+        <div className="prose prose-lg max-w-none md:col-span-2">
           <div dangerouslySetInnerHTML={{ __html: project.content }} />
         </div>
 
         {/* Metadata Column */}
         <div className="space-y-6">
           <div>
-            <h3 className="font-medium mb-2">Category</h3>
+            <h3 className="mb-2 font-medium">Category</h3>
             <p>{project.frontmatter.category}</p>
           </div>
           <div>
-            <h3 className="font-medium mb-2">Client</h3>
+            <h3 className="mb-2 font-medium">Client</h3>
             <p>{project.frontmatter.client}</p>
           </div>
           <div>
-            <h3 className="font-medium mb-2">Architect</h3>
+            <h3 className="mb-2 font-medium">Architect</h3>
             <p>{project.frontmatter.architect}</p>
           </div>
           <div>
-            <h3 className="font-medium mb-2">Year</h3>
+            <h3 className="mb-2 font-medium">Year</h3>
             <p>{project.frontmatter.year}</p>
           </div>
         </div>
@@ -122,8 +122,8 @@ export default async function ProjectPage({
 
       {/* Related Projects */}
       <section>
-        <h2 className="text-2xl font-bold mb-8">More projects by Sugarlift</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <h2 className="mb-8 text-2xl font-bold">More projects by Sugarlift</h2>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {relatedProjects.map((project) => (
             <ProjectCard key={project.slug} project={project} />
           ))}
