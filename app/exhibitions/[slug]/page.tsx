@@ -1,3 +1,4 @@
+// app/exhibitions/[slug]/page.tsx
 import {
   getExhibitionData,
   getAllExhibitions,
