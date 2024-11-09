@@ -21,7 +21,6 @@ interface ProjectFrontmatter {
 
 interface ProcessedProjectFrontmatter
   extends Omit<ProjectFrontmatter, "galleryImages"> {
-  status: "current" | "past";
   coverImage: StaticImageData;
   galleryImages: StaticImageData[]; // This will be the processed images
 }
@@ -33,16 +32,6 @@ export interface Project {
 }
 
 const projectsDirectory = path.join(process.cwd(), "content", "projects");
-
-function determineProjectStatus(endDate: string): "current" | "past" {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const projectEnd = new Date(endDate);
-  projectEnd.setHours(23, 59, 59, 999);
-
-  return projectEnd >= today ? "current" : "past";
-}
 
 export async function getProjectData(slug: string): Promise<Project | null> {
   try {
@@ -71,13 +60,10 @@ export async function getProjectData(slug: string): Promise<Project | null> {
       return image;
     });
 
-    const calculatedStatus = determineProjectStatus(frontmatter.endDate);
-
     return {
       slug,
       frontmatter: {
         ...frontmatter,
-        status: calculatedStatus,
         coverImage: galleryImages[0], // Set the first image as the cover image
         galleryImages,
       },
@@ -111,16 +97,6 @@ export async function getAllProjects(): Promise<Project[]> {
   return allProjectsData
     .filter((data): data is Project => data !== null)
     .sort((a, b) => {
-      if (
-        a.frontmatter.status === "current" &&
-        b.frontmatter.status !== "current"
-      )
-        return -1;
-      if (
-        a.frontmatter.status !== "current" &&
-        b.frontmatter.status === "current"
-      )
-        return 1;
       return (
         new Date(b.frontmatter.startDate).getTime() -
         new Date(a.frontmatter.startDate).getTime()

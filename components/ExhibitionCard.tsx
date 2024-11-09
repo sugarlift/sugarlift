@@ -1,17 +1,17 @@
 // components/ExhibitionCard.tsx
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/components/Link";
 import { type Exhibition } from "@/app/lib/markdownExhibitions";
 
 interface ExhibitionCardProps {
   exhibition: Exhibition;
-  isCurrent?: boolean;
+  priority?: boolean;
 }
 
 export const ExhibitionCard = ({
   exhibition,
-  isCurrent = false,
+  priority = false,
 }: ExhibitionCardProps) => {
   const {
     frontmatter: { coverImage, title, artist },
@@ -22,16 +22,16 @@ export const ExhibitionCard = ({
       <Link
         href={`/exhibitions/${exhibition.slug}`}
         className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-        aria-current={isCurrent ? "page" : undefined}
       >
         <div className="relative h-60 w-full">
           <Image
             src={coverImage}
             alt={`Cover image for ${title}`}
             fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
             className="object-cover transition-transform group-hover:scale-105"
-            priority={isCurrent}
+            priority={priority}
+            loading={priority ? "eager" : "lazy"}
           />
         </div>
         <div className="p-4">

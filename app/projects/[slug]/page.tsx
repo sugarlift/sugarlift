@@ -66,7 +66,7 @@ export default async function Page({
               alt={`${project.frontmatter.title} - Image ${index + 1}`}
               fill
               className="object-cover"
-              priority={index === 0} // Prioritize the first image
+              priority={index === 0}
             />
           </div>
         ))}

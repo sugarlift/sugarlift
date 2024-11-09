@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/components/Link";
 import { COMPANY_METADATA } from "../app/lib/constants";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { usePathname } from "next/navigation";

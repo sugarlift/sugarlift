@@ -18,11 +18,7 @@ export default async function ExhibitionsPage() {
         <h2 className="mb-6 text-2xl font-bold">Current Exhibitions</h2>
         <div className="mb-12 grid grid-cols-1 gap-8">
           {currentExhibitions.map((exhibition) => (
-            <ExhibitionCard
-              key={exhibition.slug}
-              exhibition={exhibition}
-              isCurrent={true}
-            />
+            <ExhibitionCard key={exhibition.slug} exhibition={exhibition} />
           ))}
         </div>
       </section>
