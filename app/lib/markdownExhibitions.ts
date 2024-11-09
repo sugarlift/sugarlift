@@ -132,3 +132,24 @@ export async function getAllExhibitions(): Promise<Exhibition[]> {
       );
     });
 }
+
+export function getExhibitionBySlug(slug: string) {
+  try {
+    const exhibitionsDirectory = path.join(
+      process.cwd(),
+      "content/exhibitions",
+    );
+    const fullPath = path.join(exhibitionsDirectory, `${slug}.md`);
+    const fileContents = fs.readFileSync(fullPath, "utf8");
+    const { data: frontmatter, content } = matter(fileContents);
+
+    return {
+      slug,
+      frontmatter,
+      content,
+    };
+  } catch (error) {
+    console.error(`Error loading exhibition ${slug}:`, error);
+    return null;
+  }
+}
