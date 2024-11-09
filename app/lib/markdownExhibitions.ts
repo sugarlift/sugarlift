@@ -1,10 +1,16 @@
+// app/lib/markdownExhibitions.ts
+
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { remark } from "remark";
 import html from "remark-html";
+import { StaticImageData } from "next/image";
+import { exhibitionImages as importedExhibitionImages } from "@/content/exhibitions/images";
 
-// Interface for the raw markdown frontmatter
+const exhibitionImages: Record<string, StaticImageData> =
+  importedExhibitionImages;
+
 interface ExhibitionFrontmatter {
   title: string;
   artist: string;
@@ -14,13 +20,16 @@ interface ExhibitionFrontmatter {
   galleryImages: string[];
 }
 
-// Interface for the processed exhibition data
+interface ProcessedExhibitionFrontmatter
+  extends Omit<ExhibitionFrontmatter, "galleryImages"> {
+  status: "current" | "past";
+  coverImage: StaticImageData;
+  galleryImages: StaticImageData[]; // This will be the processed images
+}
+
 export interface Exhibition {
   slug: string;
-  frontmatter: ExhibitionFrontmatter & {
-    status: "current" | "past";
-    coverImage: string; // Guaranteed to be the first gallery image
-  };
+  frontmatter: ProcessedExhibitionFrontmatter;
   content: string;
 }
 
@@ -37,28 +46,36 @@ function determineExhibitionStatus(endDate: string): "current" | "past" {
 }
 
 export async function getExhibitionData(
-  slug: string
+  slug: string,
 ): Promise<Exhibition | null> {
   try {
     const fullPath = path.join(exhibitionsDirectory, `${slug}.md`);
     const fileContents = fs.readFileSync(fullPath, "utf8");
 
-    // Parse frontmatter
     const { data, content } = matter(fileContents);
     const frontmatter = data as ExhibitionFrontmatter;
 
-    // Process markdown content
     const processedContent = await remark().use(html).process(content);
     const contentHtml = processedContent.toString();
 
-    // Ensure gallery images exist and get cover image
     if (!frontmatter.galleryImages || frontmatter.galleryImages.length === 0) {
       throw new Error(
-        `Exhibition ${slug} must have at least one gallery image`
+        `Exhibition ${slug} must have at least one gallery image`,
       );
     }
 
-    // Calculate status based on end date
+    // Process gallery images
+    const galleryImages = frontmatter.galleryImages.map((relativePath) => {
+      const imageKey = relativePath.replace(/^\/*/, ""); // Remove leading slashes
+      const image = exhibitionImages[imageKey];
+
+      if (!image) {
+        throw new Error(`Image not found: ${relativePath}`);
+      }
+
+      return image;
+    });
+
     const calculatedStatus = determineExhibitionStatus(frontmatter.endDate);
 
     return {
@@ -66,7 +83,8 @@ export async function getExhibitionData(
       frontmatter: {
         ...frontmatter,
         status: calculatedStatus,
-        coverImage: frontmatter.galleryImages[0],
+        coverImage: galleryImages[0], // Set the first image as the cover image
+        galleryImages,
       },
       content: contentHtml,
     };
@@ -77,14 +95,12 @@ export async function getExhibitionData(
 }
 
 export async function getAllExhibitions(): Promise<Exhibition[]> {
-  // Ensure directory exists
   if (!fs.existsSync(exhibitionsDirectory)) {
     console.warn("Exhibitions directory not found, creating it...");
     fs.mkdirSync(exhibitionsDirectory, { recursive: true });
     return [];
   }
 
-  // Get file names under /content/exhibitions
   const fileNames = fs.readdirSync(exhibitionsDirectory);
 
   const allExhibitionsData = await Promise.all(
@@ -94,29 +110,25 @@ export async function getAllExhibitions(): Promise<Exhibition[]> {
         const slug = fileName.replace(/\.md$/, "");
         const exhibitionData = await getExhibitionData(slug);
         return exhibitionData;
-      })
+      }),
   );
 
-  // Filter out any null values and sort exhibitions
-  const exhibitions = allExhibitionsData.filter(
-    (data): data is Exhibition => data !== null
-  );
-
-  // Sort by status (current first) and then by start date
-  return exhibitions.sort((a, b) => {
-    if (
-      a.frontmatter.status === "current" &&
-      b.frontmatter.status !== "current"
-    )
-      return -1;
-    if (
-      a.frontmatter.status !== "current" &&
-      b.frontmatter.status === "current"
-    )
-      return 1;
-    return (
-      new Date(b.frontmatter.startDate).getTime() -
-      new Date(a.frontmatter.startDate).getTime()
-    );
-  });
+  return allExhibitionsData
+    .filter((data): data is Exhibition => data !== null)
+    .sort((a, b) => {
+      if (
+        a.frontmatter.status === "current" &&
+        b.frontmatter.status !== "current"
+      )
+        return -1;
+      if (
+        a.frontmatter.status !== "current" &&
+        b.frontmatter.status === "current"
+      )
+        return 1;
+      return (
+        new Date(b.frontmatter.startDate).getTime() -
+        new Date(a.frontmatter.startDate).getTime()
+      );
+    });
 }

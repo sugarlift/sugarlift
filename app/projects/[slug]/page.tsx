@@ -1,13 +1,9 @@
 // app/projects/[slug]/page.tsx
-import {
-  getProjectData,
-  getAllProjects,
-  getRelatedProjects,
-} from "../../lib/markdownProjects";
-import type { Metadata } from "next";
+
+import { getProjectData, getAllProjects } from "@/app/lib/markdownProjects";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import ProjectCard from "@/components/ProjectCard";
+import type { Metadata } from "next";
 
 export async function generateStaticParams() {
   const projects = await getAllProjects();
@@ -21,8 +17,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const resolvedParams = await params;
-  const project = await getProjectData(resolvedParams.slug);
+  const { slug } = await params;
+  const project = await getProjectData(slug);
 
   if (!project) {
     return {
@@ -31,104 +27,55 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${project.frontmatter.title} - ${project.frontmatter.location}`,
-    description:
-      project.frontmatter.description ||
-      `${project.frontmatter.title} project by ${project.frontmatter.client}`,
+    title: `${project.frontmatter.title} by ${project.frontmatter.artist}`,
+    description: `Project by ${project.frontmatter.artist}`,
   };
 }
 
-export default async function ProjectPage({
+export default async function Page({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const resolvedParams = await params;
-  const project = await getProjectData(resolvedParams.slug);
+  const { slug } = await params;
+  const project = await getProjectData(slug);
 
   if (!project) {
     notFound();
   }
 
-  const relatedProjects = await getRelatedProjects(
-    resolvedParams.slug,
-    project.frontmatter.category,
-  );
-
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12">
-      {/* Project Header */}
-      <div className="mb-12">
-        <h1 className="mb-4 text-3xl font-bold">{project.frontmatter.title}</h1>
-        <p className="text-xl text-gray-600">{project.frontmatter.location}</p>
+    <div className="mx-auto max-w-4xl px-4 py-12">
+      <div className="mb-8">
+        <h1 className="mb-2 text-3xl font-bold">{project.frontmatter.title}</h1>
+        <p className="mb-4 text-xl text-gray-600">
+          {project.frontmatter.artist}
+        </p>
+        <p className="text-gray-600">
+          {new Date(project.frontmatter.startDate).toLocaleDateString()} -{" "}
+          {new Date(project.frontmatter.endDate).toLocaleDateString()}
+        </p>
+        <p className="text-gray-600">{project.frontmatter.location}</p>
       </div>
 
-      {/* Main Image Grid - First image full width */}
-      <div className="mb-16 grid grid-cols-1 gap-8">
-        <div className="relative aspect-[16/9]">
-          <Image
-            src={project.frontmatter.galleryImages[0]}
-            alt={project.frontmatter.title}
-            fill
-            sizes="(max-width: 1400px) 100vw, 1400px"
-            className="object-cover"
-            priority
-          />
-        </div>
-
-        {/* Remaining images in a grid */}
-        <div className="grid grid-cols-2 gap-8">
-          {project.frontmatter.galleryImages.slice(1).map((image, index) => (
-            <div key={image} className="relative aspect-[4/3]">
-              <Image
-                src={image}
-                alt={`${project.frontmatter.title} - Image ${index + 2}`}
-                fill
-                sizes="(max-width: 700px) 100vw, 700px"
-                className="object-cover"
-              />
-            </div>
-          ))}
-        </div>
+      <div className="grid grid-cols-1 gap-8">
+        {project.frontmatter.galleryImages.map((image, index) => (
+          <div key={index} className="relative aspect-[16/9] w-full">
+            <Image
+              src={image}
+              alt={`${project.frontmatter.title} - Image ${index + 1}`}
+              fill
+              className="object-cover"
+              priority={index === 0} // Prioritize the first image
+            />
+          </div>
+        ))}
       </div>
 
-      {/* Project Details Grid */}
-      <div className="mb-16 grid grid-cols-1 gap-12 md:grid-cols-3">
-        {/* Content Column */}
-        <div className="prose prose-lg max-w-none md:col-span-2">
-          <div dangerouslySetInnerHTML={{ __html: project.content }} />
-        </div>
-
-        {/* Metadata Column */}
-        <div className="space-y-6">
-          <div>
-            <h3 className="mb-2 font-medium">Category</h3>
-            <p>{project.frontmatter.category}</p>
-          </div>
-          <div>
-            <h3 className="mb-2 font-medium">Client</h3>
-            <p>{project.frontmatter.client}</p>
-          </div>
-          <div>
-            <h3 className="mb-2 font-medium">Architect</h3>
-            <p>{project.frontmatter.architect}</p>
-          </div>
-          <div>
-            <h3 className="mb-2 font-medium">Year</h3>
-            <p>{project.frontmatter.year}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Related Projects */}
-      <section>
-        <h2 className="mb-8 text-2xl font-bold">More projects by Sugarlift</h2>
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {relatedProjects.map((project) => (
-            <ProjectCard key={project.slug} project={project} />
-          ))}
-        </div>
-      </section>
+      <div
+        className="prose prose-lg mt-8 max-w-none"
+        dangerouslySetInnerHTML={{ __html: project.content }}
+      />
     </div>
   );
 }

@@ -1,25 +1,44 @@
+// components/ProjectCard.tsx
+
 import Image from "next/image";
 import Link from "next/link";
-import { Project } from "../app/lib/markdownProjects";
+import { type Project } from "@/app/lib/markdownProjects";
 
 interface ProjectCardProps {
   project: Project;
+  isCurrent?: boolean;
 }
 
-export default function ProjectCard({ project }: ProjectCardProps) {
+export const ProjectCard = ({
+  project,
+  isCurrent = false,
+}: ProjectCardProps) => {
+  const {
+    frontmatter: { coverImage, title, artist },
+  } = project;
+
   return (
-    <Link href={`/projects/${project.slug}`} className="group">
-      <div className="relative aspect-[4/3] mb-4 overflow-hidden">
-        <Image
-          src={project.frontmatter.coverImage}
-          alt={project.frontmatter.title}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
-      <h3 className="font-medium mb-2">{project.frontmatter.title}</h3>
-      <p className="text-gray-600">{project.frontmatter.location}</p>
-    </Link>
+    <article className="group overflow-hidden rounded-lg border transition-transform hover:scale-[1.02]">
+      <Link
+        href={`/projects/${project.slug}`}
+        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+        aria-current={isCurrent ? "page" : undefined}
+      >
+        <div className="relative h-60 w-full">
+          <Image
+            src={coverImage}
+            alt={`Cover image for ${title}`}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform group-hover:scale-105"
+            priority={isCurrent}
+          />
+        </div>
+        <div className="p-4">
+          <h3 className="text-xl font-bold tracking-tight">{title}</h3>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">{artist}</p>
+        </div>
+      </Link>
+    </article>
   );
-}
+};

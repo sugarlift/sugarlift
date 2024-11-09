@@ -1,56 +1,85 @@
-// lib/markdownProjects.ts
+// app/lib/markdownProjects.ts
+
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { remark } from "remark";
 import html from "remark-html";
+import { StaticImageData } from "next/image";
+import { projectImages as importedProjectImages } from "@/content/projects/images";
 
-// Interface for the raw markdown frontmatter
-export interface ProjectFrontmatter {
+const projectImages: Record<string, StaticImageData> = importedProjectImages;
+
+interface ProjectFrontmatter {
   title: string;
+  artist: string;
+  startDate: string;
+  endDate: string;
   location: string;
-  category: "Multi-Family" | "Workplace" | "Healthcare" | "Affordable";
-  client: string;
-  architect: string;
-  year: string;
   galleryImages: string[];
-  description?: string;
 }
 
-// Interface for the processed project data
+interface ProcessedProjectFrontmatter
+  extends Omit<ProjectFrontmatter, "galleryImages"> {
+  status: "current" | "past";
+  coverImage: StaticImageData;
+  galleryImages: StaticImageData[]; // This will be the processed images
+}
+
 export interface Project {
   slug: string;
-  frontmatter: ProjectFrontmatter & {
-    coverImage: string; // Guaranteed to be the first gallery image
-  };
+  frontmatter: ProcessedProjectFrontmatter;
   content: string;
 }
 
 const projectsDirectory = path.join(process.cwd(), "content", "projects");
+
+function determineProjectStatus(endDate: string): "current" | "past" {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const projectEnd = new Date(endDate);
+  projectEnd.setHours(23, 59, 59, 999);
+
+  return projectEnd >= today ? "current" : "past";
+}
 
 export async function getProjectData(slug: string): Promise<Project | null> {
   try {
     const fullPath = path.join(projectsDirectory, `${slug}.md`);
     const fileContents = fs.readFileSync(fullPath, "utf8");
 
-    // Parse frontmatter
     const { data, content } = matter(fileContents);
     const frontmatter = data as ProjectFrontmatter;
 
-    // Process markdown content
     const processedContent = await remark().use(html).process(content);
     const contentHtml = processedContent.toString();
 
-    // Ensure gallery images exist and get cover image
     if (!frontmatter.galleryImages || frontmatter.galleryImages.length === 0) {
       throw new Error(`Project ${slug} must have at least one gallery image`);
     }
+
+    // Process gallery images
+    const galleryImages = frontmatter.galleryImages.map((relativePath) => {
+      const imageKey = relativePath.replace(/^\/*/, ""); // Remove leading slashes
+      const image = projectImages[imageKey];
+
+      if (!image) {
+        throw new Error(`Image not found: ${relativePath}`);
+      }
+
+      return image;
+    });
+
+    const calculatedStatus = determineProjectStatus(frontmatter.endDate);
 
     return {
       slug,
       frontmatter: {
         ...frontmatter,
-        coverImage: frontmatter.galleryImages[0],
+        status: calculatedStatus,
+        coverImage: galleryImages[0], // Set the first image as the cover image
+        galleryImages,
       },
       content: contentHtml,
     };
@@ -61,14 +90,12 @@ export async function getProjectData(slug: string): Promise<Project | null> {
 }
 
 export async function getAllProjects(): Promise<Project[]> {
-  // Ensure directory exists
   if (!fs.existsSync(projectsDirectory)) {
     console.warn("Projects directory not found, creating it...");
     fs.mkdirSync(projectsDirectory, { recursive: true });
     return [];
   }
 
-  // Get file names under /content/projects
   const fileNames = fs.readdirSync(projectsDirectory);
 
   const allProjectsData = await Promise.all(
@@ -78,41 +105,25 @@ export async function getAllProjects(): Promise<Project[]> {
         const slug = fileName.replace(/\.md$/, "");
         const projectData = await getProjectData(slug);
         return projectData;
-      })
+      }),
   );
 
-  // Filter out any null values and sort projects
-  const projects = allProjectsData.filter(
-    (data): data is Project => data !== null
-  );
-
-  // Sort projects by year (newest first)
-  return projects.sort((a, b) => {
-    return parseInt(b.frontmatter.year) - parseInt(a.frontmatter.year);
-  });
-}
-
-export async function getProjectsByCategory(
-  category: ProjectFrontmatter["category"]
-): Promise<Project[]> {
-  const allProjects = await getAllProjects();
-  return allProjects.filter(
-    (project) => project.frontmatter.category === category
-  );
-}
-
-export async function getRelatedProjects(
-  currentSlug: string,
-  category: ProjectFrontmatter["category"],
-  limit: number = 3
-): Promise<Project[]> {
-  const allProjects = await getAllProjects();
-
-  return allProjects
-    .filter(
-      (project) =>
-        project.slug !== currentSlug &&
-        project.frontmatter.category === category
-    )
-    .slice(0, limit);
+  return allProjectsData
+    .filter((data): data is Project => data !== null)
+    .sort((a, b) => {
+      if (
+        a.frontmatter.status === "current" &&
+        b.frontmatter.status !== "current"
+      )
+        return -1;
+      if (
+        a.frontmatter.status !== "current" &&
+        b.frontmatter.status === "current"
+      )
+        return 1;
+      return (
+        new Date(b.frontmatter.startDate).getTime() -
+        new Date(a.frontmatter.startDate).getTime()
+      );
+    });
 }

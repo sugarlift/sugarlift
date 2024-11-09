@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   images: {
     // Enable static image imports from the public directory
     unoptimized: false,
-    minimumCacheTTL: 60 * 60 * 24 * 7,
+    minimumCacheTTL: 60 * 60 * 24 * 1,
   },
 };
 
