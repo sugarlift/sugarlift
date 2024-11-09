@@ -6,10 +6,10 @@ endDate: "2024-03-28"
 location: "527 West 27th Street, New York, NY 10"
 galleryImages:
   [
-    "/images/exhibitions/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_6_0852c3b5ef.jpg",
-    "/images/exhibitions/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_1_2321f22bdb.jpg",
-    "/images/exhibitions/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_4_79db4788c0.jpg",
-    "/images/exhibitions/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_5_44311f4565.jpg",
+    "/images/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_1_2321f22bdb.jpg",
+    "/images/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_4_79db4788c0.jpg",
+    "/images/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_5_44311f4565.jpg",
+    "/images/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_6_0852c3b5ef.jpg",
   ]
 ---
 
