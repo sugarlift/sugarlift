@@ -48,7 +48,7 @@ export default async function Page({
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12">
+    <div className="container py-12">
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold">
           {exhibition.frontmatter.title}

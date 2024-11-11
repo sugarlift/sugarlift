@@ -7,7 +7,7 @@ export default async function ProjectsPage() {
   const projects = await getAllProjects();
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12">
+    <div className="container py-12">
       <section>
         <h2 className="mb-6 text-2xl font-bold">Projects</h2>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
