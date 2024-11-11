@@ -64,6 +64,7 @@ export default async function Page({
             <Image
               src={image}
               alt={`${project.frontmatter.title} - Image ${index + 1}`}
+              sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
               fill
               className="object-cover"
               priority={index === 0}
