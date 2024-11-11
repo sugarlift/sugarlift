@@ -1,0 +1,77 @@
+// The contents of MenuButton.scss remain exactly the same
+.menu {
+  --front: #f1f1f1;
+  --back: #f1f1f1;
+  --icon: black;
+  perspective: 600px;
+  width: 48px;
+  height: 48px;
+  position: relative;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  input {
+    display: none;
+    & + div {
+      span {
+        --rotateX: 0deg;
+        --background: var(--front);
+        transform: rotateX(var(--rotateX));
+        transform-style: preserve-3d;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 0%;
+        background: var(--background);
+        backface-visibility: hidden;
+        transition: transform 0.6s cubic-bezier(0.2, 0.64, 0.48, 1.24);
+        &:before,
+        &:after {
+          --rotate: 0deg;
+          content: "";
+          position: absolute;
+          width: 16px;
+          height: 2px;
+          border-radius: 1px;
+          top: 50%;
+          left: 50%;
+          background: var(--icon);
+          backface-visibility: hidden;
+          transform: translate(-50%, -50%) rotate(var(--rotate)) translateZ(6px);
+        }
+        &:first-child {
+          --background: var(--back);
+          --rotateX: 180deg;
+          &:before {
+            --rotate: -45deg;
+          }
+          &:after {
+            --rotate: 45deg;
+          }
+        }
+        &:last-child {
+          --rotateX: 0deg;
+          &:before {
+            box-shadow:
+              0 -5px 0 var(--icon),
+              0 5px 0 var(--icon);
+          }
+          &:after {
+            display: none;
+          }
+        }
+      }
+    }
+    &:checked + div {
+      span {
+        &:first-child {
+          --rotateX: 0deg;
+        }
+        &:last-child {
+          --rotateX: -180deg;
+        }
+      }
+    }
+  }
+}
