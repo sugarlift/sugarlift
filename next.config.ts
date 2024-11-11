@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
     unoptimized: false,
     minimumCacheTTL: 60 * 60 * 24 * 1,
   },
+  sassOptions: {
+    silenceDeprecations: ["legacy-js-api"],
+  },
 };
 
 export default nextConfig;

@@ -15,13 +15,13 @@ export async function FeaturedProjects({ projects }: FeaturedProjectsProps) {
   );
 
   return (
-    <div className="grid gap-8">
+    <>
       {featuredProjects.map(
         (project) =>
           project && (
             <ProjectCard key={project.slug} project={project} priority={true} />
           ),
       )}
-    </div>
+    </>
   );
 }

@@ -18,7 +18,7 @@ export async function FeaturedExhibitions({
   );
 
   return (
-    <div className="grid gap-8">
+    <>
       {featuredExhibitions.map(
         (exhibition) =>
           exhibition && (
@@ -29,6 +29,6 @@ export async function FeaturedExhibitions({
             />
           ),
       )}
-    </div>
+    </>
   );
 }
