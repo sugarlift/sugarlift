@@ -57,7 +57,7 @@ export default function Example() {
           </Link>
         </div>
         <div className="mr-6 flex md:hidden">
-          <label className="menu">
+          <label className="menu z-50">
             <input
               type="checkbox"
               checked={mobileMenuOpen}
@@ -100,22 +100,28 @@ export default function Example() {
       </nav>
       <AnimatePresence>
         {mobileMenuOpen && (
-          <Dialog open={true} onClose={setMobileMenuOpen} className="md:hidden">
-            <div className="fixed inset-0 z-20" />
+          <Dialog
+            as="div"
+            open={mobileMenuOpen}
+            onClose={() => setMobileMenuOpen(false)}
+            className="md:hidden"
+          >
+            <motion.div
+              className="fixed inset-0 top-[73px] z-20 bg-gray-500 opacity-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+            />
             <motion.div
               initial={{ y: "-100%" }}
               animate={{ y: 0 }}
               exit={{ y: "-100%" }}
-              drag="y"
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={0.2}
-              onDragEnd={(e, { offset, velocity }) => {
-                if (offset.y < -50 || velocity.y < -500) {
-                  setMobileMenuOpen(false);
-                }
-              }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="fixed inset-y-0 right-0 top-[73px] z-30 mb-10 w-full overflow-y-auto bg-[#ffffff80] px-6 py-6 backdrop-blur-3xl"
+              className="fixed inset-y-0 right-0 top-[73px] z-30 mb-10 w-full overflow-y-auto rounded-bl-2xl rounded-br-2xl bg-white px-6 py-6 backdrop-blur-3xl"
+              onAnimationComplete={() => {
+                // Reset any animation states if needed
+              }}
             >
               <div className="mt-6 flow-root">
                 <div className="-my-6 divide-y divide-gray-500/10">
@@ -155,9 +161,22 @@ export default function Example() {
                   </div>
                 </div>
               </div>
-              <div className="fixed bottom-8 left-0 right-0 flex justify-center">
-                <div className="h-1 w-16 rounded-full bg-gray-600" />
-              </div>
+              <motion.div
+                drag="y"
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={0.2}
+                onDragEnd={(e, { offset, velocity }) => {
+                  if (offset.y < -50 || velocity.y < -500) {
+                    setMobileMenuOpen(false);
+                  }
+                }}
+                className="fixed bottom-0 left-0 right-0 z-50 cursor-grab active:cursor-grabbing"
+                key="drag-handle"
+              >
+                <div className="flex h-16 w-full items-center justify-center">
+                  <div className="h-1 w-16 rounded-full bg-gray-600" />
+                </div>
+              </motion.div>
             </motion.div>
           </Dialog>
         )}
