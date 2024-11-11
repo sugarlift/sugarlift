@@ -58,7 +58,7 @@ export default function Example() {
           </Link>
         </div>
         <div className="mr-6 flex md:hidden">
-          <label className="menu z-50">
+          <label className="menuIcon z-50">
             <input
               type="checkbox"
               checked={mobileMenuOpen}

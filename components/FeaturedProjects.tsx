@@ -15,7 +15,7 @@ export async function FeaturedProjects({ projects }: FeaturedProjectsProps) {
   );
 
   return (
-    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-8">
       {featuredProjects.map(
         (project) =>
           project && (

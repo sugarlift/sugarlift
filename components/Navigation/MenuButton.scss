@@ -1,5 +1,4 @@
-// The contents of MenuButton.scss remain exactly the same
-.menu {
+.menuIcon {
   --front: #f1f1f1;
   --back: #f1f1f1;
   --icon: black;
@@ -9,8 +8,10 @@
   position: relative;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+
   input {
     display: none;
+
     & + div {
       span {
         --rotateX: 0deg;
@@ -26,6 +27,7 @@
         background: var(--background);
         backface-visibility: hidden;
         transition: transform 0.6s cubic-bezier(0.2, 0.64, 0.48, 1.24);
+
         &:before,
         &:after {
           --rotate: 0deg;
@@ -40,6 +42,7 @@
           backface-visibility: hidden;
           transform: translate(-50%, -50%) rotate(var(--rotate)) translateZ(6px);
         }
+
         &:first-child {
           --background: var(--back);
           --rotateX: 180deg;
@@ -50,6 +53,7 @@
             --rotate: 45deg;
           }
         }
+
         &:last-child {
           --rotateX: 0deg;
           &:before {
@@ -57,17 +61,20 @@
               0 -5px 0 var(--icon),
               0 5px 0 var(--icon);
           }
+
           &:after {
             display: none;
           }
         }
       }
     }
+
     &:checked + div {
       span {
         &:first-child {
           --rotateX: 0deg;
         }
+
         &:last-child {
           --rotateX: -180deg;
         }
