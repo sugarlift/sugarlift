@@ -51,6 +51,7 @@ export default function Example() {
           <Link
             href="/"
             className={`${navPadding} transition hover:opacity-50`}
+            onClick={() => setMobileMenuOpen(false)}
           >
             <span className="sr-only">{COMPANY_METADATA.name}</span>
             <Logo />
