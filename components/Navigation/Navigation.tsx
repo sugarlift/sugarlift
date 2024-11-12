@@ -20,11 +20,10 @@ const CTA = [{ name: "Contact", href: "#" }];
 const linkStyles =
   "text-[#141414] px-6 py-8 text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] transition hover:opacity-50";
 const linkStylesActive =
-  "border-b-[1px] border-black transition animate fade-in";
+  "shadow-[inset_0_-1px_white,_0_1px_black] transition animate fade-in";
 const mobileLinkStyles =
   "block text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] text-[#141414]";
-const mobileLinkStylesActive =
-  "border-b-[1px] border-black transition animate fade-in";
+const mobileLinkStylesActive = "";
 const navPadding = "px-6 py-8";
 
 export default function Example() {

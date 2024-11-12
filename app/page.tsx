@@ -11,11 +11,11 @@ export default function Home() {
   const projects = ["450-washington", "450-washington-2", "450-washington-3"];
 
   return (
-    <main className="py-12">
+    <main className="overflow-x-hidden py-12">
       <h1 className="container mb-6 text-2xl font-bold">
         Featured Exhibitions
       </h1>
-      <div className="container overflow-x-hidden">
+      <div className="container">
         <Slider slidesPerView={1}>
           {exhibitions.map((exhibition) => (
             <FeaturedExhibitions key={exhibition} exhibitions={[exhibition]} />
@@ -26,7 +26,7 @@ export default function Home() {
       <h1 className="container mb-6 mt-12 text-2xl font-bold">
         Featured Projects
       </h1>
-      <div className="container overflow-x-hidden">
+      <div className="container">
         <Slider slidesPerView={2}>
           {projects.map((project) => (
             <FeaturedProjects key={project} projects={[project]} />
