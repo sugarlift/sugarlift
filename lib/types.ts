@@ -1,8 +1,8 @@
 export interface Artist {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   biography?: string;
-  instagram?: string;
   created_at?: string;
   updated_at?: string;
 }

@@ -39,14 +39,9 @@ export async function syncAirtableToSupabase() {
 
         const artist: Artist = {
           id: record.id,
-          name:
-            (record.get("Name") as string) || (record.get("name") as string),
-          biography:
-            (record.get("Biography") as string) ||
-            (record.get("biography") as string),
-          instagram:
-            (record.get("Instagram Handle") as string) ||
-            (record.get("instagram_handle") as string),
+          first_name: record.get("first_name") as string,
+          last_name: record.get("last_name") as string,
+          biography: record.get("biography") as string,
         };
 
         console.log("Processing artist:", artist);
@@ -57,7 +52,11 @@ export async function syncAirtableToSupabase() {
           .upsert(artist, { onConflict: "id" });
 
         if (upsertError) {
-          console.error("Error upserting artist:", artist.name, upsertError);
+          console.error(
+            "Error upserting artist:",
+            artist.first_name,
+            upsertError,
+          );
           throw upsertError;
         }
       } catch (recordError) {
