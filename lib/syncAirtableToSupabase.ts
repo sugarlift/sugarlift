@@ -1,4 +1,4 @@
-import { airtable } from "./airtable";
+import { getArtistsTable } from "./airtable";
 import { supabase } from "./supabase";
 import { Artist, SyncError } from "./types";
 
@@ -8,12 +8,10 @@ export async function syncAirtableToSupabase() {
 
     // Get all records from Airtable
     console.log("Fetching records from Airtable...");
-    const table = airtable.table("Artists");
+    const table = getArtistsTable();
 
     console.log("Selecting records...");
-    const query = table.select({
-      view: "Grid view",
-    });
+    const query = table.select();
 
     console.log("Fetching all records...");
     const records = await query.all();
@@ -37,14 +35,21 @@ export async function syncAirtableToSupabase() {
     console.log("Starting record sync...");
     for (const record of records) {
       try {
+        console.log("Record structure:", record._rawJson);
+
         const artist: Artist = {
           id: record.id,
-          name: record.get("Name") as string,
-          biography: record.get("Biography") as string,
-          instagram: record.get("Instagram Handle") as string,
+          name:
+            (record.get("Name") as string) || (record.get("name") as string),
+          biography:
+            (record.get("Biography") as string) ||
+            (record.get("biography") as string),
+          instagram:
+            (record.get("Instagram Handle") as string) ||
+            (record.get("instagram_handle") as string),
         };
 
-        console.log("Processing artist:", artist.name);
+        console.log("Processing artist:", artist);
         airtableIds.add(record.id);
 
         const { error: upsertError } = await supabase
