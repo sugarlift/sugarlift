@@ -12,8 +12,8 @@ export default function Home() {
   const projects = ["450-washington", "450-washington-2", "450-washington-3"];
 
   return (
-    <main className="overflow-x-hidden py-12">
-      <div className="container">
+    <>
+      <section className="container">
         <h1 className="mb-8 text-2xl">Featured Exhibitions</h1>
         <div className="relative w-full">
           <Slider slidesPerView={1}>
@@ -25,9 +25,9 @@ export default function Home() {
             ))}
           </Slider>
         </div>
-      </div>
+      </section>
 
-      <div className="container mt-12">
+      <section className="container mt-12">
         <h1 className="mb-8 text-2xl">Featured Projects</h1>
         <div className="relative w-full">
           <Slider slidesPerView={2}>
@@ -36,9 +36,9 @@ export default function Home() {
             ))}
           </Slider>
         </div>
-      </div>
+      </section>
 
       <TerminalCTA />
-    </main>
+    </>
   );
 }

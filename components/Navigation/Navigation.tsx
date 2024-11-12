@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Link } from "@/components/Link";
+import { QuickLink } from "@/components/Link";
 import { COMPANY_METADATA } from "@/app/lib/constants";
 import { Dialog } from "@headlessui/react";
 import { usePathname } from "next/navigation";
@@ -47,14 +47,14 @@ export default function Example() {
         className="mx-auto flex max-w-[1488px] items-center justify-between"
       >
         <div className="flex">
-          <Link
+          <QuickLink
             href="/"
             className={`${navPadding} transition hover:opacity-50`}
             onClick={() => setMobileMenuOpen(false)}
           >
             <span className="sr-only">{COMPANY_METADATA.name}</span>
             <Logo />
-          </Link>
+          </QuickLink>
         </div>
         <div className="mr-6 flex md:hidden">
           <label className="menuIcon z-50">
@@ -73,13 +73,13 @@ export default function Example() {
           {navigation.map((item) => {
             const active = isActive(item.href, pathname);
             return (
-              <Link
+              <QuickLink
                 key={item.name}
                 href={item.href}
                 className={`${linkStyles} ${active ? linkStylesActive : ""}`}
               >
                 {item.name}
-              </Link>
+              </QuickLink>
             );
           })}
         </div>
@@ -87,13 +87,13 @@ export default function Example() {
           {CTA.map((item) => {
             const active = isActive(item.href, pathname);
             return (
-              <Link
+              <QuickLink
                 key={item.name}
                 href={item.href}
                 className={`${linkStyles} ${active ? linkStylesActive : ""}`}
               >
                 {item.name}
-              </Link>
+              </QuickLink>
             );
           })}
         </div>
@@ -129,7 +129,7 @@ export default function Example() {
                     {navigation.map((item) => {
                       const active = isActive(item.href, pathname);
                       return (
-                        <Link
+                        <QuickLink
                           key={item.name}
                           href={item.href}
                           onClick={() => setMobileMenuOpen(false)}
@@ -138,7 +138,7 @@ export default function Example() {
                           }`}
                         >
                           {item.name}
-                        </Link>
+                        </QuickLink>
                       );
                     })}
                   </div>
@@ -146,7 +146,7 @@ export default function Example() {
                     {CTA.map((item) => {
                       const active = isActive(item.href, pathname);
                       return (
-                        <Link
+                        <QuickLink
                           key={item.name}
                           href={item.href}
                           onClick={() => setMobileMenuOpen(false)}
@@ -155,7 +155,7 @@ export default function Example() {
                           }`}
                         >
                           {item.name}
-                        </Link>
+                        </QuickLink>
                       );
                     })}
                   </div>

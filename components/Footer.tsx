@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { QuickLink } from "@/components/Link";
 import Logo from "@/components/Logo";
 
 const Footer = () => {
@@ -17,14 +17,14 @@ const Footer = () => {
               <br />
               founded in 2014
             </p>
-            <Link
+            <QuickLink
               href="https://instagram.com/sugarlift"
               className="text-sm text-gray-600 hover:text-gray-900"
               target="_blank"
               rel="noopener noreferrer"
             >
               @sugarlift
-            </Link>
+            </QuickLink>
           </div>
 
           {/* Navigation Links */}
@@ -32,24 +32,24 @@ const Footer = () => {
             <h3 className="mb-4 font-medium">Artists</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Featured
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Directory
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   On view
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Past
-                </Link>
+                </QuickLink>
               </li>
             </ul>
           </div>
@@ -58,34 +58,34 @@ const Footer = () => {
             <h3 className="mb-4 font-medium">Projects</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Collectors
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Multi-Family
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Office
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Hospitality
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Healthcare
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Affordable
-                </Link>
+                </QuickLink>
               </li>
             </ul>
           </div>
@@ -94,29 +94,29 @@ const Footer = () => {
             <h3 className="mb-4 font-medium">Art consulting</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Overview
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Process
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Testimonials
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   For designers
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   For developers
-                </Link>
+                </QuickLink>
               </li>
             </ul>
           </div>
@@ -125,24 +125,24 @@ const Footer = () => {
             <h3 className="mb-4 font-medium">Sugarlift</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Mission
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   About
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Awards
-                </Link>
+                </QuickLink>
               </li>
               <li>
-                <Link href="#" className={linkStyle}>
+                <QuickLink href="#" className={linkStyle}>
                   Team
-                </Link>
+                </QuickLink>
               </li>
             </ul>
           </div>
@@ -154,7 +154,7 @@ const Footer = () => {
               <p className="text-sm text-gray-600">Tue - Fri: 10AM – 6PM</p>
               <p className="text-sm text-gray-600">Sat: 12PM – 6PM</p>
               <p className="text-sm text-gray-600">Sun - Mon: Closed</p>
-              <Link
+              <QuickLink
                 href="#"
                 className={linkStyle}
                 target="_blank"
@@ -163,7 +163,7 @@ const Footer = () => {
                 508 W 28th Street
                 <br />
                 New York, NY
-              </Link>
+              </QuickLink>
             </div>
           </div>
         </div>

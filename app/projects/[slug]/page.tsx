@@ -4,7 +4,8 @@ import { getProjectData, getAllProjects } from "@/app/lib/markdownProjects";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { TerminalCTA } from "@/components/TerminalCTA";
+import { FAQ } from "@/components/FAQ";
+import { ConsultationCTA } from "@/components/ConsultationCTA";
 
 export async function generateStaticParams() {
   const projects = await getAllProjects();
@@ -18,7 +19,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const slug = (await params).slug;
   const project = await getProjectData(slug);
 
   if (!project) {
@@ -33,12 +34,12 @@ export async function generateMetadata({
   };
 }
 
-export default async function Page({
+export default async function ProjectPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
+  const slug = (await params).slug;
   const project = await getProjectData(slug);
 
   if (!project) {
@@ -47,7 +48,7 @@ export default async function Page({
 
   return (
     <>
-      <div className="container py-12">
+      <section className="container">
         <div className="mb-8">
           <h1 className="mb-2 text-3xl">{project.frontmatter.title}</h1>
           <p className="mb-4 text-xl text-gray-600">
@@ -84,8 +85,9 @@ export default async function Page({
           className="prose prose-lg mt-8 max-w-none"
           dangerouslySetInnerHTML={{ __html: project.content }}
         />
-      </div>
-      <TerminalCTA />
+      </section>
+      <FAQ />
+      <ConsultationCTA />
     </>
   );
 }

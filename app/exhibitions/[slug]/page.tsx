@@ -50,7 +50,7 @@ export default async function Page({
 
   return (
     <>
-      <div className="container py-12">
+      <section className="container">
         <div className="mb-8">
           <h1 className="mb-2 text-3xl">{exhibition.frontmatter.title}</h1>
           <p className="mb-4 text-xl text-gray-600">
@@ -87,7 +87,7 @@ export default async function Page({
           className="prose prose-lg mt-8 max-w-none"
           dangerouslySetInnerHTML={{ __html: exhibition.content }}
         />
-      </div>
+      </section>
       <TerminalCTA />
     </>
   );

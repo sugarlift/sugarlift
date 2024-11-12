@@ -1,7 +1,7 @@
 // components/ExhibitionCard.tsx
 
 import Image from "next/image";
-import { Link } from "@/components/Link";
+import Link from "next/link";
 import { type Exhibition } from "@/app/lib/markdownExhibitions";
 
 interface ExhibitionCardProps {

@@ -6,7 +6,7 @@ import { ComponentProps, MouseEvent } from "react";
 
 type LinkProps = ComponentProps<typeof NextLink>;
 
-export function Link({ children, href, onClick, ...props }: LinkProps) {
+export function QuickLink({ children, href, onClick, ...props }: LinkProps) {
   const router = useRouter();
   const hrefString = typeof href === "object" ? href.pathname || "/" : href;
 
@@ -21,7 +21,7 @@ export function Link({ children, href, onClick, ...props }: LinkProps) {
     <NextLink
       href={href}
       onClick={onClick}
-      // onMouseDown={handleMouseDown}
+      onMouseDown={handleMouseDown}
       {...props}
     >
       {children}

@@ -1,7 +1,7 @@
 // components/ProjectCard.tsx
 
 import Image from "next/image";
-import { Link } from "@/components/Link";
+import Link from "next/link";
 import { type Project } from "@/app/lib/markdownProjects";
 
 interface ProjectCardProps {

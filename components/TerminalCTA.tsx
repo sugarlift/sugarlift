@@ -1,8 +1,8 @@
-import Link from "next/link";
+import { QuickLink } from "@/components/Link";
 
 export function TerminalCTA() {
   return (
-    <div className="mt-24 border-t">
+    <section className="mt-24 border-t">
       <div className="container py-24 text-center">
         <h2 className="mb-4 text-3xl">Get in touch</h2>
         <p className="mx-auto mb-8 max-w-2xl text-gray-600">
@@ -10,7 +10,7 @@ export function TerminalCTA() {
           services, need advice on art selection, or want to discuss a potential
           project, our team is here to help.
         </p>
-        <Link
+        <QuickLink
           href="/contact"
           className="inline-flex items-center rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800"
         >
@@ -24,8 +24,8 @@ export function TerminalCTA() {
           >
             <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
-        </Link>
+        </QuickLink>
       </div>
-    </div>
+    </section>
   );
 }
