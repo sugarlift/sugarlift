@@ -3,7 +3,7 @@ export interface Artist {
   first_name: string;
   last_name: string;
   biography?: string;
-  is_archived: boolean;
+  live_in_production: boolean;
   created_at?: string;
   updated_at?: string;
 }

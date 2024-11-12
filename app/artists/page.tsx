@@ -8,7 +8,7 @@ async function getArtists(): Promise<Artist[]> {
   const { data, error } = await supabase
     .from("artists")
     .select("*")
-    .eq("is_archived", false)
+    .eq("live_in_production", true)
     .order("last_name", { ascending: true })
     .order("first_name", { ascending: true });
 

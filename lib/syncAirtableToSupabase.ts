@@ -6,7 +6,7 @@ export async function syncAirtableToSupabase() {
   try {
     console.log("Starting sync process...");
 
-    // Get all records from Airtable (including archived ones)
+    // Get all records from Airtable
     console.log("Fetching records from Airtable...");
     const table = getArtistsTable();
 
@@ -42,7 +42,8 @@ export async function syncAirtableToSupabase() {
           first_name: record.get("first_name") as string,
           last_name: record.get("last_name") as string,
           biography: record.get("biography") as string,
-          is_archived: (record.get("is_archived") as boolean) || false,
+          live_in_production:
+            (record.get("live_in_production") as boolean) || false,
         };
 
         console.log("Processing artist:", artist);
@@ -68,18 +69,20 @@ export async function syncAirtableToSupabase() {
       }
     }
 
-    // Instead of deleting records, we'll mark missing ones as archived
-    const idsToArchive = [...existingIds].filter((id) => !airtableIds.has(id));
-    if (idsToArchive.length > 0) {
-      console.log(`Archiving ${idsToArchive.length} obsolete records...`);
-      const { error: archiveError } = await supabase
+    // Set live_in_production to false for records that no longer exist in Airtable
+    const idsToUnpublish = [...existingIds].filter(
+      (id) => !airtableIds.has(id),
+    );
+    if (idsToUnpublish.length > 0) {
+      console.log(`Unpublishing ${idsToUnpublish.length} obsolete records...`);
+      const { error: unpublishError } = await supabase
         .from("artists")
-        .update({ is_archived: true })
-        .in("id", idsToArchive);
+        .update({ live_in_production: false })
+        .in("id", idsToUnpublish);
 
-      if (archiveError) {
-        console.error("Error archiving records:", archiveError);
-        throw archiveError;
+      if (unpublishError) {
+        console.error("Error unpublishing records:", unpublishError);
+        throw unpublishError;
       }
     }
 
