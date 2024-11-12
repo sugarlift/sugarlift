@@ -6,7 +6,7 @@ export async function syncAirtableToSupabase() {
   try {
     console.log("Starting sync process...");
 
-    // Get all records from Airtable
+    // Get all records from Airtable (including archived ones)
     console.log("Fetching records from Airtable...");
     const table = getArtistsTable();
 
@@ -42,6 +42,7 @@ export async function syncAirtableToSupabase() {
           first_name: record.get("first_name") as string,
           last_name: record.get("last_name") as string,
           biography: record.get("biography") as string,
+          is_archived: (record.get("is_archived") as boolean) || false,
         };
 
         console.log("Processing artist:", artist);
@@ -67,18 +68,18 @@ export async function syncAirtableToSupabase() {
       }
     }
 
-    // Delete records that exist in Supabase but not in Airtable
-    const idsToDelete = [...existingIds].filter((id) => !airtableIds.has(id));
-    if (idsToDelete.length > 0) {
-      console.log(`Deleting ${idsToDelete.length} obsolete records...`);
-      const { error: deleteError } = await supabase
+    // Instead of deleting records, we'll mark missing ones as archived
+    const idsToArchive = [...existingIds].filter((id) => !airtableIds.has(id));
+    if (idsToArchive.length > 0) {
+      console.log(`Archiving ${idsToArchive.length} obsolete records...`);
+      const { error: archiveError } = await supabase
         .from("artists")
-        .delete()
-        .in("id", idsToDelete);
+        .update({ is_archived: true })
+        .in("id", idsToArchive);
 
-      if (deleteError) {
-        console.error("Error deleting records:", deleteError);
-        throw deleteError;
+      if (archiveError) {
+        console.error("Error archiving records:", archiveError);
+        throw archiveError;
       }
     }
 
