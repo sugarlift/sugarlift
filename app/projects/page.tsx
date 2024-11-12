@@ -4,6 +4,8 @@ import { FAQ } from "@/components/FAQ";
 import { getAllProjects } from "../lib/markdownProjects";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ConsultationCTA } from "@/components/ConsultationCTA";
+import { QuickLink } from "@/components/Link";
+
 export default async function ProjectsPage() {
   const projects = await getAllProjects();
 
@@ -13,7 +15,11 @@ export default async function ProjectsPage() {
         <h2 className="mb-6 text-2xl">Projects</h2>
         <div className="grid gap-8">
           {projects.map((project) => (
-            <ProjectCard key={project.slug} project={project} />
+            <ProjectCard
+              key={project.slug}
+              project={project}
+              LinkComponent={QuickLink}
+            />
           ))}
         </div>
       </section>

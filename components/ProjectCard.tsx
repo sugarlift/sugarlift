@@ -3,14 +3,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { type Project } from "@/app/lib/markdownProjects";
+import { ComponentType } from "react";
+import { LinkProps } from "next/link";
 
 interface ProjectCardProps {
   project: Project;
+  LinkComponent?: ComponentType<LinkProps & { children: React.ReactNode }>;
   priority?: boolean;
 }
 
 export const ProjectCard = ({
   project,
+  LinkComponent = Link,
   priority = false,
 }: ProjectCardProps) => {
   const {
@@ -18,10 +22,7 @@ export const ProjectCard = ({
   } = project;
 
   return (
-    <Link
-      href={`/projects/${project.slug}`}
-      className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-    >
+    <LinkComponent href={`/projects/${project.slug}`}>
       <div className="relative aspect-video w-full">
         <Image
           src={coverImage}
@@ -37,6 +38,6 @@ export const ProjectCard = ({
         <h3 className="text-xl tracking-tight">{title}</h3>
         <p className="mt-2 text-gray-800">{artist}</p>
       </div>
-    </Link>
+    </LinkComponent>
   );
 };
