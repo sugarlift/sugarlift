@@ -4,7 +4,7 @@ export function TerminalCTA() {
   return (
     <div className="mt-24 border-t">
       <div className="container py-24 text-center">
-        <h2 className="mb-4 text-3xl font-medium">Get in touch</h2>
+        <h2 className="mb-4 text-3xl">Get in touch</h2>
         <p className="mx-auto mb-8 max-w-2xl text-gray-600">
           We'd love to hear from you! Whether you have questions about our
           services, need advice on art selection, or want to discuss a potential

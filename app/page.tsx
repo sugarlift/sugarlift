@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <main className="overflow-x-hidden py-12">
       <div className="container">
-        <h1 className="mb-8 text-2xl font-bold">Featured Exhibitions</h1>
+        <h1 className="mb-8 text-2xl">Featured Exhibitions</h1>
         <div className="relative w-full">
           <Slider slidesPerView={1}>
             {exhibitions.map((exhibition) => (
@@ -28,7 +28,7 @@ export default function Home() {
       </div>
 
       <div className="container mt-12">
-        <h1 className="mb-8 text-2xl font-bold">Featured Projects</h1>
+        <h1 className="mb-8 text-2xl">Featured Projects</h1>
         <div className="relative w-full">
           <Slider slidesPerView={2}>
             {projects.map((project) => (

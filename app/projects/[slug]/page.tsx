@@ -49,9 +49,7 @@ export default async function Page({
     <>
       <div className="container py-12">
         <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold">
-            {project.frontmatter.title}
-          </h1>
+          <h1 className="mb-2 text-3xl">{project.frontmatter.title}</h1>
           <p className="mb-4 text-xl text-gray-600">
             {project.frontmatter.artist}
           </p>
