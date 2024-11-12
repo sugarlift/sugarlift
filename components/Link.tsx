@@ -21,7 +21,7 @@ export function Link({ children, href, onClick, ...props }: LinkProps) {
     <NextLink
       href={href}
       onClick={onClick}
-      onMouseDown={handleMouseDown}
+      // onMouseDown={handleMouseDown}
       {...props}
     >
       {children}

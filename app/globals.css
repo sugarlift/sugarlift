@@ -18,4 +18,5 @@ body {
   color: var(--foreground);
   background: var(--background);
   @apply font-body;
+  overflow-x: hidden;
 }
