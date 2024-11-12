@@ -15,7 +15,7 @@ export default function Home() {
       <h1 className="container mb-6 text-2xl font-bold">
         Featured Exhibitions
       </h1>
-      <div className="container">
+      <div className="container overflow-x-hidden">
         <Slider slidesPerView={1}>
           {exhibitions.map((exhibition) => (
             <FeaturedExhibitions key={exhibition} exhibitions={[exhibition]} />
@@ -26,7 +26,7 @@ export default function Home() {
       <h1 className="container mb-6 mt-12 text-2xl font-bold">
         Featured Projects
       </h1>
-      <div className="container">
+      <div className="container overflow-x-hidden">
         <Slider slidesPerView={2}>
           {projects.map((project) => (
             <FeaturedProjects key={project} projects={[project]} />
