@@ -87,6 +87,8 @@ export function Slider({
   mobileSpacing = 12,
 }: SliderProps) {
   const windowWidth = useWindowWidth();
+  const [isLoaded, setIsLoaded] = useState(false);
+
   const [sliderRef] = useKeenSlider(
     {
       slides: {
@@ -98,11 +100,24 @@ export function Slider({
       defaultAnimation: {
         duration: 500,
       },
+      created: () => {
+        setIsLoaded(true);
+      },
     },
     [WheelControls],
   );
+
   return (
-    <div ref={sliderRef} className="keen-slider !overflow-visible">
+    <div
+      ref={sliderRef}
+      className={`keen-slider !overflow-visible transition-opacity duration-300 ${
+        isLoaded ? "opacity-100" : "opacity-0"
+      }`}
+      style={{
+        // Set minimum height to prevent layout shift
+        minHeight: isLoaded ? "auto" : "400px",
+      }}
+    >
       {Array.isArray(children) ? (
         children.map((child, index) => (
           <div key={index} className="keen-slider__slide">
