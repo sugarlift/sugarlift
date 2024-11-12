@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { syncAirtableToSupabase } from "@/lib/syncAirtableToSupabase";
+import { WebhookError } from "@/lib/types";
 
 export async function POST(request: Request) {
   try {
@@ -20,16 +21,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     // Log detailed error information
+    const webhookError = error as WebhookError;
     console.error("Webhook error details:", {
-      message: error.message,
-      stack: error.stack,
-      error,
+      message: webhookError.message || "Unknown error",
+      stack: webhookError.stack,
+      error: webhookError,
     });
 
     return NextResponse.json(
       {
         error: "Internal Server Error",
-        details: error.message,
+        details: webhookError.message || "Unknown error",
       },
       { status: 500 },
     );

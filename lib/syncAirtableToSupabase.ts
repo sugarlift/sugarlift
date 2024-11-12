@@ -1,6 +1,6 @@
 import { airtable } from "./airtable";
 import { supabase } from "./supabase";
-import { Artist } from "./types";
+import { Artist, SyncError } from "./types";
 
 export async function syncAirtableToSupabase() {
   try {
@@ -48,8 +48,10 @@ export async function syncAirtableToSupabase() {
           throw upsertError;
         }
       } catch (recordError) {
-        console.error("Error processing record:", record.id, recordError);
-        throw recordError;
+        const syncError = recordError as SyncError;
+        syncError.record = { id: record.id, fields: record.fields };
+        console.error("Error processing record:", record.id, syncError);
+        throw syncError;
       }
     }
 
@@ -70,11 +72,12 @@ export async function syncAirtableToSupabase() {
 
     console.log("Sync completed successfully");
   } catch (error) {
+    const syncError = error as SyncError;
     console.error("Sync error:", {
-      message: error.message,
-      stack: error.stack,
-      error,
+      message: syncError.message || "Unknown error",
+      stack: syncError.stack,
+      error: syncError,
     });
-    throw error;
+    throw syncError;
   }
 }
