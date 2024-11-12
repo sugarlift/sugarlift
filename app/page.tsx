@@ -1,6 +1,7 @@
 import { FeaturedExhibitions } from "@/components/FeaturedExhibitions";
 import { FeaturedProjects } from "@/components/FeaturedProjects";
-import { Slider } from "@/components/ui/Slider";
+import { Slider } from "@/components/Slider";
+import { TerminalCTA } from "@/components/TerminalCTA";
 
 export default function Home() {
   const exhibitions = [
@@ -33,6 +34,8 @@ export default function Home() {
           ))}
         </Slider>
       </div>
+
+      <TerminalCTA />
     </main>
   );
 }

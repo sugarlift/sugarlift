@@ -26,23 +26,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [
-    require("@tailwindcss/typography"),
-    require("tailwindcss-animate"),
-    function ({
-      addComponents,
-    }: {
-      addComponents: (components: object) => void;
-    }) {
-      addComponents({
-        ".container-nav": {
-          width: "100%",
-          marginLeft: "auto",
-          marginRight: "auto",
-          maxWidth: "1488px",
-        },
-      });
-    },
-  ],
+  plugins: [require("@tailwindcss/typography"), require("tailwindcss-animate")],
 };
+
 export default config;
