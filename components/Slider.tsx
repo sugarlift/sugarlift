@@ -110,13 +110,9 @@ export function Slider({
   return (
     <div
       ref={sliderRef}
-      className={`keen-slider !overflow-visible transition-opacity duration-300 ${
-        isLoaded ? "opacity-100" : "opacity-0"
+      className={`keen-slider !overflow-visible transition-opacity ${
+        isLoaded ? "opacity-100 duration-1000" : "opacity-0"
       }`}
-      style={{
-        // Set minimum height to prevent layout shift
-        minHeight: isLoaded ? "auto" : "400px",
-      }}
     >
       {Array.isArray(children) ? (
         children.map((child, index) => (

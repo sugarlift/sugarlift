@@ -65,16 +65,21 @@ export default async function Page({
           <p className="text-gray-600">{exhibition.frontmatter.location}</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-8">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {exhibition.frontmatter.galleryImages.map((image, index) => (
-            <div key={index} className="relative aspect-[16/9] w-full">
+            <div
+              key={index}
+              className={`relative ${
+                index % 3 === 0 ? "aspect-video md:col-span-2" : "aspect-[4/3]"
+              } w-full`}
+            >
               <Image
                 src={image}
                 alt={`${exhibition.frontmatter.title} - Image ${index + 1}`}
-                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                sizes="(min-width: 1024px) 90vw, (min-width: 768px) 90vw, 100vw"
                 fill
                 className="object-cover"
-                priority={index === 0} // Prioritize the first image
+                priority={index === 0}
               />
             </div>
           ))}

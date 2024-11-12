@@ -41,7 +41,7 @@ export default function Example() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b-[1px] border-[#F1F1F0] bg-white">
+    <header className="sticky top-0 z-50 border-b-[1px] border-[#F1F1F0] bg-white bg-opacity-85 backdrop-blur-xl">
       <nav
         aria-label="Global"
         className="mx-auto flex max-w-[1488px] items-center justify-between"
