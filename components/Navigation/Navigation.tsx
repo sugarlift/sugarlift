@@ -10,7 +10,7 @@ import "@/components/Navigation/MenuButton.scss";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navigation = [
-  { name: "Artists", href: "#" },
+  { name: "Artists", href: "/artists" },
   { name: "Exhibitions", href: "/exhibitions" },
   { name: "Art consulting", href: "/projects" },
 ];
