@@ -8,7 +8,15 @@ export async function syncAirtableToSupabase() {
 
     // Get all records from Airtable
     console.log("Fetching records from Airtable...");
-    const records = await airtable("Artists").select().all();
+    const table = airtable.table("Artists");
+
+    console.log("Selecting records...");
+    const query = table.select({
+      view: "Grid view",
+    });
+
+    console.log("Fetching all records...");
+    const records = await query.all();
     console.log(`Found ${records.length} records in Airtable`);
 
     // Get all existing artists from Supabase for comparison

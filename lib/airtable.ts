@@ -9,4 +9,5 @@ if (!process.env.AIRTABLE_BASE_ID) {
 
 export const airtable = new Airtable({
   apiKey: process.env.AIRTABLE_PERSONAL_ACCESS_TOKEN,
+  endpointUrl: "https://api.airtable.com",
 }).base(process.env.AIRTABLE_BASE_ID);
