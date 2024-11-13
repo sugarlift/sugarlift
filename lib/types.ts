@@ -45,6 +45,8 @@ export interface StoredAttachment {
 export interface Artwork {
   id: string;
   artist_id: string;
+  first_name: string;
+  last_name: string;
   title: string;
   medium: string | null;
   year: number | null;
