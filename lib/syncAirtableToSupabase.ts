@@ -10,29 +10,12 @@ import {
 async function uploadAttachmentToSupabase(
   attachment: AirtableAttachment,
   artist: { first_name: string; last_name: string },
-  index: number,
 ): Promise<StoredAttachment> {
   const folderName = `${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`;
   const timestamp = Date.now();
   const fileExtension = attachment.filename.split(".").pop();
-  const uniqueFilename = `${folderName}-profile-${index + 1}-${timestamp}.${fileExtension}`;
+  const uniqueFilename = `${folderName}-profile-${timestamp}.${fileExtension}`;
   const storagePath = `${folderName}/${uniqueFilename}`;
-
-  // List existing files in the artist's folder
-  const { data: existingFiles } = await supabase.storage
-    .from("attachments_artists")
-    .list(folderName);
-
-  // If there are existing files for this index, we'll remove them
-  const oldFile = existingFiles?.find((file) =>
-    file.name.includes(`-profile-${index + 1}-`),
-  );
-
-  if (oldFile) {
-    await supabase.storage
-      .from("attachments_artists")
-      .remove([`${folderName}/${oldFile.name}`]);
-  }
 
   // Upload the new file
   const response = await fetch(attachment.url);
@@ -63,30 +46,29 @@ async function uploadAttachmentToSupabase(
   };
 }
 
-// In the main sync function, add a cleanup step
-async function cleanupUnusedFiles(
+async function cleanupArtistFolder(
   artist: { first_name: string; last_name: string },
-  currentImageCount: number,
+  newUrls: string[],
 ) {
   const folderName = `${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`;
 
+  // List all files in the folder
   const { data: existingFiles } = await supabase.storage
     .from("attachments_artists")
     .list(folderName);
 
   if (!existingFiles) return;
 
-  // Find files with index greater than our current count
+  // Get the filenames that should be kept (from the new URLs)
+  const keepFilenames = new Set(newUrls.map((url) => url.split("/").pop()));
+
+  // Find files that aren't in the new set
   const filesToRemove = existingFiles
-    .filter((file) => {
-      const match = file.name.match(/-profile-(\d+)-/);
-      if (!match) return false;
-      const fileIndex = parseInt(match[1]);
-      return fileIndex > currentImageCount;
-    })
+    .filter((file) => !keepFilenames.has(file.name))
     .map((file) => `${folderName}/${file.name}`);
 
   if (filesToRemove.length > 0) {
+    console.log(`Removing ${filesToRemove.length} old files from storage`);
     await supabase.storage.from("attachments_artists").remove(filesToRemove);
   }
 }
@@ -141,26 +123,23 @@ export async function syncAirtableToSupabase() {
             }),
           );
 
+          // Upload all new attachments
           attachments = await Promise.all(
-            airtableAttachments.map((attachment, index) =>
-              uploadAttachmentToSupabase(
-                attachment,
-                {
-                  first_name: record.get("first_name") as string,
-                  last_name: record.get("last_name") as string,
-                },
-                index,
-              ),
+            airtableAttachments.map((attachment) =>
+              uploadAttachmentToSupabase(attachment, {
+                first_name: record.get("first_name") as string,
+                last_name: record.get("last_name") as string,
+              }),
             ),
           );
 
-          // Clean up any old files that are no longer needed
-          await cleanupUnusedFiles(
+          // Clean up old files after successful upload
+          await cleanupArtistFolder(
             {
               first_name: record.get("first_name") as string,
               last_name: record.get("last_name") as string,
             },
-            airtableAttachments.length,
+            attachments.map((att) => att.url),
           );
         }
 
