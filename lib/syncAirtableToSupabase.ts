@@ -44,6 +44,7 @@ export async function syncAirtableToSupabase() {
           biography: record.get("biography") as string,
           live_in_production:
             (record.get("live_in_production") as boolean) || false,
+          attachments_urls: record.get("attachments") as string[],
         };
 
         console.log("Processing artist:", artist);

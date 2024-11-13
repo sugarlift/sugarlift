@@ -6,6 +6,7 @@ export interface Artist {
   live_in_production: boolean;
   created_at?: string;
   updated_at?: string;
+  attachments_urls: string[];
 }
 
 export interface WebhookError extends Error {
