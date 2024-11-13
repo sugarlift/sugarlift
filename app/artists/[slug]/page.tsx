@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { Artist } from "@/lib/types";
 import { QuickLink } from "@/components/Link";
 import { Metadata } from "next";
+import Image from "next/image";
 
 async function getArtistBySlug(slug: string): Promise<Artist | null> {
   const [firstName, lastName] = slug
@@ -60,7 +61,7 @@ export default async function ArtistPage({
   }
 
   return (
-    <div className="container py-8">
+    <div className="container mx-auto px-4 py-8">
       <QuickLink
         href="/artists"
         className="mb-6 inline-flex items-center text-gray-600 hover:text-gray-900"
@@ -68,18 +69,32 @@ export default async function ArtistPage({
         Back to Artists
       </QuickLink>
 
-      <h1 className="mb-6 text-3xl font-bold">
+      <h1 className="mb-6 text-4xl font-bold">
         {artist.first_name} {artist.last_name}
       </h1>
 
-      <div className="space-y-6">
-        {artist.biography && (
-          <div className="prose max-w-none">
-            <h2 className="mb-3 text-xl font-semibold">Biography</h2>
-            <p>{artist.biography}</p>
-          </div>
-        )}
+      <div className="prose mb-8 max-w-none">
+        <p>{artist.biography}</p>
       </div>
+
+      {artist.attachments && artist.attachments.length > 0 && (
+        <div className="mt-8">
+          <h2 className="mb-4 text-2xl font-semibold">Gallery</h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {artist.attachments.map((attachment, index) => (
+              <div key={index} className="relative aspect-square">
+                <Image
+                  src={attachment.url}
+                  alt={`${artist.first_name} ${artist.last_name} - ${attachment.filename}`}
+                  fill
+                  className="rounded-lg object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

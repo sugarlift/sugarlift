@@ -2,11 +2,9 @@ export interface Artist {
   id: string;
   first_name: string;
   last_name: string;
-  biography?: string;
+  biography: string;
   live_in_production: boolean;
-  created_at?: string;
-  updated_at?: string;
-  attachments_urls: string[];
+  attachments: StoredAttachment[];
 }
 
 export interface WebhookError extends Error {
@@ -24,4 +22,21 @@ export interface SyncError extends Error {
     id: string;
     fields?: unknown;
   };
+}
+
+export interface AirtableAttachment {
+  id: string;
+  width: number;
+  height: number;
+  url: string;
+  filename: string;
+  type: string;
+}
+
+export interface StoredAttachment {
+  url: string;
+  width: number;
+  height: number;
+  filename: string;
+  type: string;
 }

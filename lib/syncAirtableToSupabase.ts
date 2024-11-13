@@ -1,6 +1,51 @@
 import { getArtistsTable } from "./airtable";
 import { supabase } from "./supabase";
-import { Artist, SyncError } from "./types";
+import {
+  Artist,
+  AirtableAttachment,
+  StoredAttachment,
+  SyncError,
+} from "./types";
+
+async function uploadAttachmentToSupabase(
+  attachment: AirtableAttachment,
+  artistId: string,
+): Promise<StoredAttachment> {
+  // Fetch the image from Airtable
+  const response = await fetch(attachment.url);
+  const blob = await response.blob();
+
+  // Create a unique filename
+  const fileExtension = attachment.filename.split(".").pop();
+  const uniqueFilename = `${artistId}-${attachment.id}.${fileExtension}`;
+  const storagePath = `${artistId}/${uniqueFilename}`;
+
+  // Upload to Supabase storage
+  const { error: uploadError, data } = await supabase.storage
+    .from("attachments_artists")
+    .upload(storagePath, blob, {
+      contentType: attachment.type,
+      upsert: true,
+    });
+
+  if (uploadError) {
+    console.error("Error uploading attachment:", uploadError);
+    throw uploadError;
+  }
+
+  // Get the public URL
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("attachments_artists").getPublicUrl(storagePath);
+
+  return {
+    url: publicUrl,
+    width: attachment.width,
+    height: attachment.height,
+    filename: attachment.filename,
+    type: attachment.type,
+  };
+}
 
 export async function syncAirtableToSupabase() {
   try {
@@ -37,6 +82,21 @@ export async function syncAirtableToSupabase() {
       try {
         console.log("Record structure:", record._rawJson);
 
+        const rawAttachments = record.get("attachments") as string;
+        let attachments: StoredAttachment[] = [];
+
+        if (rawAttachments) {
+          const parsedAttachments: AirtableAttachment[] =
+            JSON.parse(rawAttachments);
+
+          // Upload each attachment and get the new URLs
+          attachments = await Promise.all(
+            parsedAttachments.map((attachment) =>
+              uploadAttachmentToSupabase(attachment, record.id),
+            ),
+          );
+        }
+
         const artist: Artist = {
           id: record.id,
           first_name: record.get("first_name") as string,
@@ -44,7 +104,7 @@ export async function syncAirtableToSupabase() {
           biography: record.get("biography") as string,
           live_in_production:
             (record.get("live_in_production") as boolean) || false,
-          attachments_urls: record.get("attachments") as string[],
+          attachments,
         };
 
         console.log("Processing artist:", artist);
