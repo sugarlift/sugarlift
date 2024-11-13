@@ -12,12 +12,10 @@ async function uploadAttachmentToSupabase(
   artist: { first_name: string; last_name: string },
 ): Promise<StoredAttachment> {
   const folderName = `${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`;
-  const timestamp = Date.now();
   const cleanFilename = attachment.filename
     .replace(/[^a-zA-Z0-9.-]/g, "-")
     .toLowerCase();
-  const uniqueFilename = `${cleanFilename}-${timestamp}`;
-  const storagePath = `${folderName}/${uniqueFilename}`;
+  const storagePath = `${folderName}/${cleanFilename}`;
 
   // Upload the new file
   const response = await fetch(attachment.url);
@@ -46,49 +44,6 @@ async function uploadAttachmentToSupabase(
     filename: attachment.filename,
     type: attachment.type,
   };
-}
-
-async function cleanupArtistFolder(
-  artist: { first_name: string; last_name: string },
-  currentAttachments: AirtableAttachment[],
-) {
-  const folderName = `${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`;
-
-  // List all files in the folder
-  const { data: existingFiles } = await supabase.storage
-    .from("attachments_artists")
-    .list(folderName);
-
-  if (!existingFiles) return;
-
-  // Create a set of original filenames to keep
-  const keepFilenames = new Set(
-    currentAttachments.map((att) =>
-      att.filename.replace(/[^a-zA-Z0-9.-]/g, "-").toLowerCase(),
-    ),
-  );
-
-  // Find files to remove by checking the base filename (before the timestamp)
-  const filesToRemove = existingFiles
-    .filter((file) => {
-      const baseFilename = file.name.split("-").slice(0, -1).join("-"); // Remove timestamp
-      return !keepFilenames.has(baseFilename);
-    })
-    .map((file) => `${folderName}/${file.name}`);
-
-  if (filesToRemove.length > 0) {
-    console.log(
-      `Removing ${filesToRemove.length} old files from storage:`,
-      filesToRemove,
-    );
-    const { error } = await supabase.storage
-      .from("attachments_artists")
-      .remove(filesToRemove);
-
-    if (error) {
-      console.error("Error removing files:", error);
-    }
-  }
 }
 
 export async function syncAirtableToSupabase() {
@@ -149,15 +104,6 @@ export async function syncAirtableToSupabase() {
                 last_name: record.get("last_name") as string,
               }),
             ),
-          );
-
-          // Clean up old files after successful upload
-          await cleanupArtistFolder(
-            {
-              first_name: record.get("first_name") as string,
-              last_name: record.get("last_name") as string,
-            },
-            airtableAttachments,
           );
         }
 
