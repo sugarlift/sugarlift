@@ -62,6 +62,13 @@ export async function syncArtworkToSupabase() {
 
     for (const record of records) {
       try {
+        // Get artist_id from Airtable
+        const artist_id = record.get("artist_id") as string;
+        if (!artist_id) {
+          console.error("Missing artist_id for artwork:", record.get("title"));
+          continue;
+        }
+
         // Handle artwork images if they exist
         let artwork_images: StoredAttachment[] = [];
         const rawImages = record.get("artwork_images");
@@ -85,7 +92,7 @@ export async function syncArtworkToSupabase() {
         // Create artwork record
         const artwork: Artwork = {
           id: record.id,
-          artist_id: "placeholder", // We'll fix this later
+          artist_id,
           title: record.get("title") as string,
           medium: (record.get("medium") as string) || null,
           year: record.get("year") ? Number(record.get("year")) : null,
@@ -98,6 +105,7 @@ export async function syncArtworkToSupabase() {
         console.log("Attempting to upsert artwork:", {
           id: artwork.id,
           title: artwork.title,
+          artist_id: artwork.artist_id,
           imageCount: artwork_images.length,
         });
 
@@ -129,6 +137,7 @@ export async function syncArtworkToSupabase() {
 
         console.log("Successfully inserted artwork:", {
           title: artwork.title,
+          artist_id: artwork.artist_id,
           images: artwork_images.length,
         });
       } catch (recordError) {
