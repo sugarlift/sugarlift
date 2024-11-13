@@ -21,7 +21,7 @@ async function uploadAttachmentToSupabase(
   const storagePath = `${artistId}/${uniqueFilename}`;
 
   // Upload to Supabase storage
-  const { error: uploadError, data } = await supabase.storage
+  const { error: uploadError } = await supabase.storage
     .from("attachments_artists")
     .upload(storagePath, blob, {
       contentType: attachment.type,
@@ -86,14 +86,16 @@ export async function syncAirtableToSupabase() {
         let attachments: StoredAttachment[] = [];
 
         if (rawAttachments && Array.isArray(rawAttachments)) {
-          const airtableAttachments = rawAttachments.map((att: any) => ({
-            id: att.id,
-            width: att.width,
-            height: att.height,
-            url: att.url,
-            filename: att.filename,
-            type: att.type,
-          }));
+          const airtableAttachments = rawAttachments.map(
+            (att: AirtableAttachment) => ({
+              id: att.id,
+              width: att.width,
+              height: att.height,
+              url: att.url,
+              filename: att.filename,
+              type: att.type,
+            }),
+          );
 
           attachments = await Promise.all(
             airtableAttachments.map((attachment) =>
