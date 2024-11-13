@@ -108,18 +108,9 @@ export async function syncArtworkToSupabase() {
           );
         }
 
-        // Clean up artist_id from array format
-        const rawArtistId = record.get("artist_id") as string;
-        const artist_id = rawArtistId?.replace(/[\[\]"]/g, "").split(",")[0];
-
-        if (!artist_id) {
-          console.error("Missing artist_id for artwork:", record.get("title"));
-          continue;
-        }
-
         const artwork: Artwork = {
           id: record.id,
-          artist_id,
+          artist_id: record.get("artist_id") as string,
           first_name: record.get("first_name") as string,
           last_name: record.get("last_name") as string,
           title: record.get("title") as string,
