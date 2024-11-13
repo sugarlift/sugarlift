@@ -98,7 +98,6 @@ export async function syncArtworkToSupabase() {
             }),
           );
 
-          // Upload all new attachments
           artwork_images = await Promise.all(
             airtableAttachments.map((attachment) =>
               uploadArtworkImageToSupabase(attachment, {
@@ -108,20 +107,16 @@ export async function syncArtworkToSupabase() {
           );
         }
 
-        // Clean up artist_id - remove brackets and quotes
-        const rawArtistId = record.get("artist_id") as string;
-        const artist_id = rawArtistId
-          ? rawArtistId.replace(/[\[\]"]/g, "") // Remove brackets and quotes
-          : null;
-
-        if (!artist_id) {
-          console.error("Missing artist_id for artwork:", record.get("title"));
-          continue;
-        }
+        // Debug log the raw artist_id value
+        const debugArtistId = record.get("artist_id");
+        console.log("Raw artist_id from Airtable:", {
+          value: debugArtistId,
+          type: typeof debugArtistId,
+        });
 
         const artwork: Artwork = {
           id: record.id,
-          artist_id, // Now it will be clean: recGQnFPVJTRSpWV4
+          artist_id: record.get("artist_id") as string, // Direct approach
           first_name: record.get("first_name") as string,
           last_name: record.get("last_name") as string,
           title: (record.get("title") as string) || null,
