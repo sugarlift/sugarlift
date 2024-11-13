@@ -1,18 +1,14 @@
 import { NextResponse } from "next/server";
 import { syncAirtableToSupabase } from "@/lib/syncAirtableToSupabase";
+import { syncArtworkToSupabase } from "@/lib/syncArtworkToSupabase";
 
-export async function GET() {
+export async function POST() {
   try {
     await syncAirtableToSupabase();
-    return NextResponse.json({
-      success: true,
-      message: "Sync completed successfully",
-    });
+    await syncArtworkToSupabase();
+    return new Response("Sync completed successfully", { status: 200 });
   } catch (error) {
-    console.error("Sync error:", error);
-    return NextResponse.json(
-      { success: false, error: "Sync failed" },
-      { status: 500 },
-    );
+    console.error("Sync failed:", error);
+    return new Response("Sync failed", { status: 500 });
   }
 }

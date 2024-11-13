@@ -5,6 +5,7 @@ export interface Artist {
   biography: string;
   live_in_production: boolean;
   attachments: StoredAttachment[];
+  artwork?: Artwork[];
 }
 
 export interface WebhookError extends Error {
@@ -39,4 +40,16 @@ export interface StoredAttachment {
   height: number;
   filename: string;
   type: string;
+}
+
+export interface Artwork {
+  id: string;
+  artist_id: string;
+  title: string;
+  medium?: string;
+  year?: number;
+  live_in_production: boolean;
+  artwork_images: StoredAttachment[];
+  created_at?: string;
+  updated_at?: string;
 }

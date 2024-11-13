@@ -12,7 +12,14 @@ async function getArtistBySlug(slug: string): Promise<Artist | null> {
 
   const { data, error } = await supabase
     .from("artists")
-    .select("*")
+    .select(
+      `
+      *,
+      artwork:artwork(
+        *
+      )
+    `,
+    )
     .eq("live_in_production", true)
     .eq("first_name", firstName)
     .eq("last_name", lastName)
@@ -77,19 +84,28 @@ export default async function ArtistPage({
         <p>{artist.biography}</p>
       </div>
 
-      {artist.attachments && artist.attachments.length > 0 && (
-        <div className="mt-8">
-          <h2 className="mb-4 text-2xl font-semibold">Gallery</h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {artist.attachments.map((attachment, index) => (
-              <div key={index} className="relative aspect-square">
-                <Image
-                  src={attachment.url}
-                  alt={`${artist.first_name} ${artist.last_name} - ${attachment.filename}`}
-                  fill
-                  className="rounded-lg object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
+      {artist.artwork && artist.artwork.length > 0 && (
+        <div className="mt-12">
+          <h2 className="mb-6 text-2xl font-semibold">Artwork</h2>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {artist.artwork.map((artwork) => (
+              <div key={artwork.id} className="space-y-2">
+                {artwork.artwork_images && artwork.artwork_images[0] && (
+                  <div className="relative aspect-square">
+                    <Image
+                      src={artwork.artwork_images[0].url}
+                      alt={artwork.title}
+                      fill
+                      className="rounded-lg object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  </div>
+                )}
+                <h3 className="text-lg font-medium">{artwork.title}</h3>
+                <p className="text-sm text-gray-600">
+                  {artwork.medium}
+                  {artwork.year && `, ${artwork.year}`}
+                </p>
               </div>
             ))}
           </div>

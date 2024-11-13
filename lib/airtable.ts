@@ -14,5 +14,9 @@ export const airtable = new Airtable({
 
 // Add a helper function to get the exact table name
 export const getArtistsTable = () => {
-  return airtable.table("tblkYraa6YhVleHVu"); // Use the actual table ID instead of name
+  return airtable.table("tblkYraa6YhVleHVu"); // Artists table ID
+};
+
+export const getArtworkTable = () => {
+  return airtable.table("tblArtwork"); // Replace with your actual Artwork table ID
 };
