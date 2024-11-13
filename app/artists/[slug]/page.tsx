@@ -94,14 +94,19 @@ export default async function ArtistPage({
                   <div className="relative aspect-square">
                     <Image
                       src={artwork.artwork_images[0].url}
-                      alt={artwork.title}
+                      alt={
+                        artwork.title ||
+                        `Artwork by ${artist.first_name} ${artist.last_name}`
+                      }
                       fill
                       className="rounded-lg object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
                 )}
-                <h3 className="text-lg font-medium">{artwork.title}</h3>
+                <h3 className="text-lg font-medium">
+                  {artwork.title || "Untitled"}
+                </h3>
                 <p className="text-sm text-gray-600">
                   {artwork.medium}
                   {artwork.year && `, ${artwork.year}`}

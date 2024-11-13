@@ -47,7 +47,7 @@ export interface Artwork {
   artist_id: string;
   first_name: string;
   last_name: string;
-  title: string;
+  title: string | null;
   medium: string | null;
   year: number | null;
   live_in_production: boolean;
