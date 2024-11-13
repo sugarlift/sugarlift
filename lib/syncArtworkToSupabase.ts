@@ -27,6 +27,7 @@ export async function syncArtworkToSupabase() {
       console.log("Sample record:", {
         id: firstRecord.id,
         fields: firstRecord.fields,
+        rawJson: firstRecord._rawJson,
       });
     }
 
@@ -45,24 +46,35 @@ export async function syncArtworkToSupabase() {
           updated_at: new Date().toISOString(),
         };
 
-        console.log("Attempting to upsert artwork:", {
-          id: artwork.id,
-          title: artwork.title,
-        });
+        console.log("Attempting to upsert artwork:", artwork);
 
-        const { error: upsertError } = await supabase
+        // First try to delete any existing record
+        const { error: deleteError } = await supabase
           .from("artwork")
-          .upsert(artwork, { onConflict: "id" });
+          .delete()
+          .eq("id", artwork.id);
 
-        if (upsertError) {
-          console.error("Error upserting artwork:", {
-            title: artwork.title,
-            error: upsertError,
+        if (deleteError) {
+          console.error("Error deleting existing artwork:", {
+            id: artwork.id,
+            error: deleteError,
           });
-          throw upsertError;
         }
 
-        console.log("Successfully upserted artwork:", artwork.title);
+        // Then insert the new record
+        const { error: insertError } = await supabase
+          .from("artwork")
+          .insert(artwork);
+
+        if (insertError) {
+          console.error("Error inserting artwork:", {
+            title: artwork.title,
+            error: insertError,
+          });
+          throw insertError;
+        }
+
+        console.log("Successfully inserted artwork:", artwork.title);
       } catch (recordError) {
         console.error("Error processing record:", {
           id: record.id,
