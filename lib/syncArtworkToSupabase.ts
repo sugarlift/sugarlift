@@ -17,6 +17,12 @@ async function uploadArtworkImageToSupabase(
     .toLowerCase();
   const storagePath = `${cleanTitle}/${cleanFilename}`;
 
+  console.log("Uploading artwork image:", {
+    title,
+    filename: attachment.filename,
+    storagePath,
+  });
+
   // Upload the new file
   const response = await fetch(attachment.url);
   const blob = await response.blob();
@@ -51,12 +57,7 @@ export async function syncArtworkToSupabase() {
     console.log("Starting artwork sync process...");
 
     const table = getArtworkTable();
-    console.log("Got Artwork table reference");
-
     const query = table.select();
-    console.log("Created query");
-
-    console.log("Fetching records...");
     const records = await query.all();
     console.log(`Found ${records.length} artwork records in Airtable`);
 
@@ -78,15 +79,19 @@ export async function syncArtworkToSupabase() {
       throw fetchError;
     }
 
-    console.log(
-      `Found ${existingArtwork?.length || 0} existing artwork records in Supabase`,
-    );
-
     const existingIds = new Set(existingArtwork?.map((a) => a.id) || []);
     const airtableIds = new Set();
 
     for (const record of records) {
       try {
+        // Log the current record being processed
+        console.log("Processing artwork record:", {
+          id: record.id,
+          title: record.get("title"),
+          firstName: record.get("first_name"),
+          lastName: record.get("last_name"),
+        });
+
         // Find the artist_id based on first_name and last_name
         const firstName = record.get("first_name") as string;
         const lastName = record.get("last_name") as string;
@@ -106,10 +111,14 @@ export async function syncArtworkToSupabase() {
           continue;
         }
 
+        console.log("Found artist:", artistData);
+
         const rawAttachments = record.get("artwork_images");
         let artwork_images: StoredAttachment[] = [];
 
         if (rawAttachments && Array.isArray(rawAttachments)) {
+          console.log("Processing artwork images:", rawAttachments.length);
+
           const airtableAttachments = rawAttachments.map(
             (att: AirtableAttachment) => ({
               id: att.id,
@@ -144,8 +153,7 @@ export async function syncArtworkToSupabase() {
           updated_at: record.get("updated_at") as string,
         };
 
-        console.log("Processing artwork:", artwork);
-        airtableIds.add(record.id);
+        console.log("Upserting artwork:", artwork);
 
         const { error: upsertError } = await supabase
           .from("artwork")
@@ -155,6 +163,9 @@ export async function syncArtworkToSupabase() {
           console.error("Error upserting artwork:", artwork.title, upsertError);
           throw upsertError;
         }
+
+        console.log("Successfully upserted artwork:", artwork.title);
+        airtableIds.add(record.id);
       } catch (recordError) {
         const syncError = recordError as SyncError;
         syncError.record = { id: record.id, fields: record.fields };
@@ -168,6 +179,7 @@ export async function syncArtworkToSupabase() {
       (id) => !airtableIds.has(id),
     );
     if (idsToUnpublish.length > 0) {
+      console.log(`Unpublishing ${idsToUnpublish.length} obsolete artworks...`);
       const { error: unpublishError } = await supabase
         .from("artwork")
         .update({ live_in_production: false })
