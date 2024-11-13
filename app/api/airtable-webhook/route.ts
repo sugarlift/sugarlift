@@ -14,8 +14,8 @@ export async function POST(request: Request) {
     if (tableId === "tblkYraa6YhVleHVu") {
       // Artists table
       await syncAirtableToSupabase();
-    } else if (tableId === "tblArtwork") {
-      // Artwork table - replace with your actual table ID
+    } else if (tableId === "tblj8MEqwAWKPnxmd") {
+      // Artwork table - using correct ID
       await syncArtworkToSupabase();
     } else {
       console.log("Unknown table ID:", tableId);
