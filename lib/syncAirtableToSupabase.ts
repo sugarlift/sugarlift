@@ -13,8 +13,10 @@ async function uploadAttachmentToSupabase(
 ): Promise<StoredAttachment> {
   const folderName = `${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`;
   const timestamp = Date.now();
-  const fileExtension = attachment.filename.split(".").pop();
-  const uniqueFilename = `${folderName}-profile-${timestamp}.${fileExtension}`;
+  const cleanFilename = attachment.filename
+    .replace(/[^a-zA-Z0-9.-]/g, "-")
+    .toLowerCase();
+  const uniqueFilename = `${cleanFilename}-${timestamp}`;
   const storagePath = `${folderName}/${uniqueFilename}`;
 
   // Upload the new file
@@ -48,7 +50,7 @@ async function uploadAttachmentToSupabase(
 
 async function cleanupArtistFolder(
   artist: { first_name: string; last_name: string },
-  newUrls: string[],
+  currentAttachments: AirtableAttachment[],
 ) {
   const folderName = `${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`;
 
@@ -59,17 +61,33 @@ async function cleanupArtistFolder(
 
   if (!existingFiles) return;
 
-  // Get the filenames that should be kept (from the new URLs)
-  const keepFilenames = new Set(newUrls.map((url) => url.split("/").pop()));
+  // Create a set of original filenames to keep
+  const keepFilenames = new Set(
+    currentAttachments.map((att) =>
+      att.filename.replace(/[^a-zA-Z0-9.-]/g, "-").toLowerCase(),
+    ),
+  );
 
-  // Find files that aren't in the new set
+  // Find files to remove by checking the base filename (before the timestamp)
   const filesToRemove = existingFiles
-    .filter((file) => !keepFilenames.has(file.name))
+    .filter((file) => {
+      const baseFilename = file.name.split("-").slice(0, -1).join("-"); // Remove timestamp
+      return !keepFilenames.has(baseFilename);
+    })
     .map((file) => `${folderName}/${file.name}`);
 
   if (filesToRemove.length > 0) {
-    console.log(`Removing ${filesToRemove.length} old files from storage`);
-    await supabase.storage.from("attachments_artists").remove(filesToRemove);
+    console.log(
+      `Removing ${filesToRemove.length} old files from storage:`,
+      filesToRemove,
+    );
+    const { error } = await supabase.storage
+      .from("attachments_artists")
+      .remove(filesToRemove);
+
+    if (error) {
+      console.error("Error removing files:", error);
+    }
   }
 }
 
@@ -139,7 +157,7 @@ export async function syncAirtableToSupabase() {
               first_name: record.get("first_name") as string,
               last_name: record.get("last_name") as string,
             },
-            attachments.map((att) => att.url),
+            airtableAttachments,
           );
         }
 
