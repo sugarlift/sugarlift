@@ -9,16 +9,18 @@ import {
 
 async function uploadAttachmentToSupabase(
   attachment: AirtableAttachment,
-  artistId: string,
+  artist: { first_name: string; last_name: string },
 ): Promise<StoredAttachment> {
   // Fetch the image from Airtable
   const response = await fetch(attachment.url);
   const blob = await response.blob();
 
-  // Create a unique filename
+  // Create folder and file names
+  const folderName = `${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`;
+  const timestamp = Date.now();
   const fileExtension = attachment.filename.split(".").pop();
-  const uniqueFilename = `${artistId}-${attachment.id}.${fileExtension}`;
-  const storagePath = `${artistId}/${uniqueFilename}`;
+  const uniqueFilename = `${folderName}-profile-${timestamp}.${fileExtension}`;
+  const storagePath = `${folderName}/${uniqueFilename}`;
 
   // Upload to Supabase storage
   const { error: uploadError } = await supabase.storage
@@ -99,7 +101,10 @@ export async function syncAirtableToSupabase() {
 
           attachments = await Promise.all(
             airtableAttachments.map((attachment) =>
-              uploadAttachmentToSupabase(attachment, record.id),
+              uploadAttachmentToSupabase(attachment, {
+                first_name: record.get("first_name") as string,
+                last_name: record.get("last_name") as string,
+              }),
             ),
           );
         }
