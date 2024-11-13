@@ -66,21 +66,28 @@ export async function syncArtworkToSupabase() {
     const records = await query.all();
     console.log(`Found ${records.length} artwork records in Airtable`);
 
-    // Create a summary object to track what happened
-    const summary = {
-      totalRecords: records.length,
-      processedRecords: 0,
-      errors: [] as string[],
-      updatedArtworks: [] as string[],
-    };
-
-    // Log the first record structure to debug
+    // Add detailed logging of the first record
     if (records.length > 0) {
-      console.log("Sample record structure:", {
-        id: records[0].id,
-        fields: records[0].fields,
-        raw: records[0]._rawJson,
+      const firstRecord = records[0];
+      console.log("First record details:", {
+        id: firstRecord.id,
+        fields: {
+          title: firstRecord.get("title"),
+          first_name: firstRecord.get("first_name"),
+          last_name: firstRecord.get("last_name"),
+          medium: firstRecord.get("medium"),
+          year: firstRecord.get("year"),
+          artwork_images: firstRecord.get("artwork_images"),
+          live_in_production: firstRecord.get("live_in_production"),
+        },
       });
+    } else {
+      console.log("No records found in Airtable");
+      return {
+        success: false,
+        error: "No records found in Airtable",
+        timestamp: new Date().toISOString(),
+      };
     }
 
     const { data: existingArtwork, error: fetchError } = await supabase
@@ -94,6 +101,14 @@ export async function syncArtworkToSupabase() {
 
     const existingIds = new Set(existingArtwork?.map((a) => a.id) || []);
     const airtableIds = new Set();
+
+    // Create a summary object to track what happened
+    const summary = {
+      totalRecords: records.length,
+      processedRecords: 0,
+      errors: [] as string[],
+      updatedArtworks: [] as string[],
+    };
 
     for (const record of records) {
       try {
@@ -109,6 +124,14 @@ export async function syncArtworkToSupabase() {
         // Find the artist_id based on first_name and last_name
         const firstName = record.get("first_name") as string;
         const lastName = record.get("last_name") as string;
+
+        if (!firstName || !lastName) {
+          console.error(
+            "Missing artist name for artwork:",
+            record.get("title"),
+          );
+          continue;
+        }
 
         const { data: artistData, error: artistError } = await supabase
           .from("artists")
@@ -127,10 +150,16 @@ export async function syncArtworkToSupabase() {
 
         console.log("Found artist:", artistData);
 
-        const rawAttachments = record.get("artwork_images");
+        // Initialize artwork_images as an empty array
         let artwork_images: StoredAttachment[] = [];
 
-        if (rawAttachments && Array.isArray(rawAttachments)) {
+        // Only process images if they exist
+        const rawAttachments = record.get("artwork_images");
+        if (
+          rawAttachments &&
+          Array.isArray(rawAttachments) &&
+          rawAttachments.length > 0
+        ) {
           console.log("Processing artwork images:", rawAttachments.length);
 
           const airtableAttachments = rawAttachments.map(
@@ -152,19 +181,23 @@ export async function syncArtworkToSupabase() {
               ),
             ),
           );
+        } else {
+          console.log("No images found for artwork:", record.get("title"));
         }
 
         const artwork: Artwork = {
           id: record.id,
           artist_id: artistData.id,
           title: record.get("title") as string,
-          medium: record.get("medium") as string,
-          year: record.get("year") as number,
+          medium: (record.get("medium") as string) || null,
+          year: record.get("year") ? Number(record.get("year")) : null,
           live_in_production:
             (record.get("live_in_production") as boolean) || false,
           artwork_images,
-          created_at: record.get("created_at") as string,
-          updated_at: record.get("updated_at") as string,
+          created_at:
+            (record.get("created_at") as string) || new Date().toISOString(),
+          updated_at:
+            (record.get("updated_at") as string) || new Date().toISOString(),
         };
 
         console.log("Upserting artwork:", artwork);

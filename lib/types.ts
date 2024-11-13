@@ -46,8 +46,8 @@ export interface Artwork {
   id: string;
   artist_id: string;
   title: string;
-  medium?: string;
-  year?: number;
+  medium: string | null;
+  year: number | null;
   live_in_production: boolean;
   artwork_images: StoredAttachment[];
   created_at?: string;
