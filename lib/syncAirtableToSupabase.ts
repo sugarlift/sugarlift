@@ -82,16 +82,21 @@ export async function syncAirtableToSupabase() {
       try {
         console.log("Record structure:", record._rawJson);
 
-        const rawAttachments = record.get("attachments") as string;
+        const rawAttachments = record.get("attachments");
         let attachments: StoredAttachment[] = [];
 
-        if (rawAttachments) {
-          const parsedAttachments: AirtableAttachment[] =
-            JSON.parse(rawAttachments);
+        if (rawAttachments && Array.isArray(rawAttachments)) {
+          const airtableAttachments = rawAttachments.map((att: any) => ({
+            id: att.id,
+            width: att.width,
+            height: att.height,
+            url: att.url,
+            filename: att.filename,
+            type: att.type,
+          }));
 
-          // Upload each attachment and get the new URLs
           attachments = await Promise.all(
-            parsedAttachments.map((attachment) =>
+            airtableAttachments.map((attachment) =>
               uploadAttachmentToSupabase(attachment, record.id),
             ),
           );
