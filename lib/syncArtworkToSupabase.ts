@@ -57,9 +57,22 @@ export async function syncArtworkToSupabase() {
     console.log("Starting artwork sync process...");
 
     const table = getArtworkTable();
+    console.log("Got artwork table reference");
+
     const query = table.select();
+    console.log("Created query");
+
+    console.log("Fetching records from Airtable...");
     const records = await query.all();
     console.log(`Found ${records.length} artwork records in Airtable`);
+
+    // Create a summary object to track what happened
+    const summary = {
+      totalRecords: records.length,
+      processedRecords: 0,
+      errors: [] as string[],
+      updatedArtworks: [] as string[],
+    };
 
     // Log the first record structure to debug
     if (records.length > 0) {
@@ -85,12 +98,13 @@ export async function syncArtworkToSupabase() {
     for (const record of records) {
       try {
         // Log the current record being processed
-        console.log("Processing artwork record:", {
+        const recordInfo = {
           id: record.id,
           title: record.get("title"),
           firstName: record.get("first_name"),
           lastName: record.get("last_name"),
-        });
+        };
+        console.log("Processing artwork record:", recordInfo);
 
         // Find the artist_id based on first_name and last_name
         const firstName = record.get("first_name") as string;
@@ -165,12 +179,14 @@ export async function syncArtworkToSupabase() {
         }
 
         console.log("Successfully upserted artwork:", artwork.title);
+        summary.processedRecords++;
+        summary.updatedArtworks.push(artwork.title);
         airtableIds.add(record.id);
       } catch (recordError) {
         const syncError = recordError as SyncError;
-        syncError.record = { id: record.id, fields: record.fields };
-        console.error("Error processing artwork record:", record.id, syncError);
-        throw syncError;
+        const errorMessage = `Error processing record ${record.id}: ${syncError.message}`;
+        console.error(errorMessage);
+        summary.errors.push(errorMessage);
       }
     }
 
@@ -192,6 +208,11 @@ export async function syncArtworkToSupabase() {
     }
 
     console.log("Artwork sync completed successfully");
+    return {
+      success: true,
+      summary,
+      timestamp: new Date().toISOString(),
+    };
   } catch (error) {
     const syncError = error as SyncError;
     console.error("Artwork sync error:", {
@@ -199,6 +220,11 @@ export async function syncArtworkToSupabase() {
       stack: syncError.stack,
       error: syncError,
     });
-    throw syncError;
+
+    return {
+      success: false,
+      error: syncError.message || "Unknown error",
+      timestamp: new Date().toISOString(),
+    };
   }
 }
