@@ -51,9 +51,23 @@ export async function syncArtworkToSupabase() {
     console.log("Starting artwork sync process...");
 
     const table = getArtworkTable();
+    console.log("Got Artwork table reference");
+
     const query = table.select();
+    console.log("Created query");
+
+    console.log("Fetching records...");
     const records = await query.all();
     console.log(`Found ${records.length} artwork records in Airtable`);
+
+    // Log the first record structure to debug
+    if (records.length > 0) {
+      console.log("Sample record structure:", {
+        id: records[0].id,
+        fields: records[0].fields,
+        raw: records[0]._rawJson,
+      });
+    }
 
     const { data: existingArtwork, error: fetchError } = await supabase
       .from("artwork")
@@ -63,6 +77,10 @@ export async function syncArtworkToSupabase() {
       console.error("Error fetching from Supabase:", fetchError);
       throw fetchError;
     }
+
+    console.log(
+      `Found ${existingArtwork?.length || 0} existing artwork records in Supabase`,
+    );
 
     const existingIds = new Set(existingArtwork?.map((a) => a.id) || []);
     const airtableIds = new Set();

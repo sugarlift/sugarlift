@@ -12,11 +12,10 @@ export const airtable = new Airtable({
   endpointUrl: "https://api.airtable.com",
 }).base(process.env.AIRTABLE_BASE_ID);
 
-// Add a helper function to get the exact table name
 export const getArtistsTable = () => {
   return airtable.table("tblkYraa6YhVleHVu"); // Artists table ID
 };
 
 export const getArtworkTable = () => {
-  return airtable.table("tblArtwork"); // Replace with your actual Artwork table ID
+  return airtable.table("tblj8MEqwAWKPnxmd"); // Replace with your actual Artwork table ID
 };

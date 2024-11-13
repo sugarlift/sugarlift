@@ -1,38 +1,38 @@
 import { NextResponse } from "next/server";
 import { syncAirtableToSupabase } from "@/lib/syncAirtableToSupabase";
+import { syncArtworkToSupabase } from "@/lib/syncArtworkToSupabase";
 import { WebhookError } from "@/lib/types";
 
 export async function POST(request: Request) {
   try {
-    // Log incoming request details
-    console.log("Webhook received:", {
-      headers: Object.fromEntries(request.headers.entries()),
-      body: await request.clone().json(),
-    });
+    const payload = await request.json();
+    console.log("Received webhook payload:", payload);
 
-    // Verify webhook secret
-    const webhookSecret = request.headers.get("x-airtable-webhook-secret");
-    if (webhookSecret !== process.env.AIRTABLE_WEBHOOK_SECRET) {
-      console.error("Webhook secret mismatch");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Check which table was updated
+    const tableId = payload.tableId || payload.table?.id;
+
+    if (tableId === "tblkYraa6YhVleHVu") {
+      // Artists table
+      await syncAirtableToSupabase();
+    } else if (tableId === "tblArtwork") {
+      // Artwork table - replace with your actual table ID
+      await syncArtworkToSupabase();
+    } else {
+      console.log("Unknown table ID:", tableId);
+      return NextResponse.json({ error: "Unknown table ID" }, { status: 400 });
     }
 
-    await syncAirtableToSupabase();
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ message: "Sync completed" });
   } catch (error) {
-    // Log detailed error information
     const webhookError = error as WebhookError;
-    console.error("Webhook error details:", {
+    console.error("Webhook error:", {
       message: webhookError.message || "Unknown error",
-      stack: webhookError.stack,
-      error: webhookError,
+      status: webhookError.status,
+      response: webhookError.response,
     });
 
     return NextResponse.json(
-      {
-        error: "Internal Server Error",
-        details: webhookError.message || "Unknown error",
-      },
+      { error: "Internal server error" },
       { status: 500 },
     );
   }
