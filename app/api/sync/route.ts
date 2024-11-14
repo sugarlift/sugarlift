@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { syncAirtableToSupabase } from "@/lib/syncAirtableToSupabase";
 import { syncArtworkToSupabase } from "@/lib/syncArtworkToSupabase";
 

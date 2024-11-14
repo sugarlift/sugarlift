@@ -26,7 +26,7 @@ export async function GET(
     }
 
     return Response.json(artist);
-  } catch (error) {
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+  } catch {
+    return new Response("Artist not found", { status: 404 });
   }
 }
