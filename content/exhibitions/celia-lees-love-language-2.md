@@ -1,6 +1,6 @@
 ---
 title: "LOVE LANGUAGE 2"
-artist: "celia-lees"
+artists: ["celia-lees", "alicia-gimeno"]
 startDate: "2024-02-29"
 endDate: "2024-03-28"
 location: "527 West 27th Street, New York, NY 10"

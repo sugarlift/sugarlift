@@ -3,6 +3,8 @@
 import { TerminalCTA } from "@/components/TerminalCTA";
 import { supabase } from "@/lib/supabase";
 import { Artist } from "@/lib/types";
+import { Slider } from "@/components/Slider";
+import Image from "next/image";
 import { QuickLink } from "@/components/Link";
 
 export const revalidate = 3600;
@@ -23,35 +25,53 @@ async function getArtists(): Promise<Artist[]> {
   return data || [];
 }
 
-export async function generateStaticParams() {
-  return [{}];
-}
-
 export default async function ArtistsPage() {
   const artists = await getArtists();
 
   return (
-    <>
-      <section className="container">
-        <h2 className="mb-6 text-2xl">Featured Artists</h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {artists.map((artist) => (
-            <QuickLink
-              href={`/artists/${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`}
-              key={artist.id}
-              className="rounded-lg border p-4 transition-colors hover:border-gray-400"
-            >
-              <h3 className="text-xl font-bold">
+    <section className="container">
+      <h2 className="mb-6 text-2xl">Artists</h2>
+      <div className="space-y-12">
+        {artists.map((artist) => (
+          <div key={artist.id} className="grid grid-cols-4 items-center gap-6">
+            {/* Name column */}
+            <div>
+              <QuickLink
+                href={`/artists/${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`}
+                className="text-xl transition-colors hover:text-gray-600"
+              >
                 {artist.first_name} {artist.last_name}
-              </h3>
-              {artist.biography && (
-                <p className="mt-2 line-clamp-3">{artist.biography}</p>
+              </QuickLink>
+            </div>
+
+            {/* Images columns */}
+            <div className="col-span-3">
+              {artist.attachments && artist.attachments.length > 0 ? (
+                <Slider slidesPerView={3}>
+                  {artist.attachments.map((attachment, index) => (
+                    <div key={index} className="relative aspect-[3/4] w-full">
+                      <Image
+                        src={attachment.url}
+                        alt={`${artist.first_name} ${artist.last_name} - Work ${index + 1}`}
+                        fill
+                        className="rounded-lg object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                      />
+                    </div>
+                  ))}
+                </Slider>
+              ) : (
+                <div className="flex h-48 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
+                  No images available
+                </div>
               )}
-            </QuickLink>
-          ))}
-        </div>
-      </section>
-      <TerminalCTA />
-    </>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-12">
+        <TerminalCTA />
+      </div>
+    </section>
   );
 }

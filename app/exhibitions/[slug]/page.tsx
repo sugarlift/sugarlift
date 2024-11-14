@@ -31,9 +31,15 @@ export async function generateMetadata({
     };
   }
 
+  const artistNames = exhibition.frontmatter.artistsData
+    ? exhibition.frontmatter.artistsData
+        .map((artist) => `${artist.first_name} ${artist.last_name}`)
+        .join(", ")
+    : exhibition.frontmatter.artists.join(", ");
+
   return {
-    title: `${exhibition.frontmatter.title} by ${exhibition.frontmatter.artist}`,
-    description: `Exhibition by ${exhibition.frontmatter.artist}`,
+    title: `${exhibition.frontmatter.title} by ${artistNames}`,
+    description: `Exhibition by ${artistNames}`,
   };
 }
 
@@ -55,9 +61,11 @@ export default async function Page({
         <div className="mb-8">
           <h1 className="mb-2 text-3xl">{exhibition.frontmatter.title}</h1>
           <p className="mb-4 text-xl text-gray-600">
-            {exhibition.frontmatter.artistData
-              ? `${exhibition.frontmatter.artistData.first_name} ${exhibition.frontmatter.artistData.last_name}`
-              : exhibition.frontmatter.artist}
+            {exhibition.frontmatter.artistsData
+              ? exhibition.frontmatter.artistsData
+                  .map((artist) => `${artist.first_name} ${artist.last_name}`)
+                  .join(", ")
+              : exhibition.frontmatter.artists.join(", ")}
           </p>
           <p className="text-gray-600">
             {new Date(exhibition.frontmatter.startDate).toLocaleDateString()} -{" "}
@@ -91,42 +99,44 @@ export default async function Page({
           dangerouslySetInnerHTML={{ __html: exhibition.content }}
         />
 
-        {exhibition.frontmatter.artistData && (
+        {exhibition.frontmatter.artistsData && (
           <div className="mt-16 border-t pt-8">
-            <h2 className="mb-6 text-2xl font-semibold">About the Artist</h2>
-            <div className="flex flex-col md:flex-row md:gap-8">
-              {exhibition.frontmatter.artistData.attachments && (
-                <div className="mb-6 md:mb-0 md:w-1/3">
-                  <div className="relative aspect-square w-full">
-                    <Image
-                      src={exhibition.frontmatter.artistData.attachments[0].url}
-                      alt={`${exhibition.frontmatter.artistData.first_name} ${exhibition.frontmatter.artistData.last_name}`}
-                      fill
-                      className="rounded-lg object-cover"
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                    />
+            {exhibition.frontmatter.artistsData.map((artist, index) => (
+              <div key={index} className="mb-8">
+                <div className="flex flex-col md:flex-row md:gap-8">
+                  {artist.attachments && (
+                    <div className="mb-6 md:mb-0 md:w-1/3">
+                      <div className="relative aspect-square w-full">
+                        <Image
+                          src={artist.attachments[0].url}
+                          alt={`${artist.first_name} ${artist.last_name}`}
+                          fill
+                          className="rounded-lg object-cover"
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div className="md:w-2/3">
+                    <QuickLink
+                      href={`/artists/${exhibition.frontmatter.artists[index]}`}
+                      className="mb-4 block text-xl font-semibold hover:text-gray-600"
+                    >
+                      {artist.first_name} {artist.last_name}
+                    </QuickLink>
+                    <div className="prose max-w-none">
+                      <p>{artist.biography}</p>
+                    </div>
+                    <QuickLink
+                      href={`/artists/${exhibition.frontmatter.artists[index]}`}
+                      className="mt-4 inline-block text-blue-600 hover:text-blue-800"
+                    >
+                      View Artist Profile →
+                    </QuickLink>
                   </div>
                 </div>
-              )}
-              <div className="md:w-2/3">
-                <QuickLink
-                  href={`/artists/${exhibition.frontmatter.artist}`}
-                  className="mb-4 block text-xl font-semibold hover:text-gray-600"
-                >
-                  {exhibition.frontmatter.artistData.first_name}{" "}
-                  {exhibition.frontmatter.artistData.last_name}
-                </QuickLink>
-                <div className="prose max-w-none">
-                  <p>{exhibition.frontmatter.artistData.biography}</p>
-                </div>
-                <QuickLink
-                  href={`/artists/${exhibition.frontmatter.artist}`}
-                  className="mt-4 inline-block text-blue-600 hover:text-blue-800"
-                >
-                  View Artist Profile →
-                </QuickLink>
               </div>
-            </div>
+            ))}
           </div>
         )}
       </section>

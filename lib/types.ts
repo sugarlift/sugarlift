@@ -6,6 +6,7 @@ export interface Artist {
   live_in_production: boolean;
   attachments: StoredAttachment[];
   artwork?: Artwork[];
+  profile_image?: string;
 }
 
 export interface WebhookError extends Error {

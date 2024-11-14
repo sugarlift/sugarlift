@@ -17,12 +17,14 @@ export const ExhibitionCard = ({
   priority = false,
 }: ExhibitionCardProps) => {
   const {
-    frontmatter: { coverImage, title, artist, artistData },
+    frontmatter: { coverImage, title, artists, artistsData },
   } = exhibition;
 
-  const artistName = artistData
-    ? `${artistData.first_name} ${artistData.last_name}`
-    : artist;
+  const artistNames = artistsData
+    ? artistsData
+        .map((artist) => `${artist.first_name} ${artist.last_name}`)
+        .join(", ")
+    : artists.join(", ");
 
   return (
     <LinkComponent href={`/exhibitions/${exhibition.slug}`}>
@@ -39,7 +41,7 @@ export const ExhibitionCard = ({
       </div>
       <div className="p-4 pl-0">
         <h3 className="text-xl tracking-tight">{title}</h3>
-        <p className="mt-2 text-gray-800">{artistName}</p>
+        <p className="mt-2 text-gray-800">{artistNames}</p>
       </div>
     </LinkComponent>
   );

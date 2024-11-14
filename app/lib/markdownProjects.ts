@@ -14,7 +14,7 @@ const projectImages: Record<string, StaticImageData> = importedProjectImages;
 
 interface ProjectFrontmatter {
   title: string;
-  artist: string;
+  artists: string[];
   startDate: string;
   endDate: string;
   location: string;
@@ -30,7 +30,7 @@ interface ProcessedProjectFrontmatter
   extends Omit<ProjectFrontmatter, "galleryImages"> {
   coverImage: StaticImageData;
   galleryImages: StaticImageData[];
-  artistData?: Artist;
+  artistsData?: Artist[];
 }
 
 export interface Project {
@@ -94,8 +94,10 @@ export async function getProjectData(slug: string): Promise<Project | null> {
       return image;
     });
 
-    // Fetch artist data
-    const artistData = await getArtistBySlug(frontmatter.artist);
+    // Fetch multiple artists' data
+    const artistsData = await Promise.all(
+      frontmatter.artists.map((artistSlug) => getArtistBySlug(artistSlug)),
+    );
 
     return {
       slug,
@@ -103,7 +105,9 @@ export async function getProjectData(slug: string): Promise<Project | null> {
         ...frontmatter,
         coverImage: galleryImages[0],
         galleryImages,
-        artistData,
+        artistsData: artistsData.filter(
+          (artist): artist is Artist => artist !== undefined,
+        ),
       },
       content: contentHtml,
     };

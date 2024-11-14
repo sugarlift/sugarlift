@@ -15,7 +15,7 @@ const exhibitionImages: Record<string, StaticImageData> =
 
 interface ExhibitionFrontmatter {
   title: string;
-  artist: string;
+  artists: string[];
   startDate: string;
   endDate: string;
   location: string;
@@ -27,7 +27,7 @@ interface ProcessedExhibitionFrontmatter
   status: "current" | "past";
   coverImage: StaticImageData;
   galleryImages: StaticImageData[];
-  artistData?: Artist;
+  artistsData?: Artist[];
 }
 
 export interface Exhibition {
@@ -107,8 +107,10 @@ export async function getExhibitionData(
 
     const calculatedStatus = determineExhibitionStatus(frontmatter.endDate);
 
-    // Fetch artist data
-    const artistData = await getArtistBySlug(frontmatter.artist);
+    // Fetch multiple artists' data
+    const artistsData = await Promise.all(
+      frontmatter.artists.map((artistSlug) => getArtistBySlug(artistSlug)),
+    );
 
     return {
       slug,
@@ -117,7 +119,9 @@ export async function getExhibitionData(
         status: calculatedStatus,
         coverImage: galleryImages[0],
         galleryImages,
-        artistData,
+        artistsData: artistsData.filter(
+          (artist): artist is Artist => artist !== undefined,
+        ),
       },
       content: contentHtml,
     };
