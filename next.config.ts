@@ -4,7 +4,12 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: false,
     minimumCacheTTL: 60 * 60 * 24 * 1,
-    domains: ["ndnxcumwsgbbvfwjxkdi.supabase.co"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "ndnxcumwsgbbvfwjxkdi.supabase.co",
+      },
+    ],
   },
   sassOptions: {
     silenceDeprecations: ["legacy-js-api"],

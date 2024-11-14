@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { QuickLink } from "@/components/Link";
 import { COMPANY_METADATA } from "@/app/lib/constants";
 import { usePathname } from "next/navigation";
@@ -29,6 +29,26 @@ export default function Example() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      // Get scrollbar width by creating a temporary div
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
+
+      // Add padding to prevent layout shift
+      document.documentElement.style.paddingRight = `${scrollbarWidth}px`;
+      document.body.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.paddingRight = "0px";
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.documentElement.style.paddingRight = "0px";
+      document.body.style.overflow = "unset";
+    };
+  }, [mobileMenuOpen]);
+
   function isActive(itemHref: string, pathname: string) {
     if (itemHref === "#") {
       return false;
@@ -40,7 +60,7 @@ export default function Example() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b-[1px] border-[#F1F1F0]">
+    <header className="sticky top-0 z-50 w-full border-b-[1px] border-[#F1F1F0]">
       <nav
         aria-label="Global"
         className={`relative z-50 mx-auto flex max-w-[1488px] items-center justify-between bg-white transition-[background-color] duration-300 ${
@@ -126,7 +146,7 @@ export default function Example() {
         {mobileMenuOpen && (
           <>
             <motion.div
-              className="fixed inset-0 top-[73px] z-20 h-[100vh] bg-gray-500 opacity-50"
+              className="fixed inset-0 z-20 h-[100vh] bg-gray-500 pt-[73px] opacity-50 md:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -138,7 +158,7 @@ export default function Example() {
               animate={{ y: 0 }}
               exit={{ y: "-100%" }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="fixed inset-y-0 right-0 top-[73px] z-30 mb-10 h-[80vh] w-full overflow-y-auto rounded-bl-2xl rounded-br-2xl bg-white px-6 py-6 backdrop-blur-3xl"
+              className="fixed inset-y-0 right-0 z-30 mb-10 h-[80vh] w-full overflow-y-auto rounded-bl-2xl rounded-br-2xl bg-white px-6 py-6 pt-[73px] backdrop-blur-3xl md:hidden"
             >
               <div className="mt-6 flow-root">
                 <div className="-my-6 divide-y divide-gray-500/10">
