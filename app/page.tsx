@@ -11,7 +11,6 @@ export const dynamic = "force-static";
 export const revalidate = 3600; // revalidate every hour
 
 async function getFeaturedData() {
-  // Replace with your actual data fetching logic
   const exhibitions = [
     "celia-lees-love-language",
     "celia-lees-love-language-2",

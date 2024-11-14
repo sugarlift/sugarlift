@@ -2,7 +2,7 @@
 title: "450 Washington"
 artists: ["celia-lees", "alicia-gimeno"]
 location: "New York, Related Companies"
-category: "Multi-Family"
+category: "Workplace"
 client: "Related Companies"
 architect: "M&MD"
 year: "2023"

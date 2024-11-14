@@ -35,6 +35,8 @@ interface ProcessedProjectFrontmatter
 
 export interface Project {
   slug: string;
+  title: string;
+  category: string;
   frontmatter: ProcessedProjectFrontmatter;
   content: string;
 }
@@ -101,6 +103,8 @@ export async function getProjectData(slug: string): Promise<Project | null> {
 
     return {
       slug,
+      title: frontmatter.title,
+      category: frontmatter.category,
       frontmatter: {
         ...frontmatter,
         coverImage: galleryImages[0],
