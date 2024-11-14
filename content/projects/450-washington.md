@@ -1,5 +1,6 @@
 ---
 title: "450 Washington"
+artist: "celia-lees"
 location: "New York, Related Companies"
 category: "Multi-Family"
 client: "Related Companies"

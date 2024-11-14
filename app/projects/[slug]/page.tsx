@@ -6,6 +6,9 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { FAQ } from "@/components/FAQ";
 import { ConsultationCTA } from "@/components/ConsultationCTA";
+import { QuickLink } from "@/components/Link";
+import { FeaturedProjects } from "@/components/FeaturedProjects";
+import { Slider } from "@/components/Slider";
 
 export async function generateStaticParams() {
   const projects = await getAllProjects();
@@ -19,7 +22,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const slug = (await params).slug;
+  const { slug } = await params;
   const project = await getProjectData(slug);
 
   if (!project) {
@@ -28,9 +31,13 @@ export async function generateMetadata({
     };
   }
 
+  const artistName = project.frontmatter.artistData
+    ? `${project.frontmatter.artistData.first_name} ${project.frontmatter.artistData.last_name}`
+    : project.frontmatter.artist;
+
   return {
-    title: `${project.frontmatter.title} by ${project.frontmatter.artist}`,
-    description: `Project by ${project.frontmatter.artist}`,
+    title: `${project.frontmatter.title} by ${artistName}`,
+    description: `Project by ${artistName}`,
   };
 }
 
@@ -39,7 +46,7 @@ export default async function ProjectPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const slug = (await params).slug;
+  const { slug } = await params;
   const project = await getProjectData(slug);
 
   if (!project) {
@@ -51,14 +58,7 @@ export default async function ProjectPage({
       <section className="container">
         <div className="mb-8">
           <h1 className="mb-2 text-3xl">{project.frontmatter.title}</h1>
-          <p className="mb-4 text-xl text-gray-600">
-            {project.frontmatter.artist}
-          </p>
-          <p className="text-gray-600">
-            {new Date(project.frontmatter.startDate).toLocaleDateString()} -{" "}
-            {new Date(project.frontmatter.endDate).toLocaleDateString()}
-          </p>
-          <p className="text-gray-600">{project.frontmatter.location}</p>
+          <p className="text-gray-600">For {project.frontmatter.location}</p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -85,7 +85,60 @@ export default async function ProjectPage({
           className="prose prose-lg mt-8 max-w-none"
           dangerouslySetInnerHTML={{ __html: project.content }}
         />
+
+        {project.frontmatter.artistData && (
+          <div className="mt-16 border-t pt-8">
+            <h2 className="mb-6 text-2xl font-semibold">About the Artist</h2>
+            <div className="flex flex-col md:flex-row md:gap-8">
+              {project.frontmatter.artistData.attachments && (
+                <div className="mb-6 md:mb-0 md:w-1/3">
+                  <div className="relative aspect-square w-full">
+                    <Image
+                      src={project.frontmatter.artistData.attachments[0].url}
+                      alt={`${project.frontmatter.artistData.first_name} ${project.frontmatter.artistData.last_name}`}
+                      fill
+                      className="rounded-lg object-cover"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                  </div>
+                </div>
+              )}
+              <div className="md:w-2/3">
+                <QuickLink
+                  href={`/artists/${project.frontmatter.artist}`}
+                  className="mb-4 block text-xl font-semibold hover:text-gray-600"
+                >
+                  {project.frontmatter.artistData.first_name}{" "}
+                  {project.frontmatter.artistData.last_name}
+                </QuickLink>
+                <div className="prose max-w-none">
+                  <p>{project.frontmatter.artistData.biography}</p>
+                </div>
+                <QuickLink
+                  href={`/artists/${project.frontmatter.artist}`}
+                  className="mt-4 inline-block text-blue-600 hover:text-blue-800"
+                >
+                  View Artist Profile →
+                </QuickLink>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
+
+      <section className="container my-16">
+        <h2 className="mb-8 text-2xl font-semibold">
+          More Projects by Sugarlift
+        </h2>
+        <div className="relative w-full">
+          <Slider slidesPerView={2}>
+            {["450-washington-2", "450-washington-3"].map((projectSlug) => (
+              <FeaturedProjects key={projectSlug} projects={[projectSlug]} />
+            ))}
+          </Slider>
+        </div>
+      </section>
+
       <FAQ />
       <ConsultationCTA />
     </>

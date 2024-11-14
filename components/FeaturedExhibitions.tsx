@@ -1,4 +1,4 @@
-import { getExhibitionData } from "@/app/lib/markdownExhibitions";
+import { Exhibition, getExhibitionData } from "@/app/lib/markdownExhibitions";
 import { ExhibitionCard } from "./ExhibitionCard";
 
 interface FeaturedExhibitionsProps {
@@ -8,27 +8,30 @@ interface FeaturedExhibitionsProps {
 export async function FeaturedExhibitions({
   exhibitions,
 }: FeaturedExhibitionsProps) {
-  const featuredExhibitions = await Promise.all(
-    exhibitions
-      .map((slug) => getExhibitionData(slug))
-      .filter(
-        (exhibition): exhibition is NonNullable<typeof exhibition> =>
-          exhibition !== null,
-      ),
-  );
+  const exhibitionPromises = exhibitions.map((slug) => getExhibitionData(slug));
+  const exhibitionResults = await Promise.all(exhibitionPromises);
+
+  const featuredExhibitions = exhibitionResults
+    .filter((exhibition): exhibition is Exhibition => exhibition !== null)
+    .map((exhibition) => ({
+      ...exhibition,
+      frontmatter: {
+        ...exhibition.frontmatter,
+        displayName: exhibition.frontmatter.artistData
+          ? `${exhibition.frontmatter.artistData.first_name} ${exhibition.frontmatter.artistData.last_name}`
+          : exhibition.frontmatter.artist,
+      },
+    }));
 
   return (
     <>
-      {featuredExhibitions.map(
-        (exhibition) =>
-          exhibition && (
-            <ExhibitionCard
-              key={exhibition.slug}
-              exhibition={exhibition}
-              priority={true}
-            />
-          ),
-      )}
+      {featuredExhibitions.map((exhibition) => (
+        <ExhibitionCard
+          key={exhibition.slug}
+          exhibition={exhibition}
+          priority={true}
+        />
+      ))}
     </>
   );
 }

@@ -7,6 +7,8 @@ import { remark } from "remark";
 import html from "remark-html";
 import { StaticImageData } from "next/image";
 import { exhibitionImages as importedExhibitionImages } from "@/content/exhibitions/images";
+import { supabase } from "@/lib/supabase";
+import { Artist } from "@/lib/types";
 
 const exhibitionImages: Record<string, StaticImageData> =
   importedExhibitionImages;
@@ -24,7 +26,8 @@ interface ProcessedExhibitionFrontmatter
   extends Omit<ExhibitionFrontmatter, "galleryImages"> {
   status: "current" | "past";
   coverImage: StaticImageData;
-  galleryImages: StaticImageData[]; // This will be the processed images
+  galleryImages: StaticImageData[];
+  artistData?: Artist;
 }
 
 export interface Exhibition {
@@ -43,6 +46,32 @@ function determineExhibitionStatus(endDate: string): "current" | "past" {
   exhibitionEnd.setHours(23, 59, 59, 999);
 
   return exhibitionEnd >= today ? "current" : "past";
+}
+
+async function getArtistBySlug(slug: string): Promise<Artist | undefined> {
+  const [firstName, lastName] = slug
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
+
+  try {
+    const { data: artist, error: artistError } = await supabase
+      .from("artists")
+      .select("*")
+      .eq("live_in_production", true)
+      .eq("first_name", firstName)
+      .eq("last_name", lastName)
+      .single();
+
+    if (artistError || !artist) {
+      console.error("Error fetching artist:", artistError);
+      return undefined;
+    }
+
+    return artist;
+  } catch (error) {
+    console.error("Error in getArtistBySlug:", error);
+    return undefined;
+  }
 }
 
 export async function getExhibitionData(
@@ -78,13 +107,17 @@ export async function getExhibitionData(
 
     const calculatedStatus = determineExhibitionStatus(frontmatter.endDate);
 
+    // Fetch artist data
+    const artistData = await getArtistBySlug(frontmatter.artist);
+
     return {
       slug,
       frontmatter: {
         ...frontmatter,
         status: calculatedStatus,
-        coverImage: galleryImages[0], // Set the first image as the cover image
+        coverImage: galleryImages[0],
         galleryImages,
+        artistData,
       },
       content: contentHtml,
     };

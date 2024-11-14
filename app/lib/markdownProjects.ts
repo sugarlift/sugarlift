@@ -7,6 +7,8 @@ import { remark } from "remark";
 import html from "remark-html";
 import { StaticImageData } from "next/image";
 import { projectImages as importedProjectImages } from "@/content/projects/images";
+import { supabase } from "@/lib/supabase";
+import { Artist } from "@/lib/types";
 
 const projectImages: Record<string, StaticImageData> = importedProjectImages;
 
@@ -17,12 +19,18 @@ interface ProjectFrontmatter {
   endDate: string;
   location: string;
   galleryImages: string[];
+  category: string;
+  client: string;
+  architect: string;
+  year: string;
+  description: string;
 }
 
 interface ProcessedProjectFrontmatter
   extends Omit<ProjectFrontmatter, "galleryImages"> {
   coverImage: StaticImageData;
-  galleryImages: StaticImageData[]; // This will be the processed images
+  galleryImages: StaticImageData[];
+  artistData?: Artist;
 }
 
 export interface Project {
@@ -32,6 +40,32 @@ export interface Project {
 }
 
 const projectsDirectory = path.join(process.cwd(), "content", "projects");
+
+async function getArtistBySlug(slug: string): Promise<Artist | undefined> {
+  const [firstName, lastName] = slug
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
+
+  try {
+    const { data: artist, error: artistError } = await supabase
+      .from("artists")
+      .select("*")
+      .eq("live_in_production", true)
+      .eq("first_name", firstName)
+      .eq("last_name", lastName)
+      .single();
+
+    if (artistError || !artist) {
+      console.error("Error fetching artist:", artistError);
+      return undefined;
+    }
+
+    return artist;
+  } catch (error) {
+    console.error("Error in getArtistBySlug:", error);
+    return undefined;
+  }
+}
 
 export async function getProjectData(slug: string): Promise<Project | null> {
   try {
@@ -60,12 +94,16 @@ export async function getProjectData(slug: string): Promise<Project | null> {
       return image;
     });
 
+    // Fetch artist data
+    const artistData = await getArtistBySlug(frontmatter.artist);
+
     return {
       slug,
       frontmatter: {
         ...frontmatter,
-        coverImage: galleryImages[0], // Set the first image as the cover image
+        coverImage: galleryImages[0],
         galleryImages,
+        artistData,
       },
       content: contentHtml,
     };

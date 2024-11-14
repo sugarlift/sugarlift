@@ -18,7 +18,7 @@ export const ProjectCard = ({
   priority = false,
 }: ProjectCardProps) => {
   const {
-    frontmatter: { coverImage, title, artist },
+    frontmatter: { coverImage, title, location },
   } = project;
 
   return (
@@ -36,7 +36,7 @@ export const ProjectCard = ({
       </div>
       <div className="p-4 pl-0">
         <h3 className="text-xl tracking-tight">{title}</h3>
-        <p className="mt-2 text-gray-800">{artist}</p>
+        <p className="mt-2 text-gray-800">{location}</p>
       </div>
     </LinkComponent>
   );
