@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { QuickLink } from "@/components/Link";
 import { COMPANY_METADATA } from "@/app/lib/constants";
-import { Dialog } from "@headlessui/react";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/Logo";
-import "@/components/Navigation/MenuButton.scss";
+import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navigation = [
@@ -41,10 +40,12 @@ export default function Example() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b-[1px] border-[#F1F1F0] bg-white bg-opacity-85 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b-[1px] border-[#F1F1F0]">
       <nav
         aria-label="Global"
-        className="mx-auto flex max-w-[1488px] items-center justify-between"
+        className={`relative z-50 mx-auto flex max-w-[1488px] items-center justify-between bg-white transition-[background-color] duration-300 ${
+          mobileMenuOpen ? "bg-opacity-100" : "bg-opacity-85"
+        } backdrop-blur-xl`}
       >
         <div className="flex">
           <QuickLink
@@ -57,17 +58,40 @@ export default function Example() {
           </QuickLink>
         </div>
         <div className="mr-6 flex md:hidden">
-          <label className="menuIcon z-50">
-            <input
-              type="checkbox"
-              checked={mobileMenuOpen}
-              onChange={(e) => setMobileMenuOpen(e.target.checked)}
-            />
-            <div>
-              <span></span>
-              <span></span>
-            </div>
-          </label>
+          <Button
+            className="group"
+            variant="outline"
+            size="icon"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          >
+            <svg
+              className="pointer-events-none"
+              width={16}
+              height={16}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 12L20 12"
+                className="origin-center -translate-y-[7px] transition-all duration-300 [transition-timing-function:cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-x-0 group-aria-expanded:translate-y-0 group-aria-expanded:rotate-[315deg]"
+              />
+              <path
+                d="M4 12H20"
+                className="origin-center transition-all duration-300 [transition-timing-function:cubic-bezier(.5,.85,.25,1.8)] group-aria-expanded:rotate-45"
+              />
+              <path
+                d="M4 12H20"
+                className="origin-center translate-y-[7px] transition-all duration-300 [transition-timing-function:cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-y-0 group-aria-expanded:rotate-[135deg]"
+              />
+            </svg>
+          </Button>
         </div>
         <div className="hidden md:flex">
           {navigation.map((item) => {
@@ -100,28 +124,21 @@ export default function Example() {
       </nav>
       <AnimatePresence>
         {mobileMenuOpen && (
-          <Dialog
-            as="div"
-            open={mobileMenuOpen}
-            onClose={() => setMobileMenuOpen(false)}
-            className="md:hidden"
-          >
+          <>
             <motion.div
-              className="fixed inset-0 top-[73px] z-20 bg-gray-500 opacity-50"
+              className="fixed inset-0 top-[73px] z-20 h-[100vh] bg-gray-500 opacity-50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              onClick={() => setMobileMenuOpen(false)}
             />
             <motion.div
               initial={{ y: "-100%" }}
               animate={{ y: 0 }}
               exit={{ y: "-100%" }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="fixed inset-y-0 right-0 top-[73px] z-30 mb-10 w-full overflow-y-auto rounded-bl-2xl rounded-br-2xl bg-white px-6 py-6 backdrop-blur-3xl"
-              onAnimationComplete={() => {
-                // Reset any animation states if needed
-              }}
+              className="fixed inset-y-0 right-0 top-[73px] z-30 mb-10 h-[80vh] w-full overflow-y-auto rounded-bl-2xl rounded-br-2xl bg-white px-6 py-6 backdrop-blur-3xl"
             >
               <div className="mt-6 flow-root">
                 <div className="-my-6 divide-y divide-gray-500/10">
@@ -178,7 +195,7 @@ export default function Example() {
                 </div>
               </motion.div>
             </motion.div>
-          </Dialog>
+          </>
         )}
       </AnimatePresence>
     </header>
