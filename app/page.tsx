@@ -17,7 +17,13 @@ async function getFeaturedData() {
     "celia-lees-love-language-2",
   ];
   const projects = ["450-washington", "450-washington-2", "450-washington-3"];
-  const artists = ["wright-harvey", "janne-koivistoinen", "john-doe"];
+  const artists = [
+    "maja-dlugolecki",
+    "celia-lees",
+    "fabienne-meyer",
+    "kenny-nguyen",
+    "alicia-gimeno",
+  ];
 
   return {
     exhibitions,
@@ -48,7 +54,7 @@ export default async function Home() {
       <section className="container mt-12">
         <h1 className="mb-8 text-2xl">Featured Artists</h1>
         <div className="relative w-full">
-          <Slider slidesPerView={2}>
+          <Slider slidesPerView={4}>
             {artists.map((artist) => (
               <FeaturedArtists key={artist} slug={artist} />
             ))}

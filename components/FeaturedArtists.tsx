@@ -34,8 +34,8 @@ export function FeaturedArtists({ slug }: FeaturedArtistsProps) {
   if (!artist) return null;
 
   return (
-    <Link href={`/artists/${slug}`} className="block px-2">
-      <div className="relative aspect-square w-full overflow-hidden">
+    <Link href={`/artists/${slug}`} className="block">
+      <div className="relative aspect-[2/3] w-full overflow-hidden">
         {artist.attachments && artist.attachments.length > 0 && (
           <Image
             src={artist.attachments[0].url}

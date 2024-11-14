@@ -60,12 +60,14 @@ export default function Example() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b-[1px] border-[#F1F1F0]">
+    <header
+      className={`sticky top-0 z-50 w-full border-b-[1px] border-[#F1F1F0] bg-white transition-[background-color] duration-300 ${
+        mobileMenuOpen ? "bg-opacity-100" : "bg-opacity-85"
+      } backdrop-blur-xl`}
+    >
       <nav
         aria-label="Global"
-        className={`relative z-50 mx-auto flex max-w-[1488px] items-center justify-between bg-white transition-[background-color] duration-300 ${
-          mobileMenuOpen ? "bg-opacity-100" : "bg-opacity-85"
-        } backdrop-blur-xl`}
+        className={`relative z-50 mx-auto flex max-w-[1488px] items-center justify-between`}
       >
         <div className="flex">
           <QuickLink
