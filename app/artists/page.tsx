@@ -29,49 +29,61 @@ export default async function ArtistsPage() {
   const artists = await getArtists();
 
   return (
-    <section className="container">
-      <h2 className="mb-6 text-2xl">Artists</h2>
-      <div className="space-y-12">
-        {artists.map((artist) => (
-          <div key={artist.id} className="grid grid-cols-4 items-center gap-6">
-            {/* Name column */}
-            <div>
-              <QuickLink
-                href={`/artists/${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`}
-                className="text-xl transition-colors hover:text-gray-600"
+    <>
+      <section className="mb-[-6rem]">
+        <h1 className="container mb-12">Featured artists</h1>
+        <div className="bg-white py-24">
+          <div className="bg-w container space-y-36">
+            {artists.map((artist) => (
+              <div
+                key={artist.id}
+                className="grid grid-cols-4 items-start gap-6"
               >
-                {artist.first_name} {artist.last_name}
-              </QuickLink>
-            </div>
-
-            {/* Images columns */}
-            <div className="col-span-3">
-              {artist.attachments && artist.attachments.length > 0 ? (
-                <Slider slidesPerView={3}>
-                  {artist.attachments.map((attachment, index) => (
-                    <div key={index} className="relative aspect-[3/4] w-full">
-                      <Image
-                        src={attachment.url}
-                        alt={`${artist.first_name} ${artist.last_name} - Work ${index + 1}`}
-                        fill
-                        className="rounded-lg object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
-                      />
-                    </div>
-                  ))}
-                </Slider>
-              ) : (
-                <div className="flex h-48 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
-                  No images available
+                {/* Name column */}
+                <div>
+                  <QuickLink
+                    href={`/artists/${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`}
+                    className="text-xl transition-colors hover:text-gray-600"
+                  >
+                    <h2>
+                      {artist.first_name}
+                      <br />
+                      {artist.last_name}
+                    </h2>
+                  </QuickLink>
                 </div>
-              )}
-            </div>
+
+                {/* Images columns */}
+                <div className="col-span-3">
+                  {artist.attachments && artist.attachments.length > 0 ? (
+                    <Slider slidesPerView={3}>
+                      {artist.attachments.map((attachment, index) => (
+                        <div
+                          key={index}
+                          className="relative aspect-[2/3] w-full"
+                        >
+                          <Image
+                            src={attachment.url}
+                            alt={`${artist.first_name} ${artist.last_name} - Work ${index + 1}`}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                          />
+                        </div>
+                      ))}
+                    </Slider>
+                  ) : (
+                    <div className="flex h-48 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
+                      No images available
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="mt-12">
-        <TerminalCTA />
-      </div>
-    </section>
+        </div>
+      </section>
+      <TerminalCTA />
+    </>
   );
 }
