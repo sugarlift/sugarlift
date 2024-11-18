@@ -2,24 +2,22 @@ import { QuickLink } from "@/components/Link";
 import Logo from "@/components/Logo";
 
 const Footer = () => {
-  // Define a constant for link styles
-  const linkStyle = "text-sm text-gray-600 hover:text-gray-900";
+  const headingStyle = "mb-2 font-medium";
+  const linkStyle = "text-sm text-zinc-600 hover:text-zinc-950 py-0.5 block";
 
   return (
     <footer className="mt-auto w-full border-t">
       <div className="container py-24">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-7">
+        <div className="grid grid-cols-2 gap-8 lg:grid-cols-7">
           {/* Logo and Description */}
-          <div className="col-span-2 space-y-4">
+          <div className="col-span-2 mt-1">
             <Logo />
-            <p className="text-sm text-gray-600">
-              Mission-driven art gallery
-              <br />
-              founded in 2014
+            <p className="mb-8 mt-4 max-w-48 text-sm leading-6 tracking-tight text-zinc-700">
+              Mission-driven art gallery founded in 2014
             </p>
             <QuickLink
               href="https://instagram.com/sugarlift"
-              className="text-sm text-gray-600 hover:text-gray-900"
+              className="text-sm text-zinc-700 hover:text-zinc-950"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -29,8 +27,8 @@ const Footer = () => {
 
           {/* Navigation Links */}
           <div>
-            <h3 className="mb-4 font-medium">Artists</h3>
-            <ul className="space-y-2">
+            <h3 className={headingStyle}>Artists</h3>
+            <ul>
               <li>
                 <QuickLink href="#" className={linkStyle}>
                   Featured
@@ -41,6 +39,9 @@ const Footer = () => {
                   Directory
                 </QuickLink>
               </li>
+            </ul>
+            <h3 className={`${headingStyle} mt-8`}>Exhibitions</h3>
+            <ul>
               <li>
                 <QuickLink href="#" className={linkStyle}>
                   On view
@@ -55,8 +56,8 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="mb-4 font-medium">Projects</h3>
-            <ul className="space-y-2">
+            <h3 className={headingStyle}>Projects</h3>
+            <ul>
               <li>
                 <QuickLink href="#" className={linkStyle}>
                   Collectors
@@ -91,8 +92,8 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="mb-4 font-medium">Art consulting</h3>
-            <ul className="space-y-2">
+            <h3 className={headingStyle}>Art consulting</h3>
+            <ul>
               <li>
                 <QuickLink href="#" className={linkStyle}>
                   Overview
@@ -122,8 +123,8 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="mb-4 font-medium">Sugarlift</h3>
-            <ul className="space-y-2">
+            <h3 className={headingStyle}>Sugarlift</h3>
+            <ul>
               <li>
                 <QuickLink href="#" className={linkStyle}>
                   Mission
@@ -149,20 +150,29 @@ const Footer = () => {
 
           {/* Gallery Info */}
           <div>
-            <h3 className="mb-4 font-medium">Gallery</h3>
-            <div className="space-y-2">
-              <p className="text-sm text-gray-600">Tue - Fri: 10AM – 6PM</p>
-              <p className="text-sm text-gray-600">Sat: 12PM – 6PM</p>
-              <p className="text-sm text-gray-600">Sun - Mon: Closed</p>
+            <h3 className={headingStyle}>Gallery</h3>
+            <div>
+              <div className="flex justify-between">
+                <p className="text-sm text-zinc-700">Tue - Fri</p>
+                <p className="text-sm text-zinc-700">10AM – 6PM</p>
+              </div>
+              <div className="flex justify-between">
+                <p className="text-sm text-zinc-700">Sat</p>
+                <p className="text-sm text-zinc-700">12PM – 6PM</p>
+              </div>
+              <div className="flex justify-between">
+                <p className="text-sm text-zinc-700">Sun - Mon</p>
+                <p className="text-sm text-zinc-700">Closed</p>
+              </div>
+
               <QuickLink
                 href="#"
-                className={linkStyle}
+                className={`${linkStyle} mt-4 leading-6`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                508 W 28th Street
-                <br />
-                New York, NY
+                <span className="block">508 W 28th Street</span>
+                <span>New York, NY</span>
               </QuickLink>
             </div>
           </div>

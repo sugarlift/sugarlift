@@ -70,7 +70,7 @@ export default async function Home() {
             href="/artists"
             className="group flex items-center text-zinc-700 transition hover:text-zinc-950"
           >
-            <h1>Featured Artists</h1>
+            <h2>Featured Artists</h2>
             <ArrowRight
               className="-me-1 ms-1 mt-0.5 h-4 transition-transform group-hover:translate-x-1 lg:ms-2 lg:mt-1 lg:h-10"
               strokeWidth={1.75}
@@ -93,7 +93,7 @@ export default async function Home() {
             href="/projects"
             className="group flex items-center text-zinc-700 transition hover:text-zinc-950"
           >
-            <h1>Art consulting</h1>
+            <h2>Art consulting</h2>
             <ArrowRight
               className="-me-1 ms-1 mt-0.5 h-4 transition-transform group-hover:translate-x-1 lg:ms-2 lg:mt-1 lg:h-10"
               strokeWidth={1.75}

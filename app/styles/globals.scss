@@ -24,7 +24,8 @@ h6 {
   }
 }
 
-h1 {
+h1,
+h2 {
   font-size: 1.5rem;
   letter-spacing: -0.0375rem;
   line-height: 2.5rem;
@@ -58,15 +59,15 @@ p {
 }
 
 section {
-  margin-bottom: 3rem;
+  padding-bottom: 3rem;
   @include bp.breakpoint(lg) {
-    margin-bottom: 6rem;
+    padding-bottom: 6rem;
   }
 
   &:first-of-type {
-    margin-top: 3rem;
+    padding-top: 3rem;
     @include bp.breakpoint(lg) {
-      margin-top: 6rem;
+      padding-top: 6rem;
     }
   }
 }
