@@ -6,6 +6,7 @@ import { Artist } from "@/lib/types";
 import { Slider } from "@/components/Slider";
 import Image from "next/image";
 import { QuickLink } from "@/components/Link";
+import Link from "next/link";
 
 export const revalidate = 3600;
 
@@ -30,16 +31,12 @@ export default async function ArtistsPage() {
 
   return (
     <>
-      <section className="mb-[-6rem]">
+      <section>
         <h1 className="container mb-12">Featured artists</h1>
         <div className="bg-white py-24">
           <div className="bg-w container space-y-36">
             {artists.map((artist) => (
-              <div
-                key={artist.id}
-                className="grid grid-cols-4 items-start gap-6"
-              >
-                {/* Name column */}
+              <div key={artist.id} className="grid grid-cols-4 items-start">
                 <div>
                   <QuickLink
                     href={`/artists/${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`}
@@ -50,10 +47,14 @@ export default async function ArtistsPage() {
                       <br />
                       {artist.last_name}
                     </h2>
+                    <p className="mt-4 tracking-tight text-zinc-500">
+                      {artist.location}
+                    </p>
+                    <p className="tracking-tight text-zinc-500">
+                      b. {artist.year_of_birth}
+                    </p>
                   </QuickLink>
                 </div>
-
-                {/* Images columns */}
                 <div className="col-span-3">
                   {artist.attachments && artist.attachments.length > 0 ? (
                     <Slider slidesPerView={3}>
@@ -62,13 +63,18 @@ export default async function ArtistsPage() {
                           key={index}
                           className="relative aspect-[2/3] w-full"
                         >
-                          <Image
-                            src={attachment.url}
-                            alt={`${artist.first_name} ${artist.last_name} - Work ${index + 1}`}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
-                          />
+                          <Link
+                            href={`/artists/${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`}
+                            className="text-xl transition-colors hover:text-gray-600"
+                          >
+                            <Image
+                              src={attachment.url}
+                              alt={`${artist.first_name} ${artist.last_name} - Work ${index + 1}`}
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                            />
+                          </Link>
                         </div>
                       ))}
                     </Slider>
