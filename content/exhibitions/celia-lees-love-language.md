@@ -4,6 +4,7 @@ artists: ["celia-lees"]
 startDate: "2024-02-29"
 endDate: "2024-03-28"
 location: "527 West 27th Street, New York, NY 10"
+city: "New York"
 galleryImages:
   [
     "/images/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_1_2321f22bdb.jpg",

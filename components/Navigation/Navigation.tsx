@@ -17,11 +17,11 @@ const navigation = [
 const CTA = [{ name: "Contact", href: "#" }];
 
 const linkStyles =
-  "text-[#141414] px-6 py-8 text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] transition hover:opacity-50";
+  "text-zinc-700 px-6 py-8 text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] transition hover:text-zinc-950";
 const linkStylesActive =
   "shadow-[inset_0_-1px_white,_0_1px_black] transition animate fade-in";
 const mobileLinkStyles =
-  "block text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] text-[#141414]";
+  "block text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] text-zinc-700";
 const mobileLinkStylesActive = "";
 const navPadding = "px-6 py-8";
 

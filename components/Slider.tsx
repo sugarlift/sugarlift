@@ -1,13 +1,18 @@
 "use client";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
-import { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 import { KeenSliderInstance } from "keen-slider";
 
 interface SliderProps {
   children: ReactNode;
-  slidesPerView?: number;
+  slidesPerView?:
+    | {
+        mobile?: number;
+        tablet?: number;
+        desktop?: number;
+      }
+    | number;
   spacing?: number;
   mobileSpacing?: number;
 }
@@ -42,7 +47,6 @@ const WheelControls = (slider: KeenSliderInstance) => {
     dispatch(e, "ksDragEnd");
   };
   const eventWheel = (e: WheelEvent) => {
-    // Prevent hijacking scrolling if user is scrolling down on the page
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
       e.preventDefault();
       if (!wheelActive) {
@@ -64,36 +68,44 @@ const WheelControls = (slider: KeenSliderInstance) => {
   });
 };
 
-// Add a custom hook for responsive behavior
-function useWindowWidth() {
-  const [width, setWidth] = useState<number>(0);
-  useEffect(() => {
-    // Set initial width
-    setWidth(window?.innerWidth ?? 0);
-    // Handle resize
-    function handleResize() {
-      setWidth(window?.innerWidth ?? 0);
-    }
-    window?.addEventListener("resize", handleResize);
-    return () => window?.removeEventListener("resize", handleResize);
-  }, []);
-  return width;
-}
-
 export function Slider({
   children,
-  slidesPerView = 1,
+  slidesPerView = { mobile: 1, tablet: 1, desktop: 1 },
   spacing = 16,
   mobileSpacing = 12,
 }: SliderProps) {
-  const windowWidth = useWindowWidth();
   const [isLoaded, setIsLoaded] = useState(false);
+
+  const defaultSlides =
+    typeof slidesPerView === "number" ? slidesPerView : slidesPerView.desktop;
+  const mobileSlides =
+    typeof slidesPerView === "number"
+      ? slidesPerView
+      : (slidesPerView.mobile ?? 1);
+  const tabletSlides =
+    typeof slidesPerView === "number"
+      ? slidesPerView
+      : (slidesPerView.tablet ?? defaultSlides);
 
   const [sliderRef] = useKeenSlider(
     {
       slides: {
-        perView: slidesPerView,
-        spacing: windowWidth < 768 ? mobileSpacing : spacing,
+        perView: mobileSlides,
+        spacing: mobileSpacing,
+      },
+      breakpoints: {
+        "(min-width: 768px)": {
+          slides: {
+            perView: tabletSlides,
+            spacing: spacing,
+          },
+        },
+        "(min-width: 1024px)": {
+          slides: {
+            perView: defaultSlides,
+            spacing: spacing,
+          },
+        },
       },
       dragSpeed: 1,
       rubberband: true,

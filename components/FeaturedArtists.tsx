@@ -46,7 +46,7 @@ export function FeaturedArtists({ slug }: FeaturedArtistsProps) {
           />
         )}
       </div>
-      <h2 className="mt-4 text-lg">{`${artist.first_name} ${artist.last_name}`}</h2>
+      <h3 className="p-4 pl-0 text-zinc-700">{`${artist.first_name} ${artist.last_name}`}</h3>
     </Link>
   );
 }

@@ -35,8 +35,10 @@ export const ProjectCard = ({
         />
       </div>
       <div className="p-4 pl-0">
-        <h3 className="text-xl tracking-tight">{title}</h3>
-        <p className="mt-2 text-gray-800">{location}</p>
+        <h3 className="text-zinc-700">{title}</h3>
+        <p className="mt-0.5 text-sm tracking-tight text-zinc-500">
+          {location}
+        </p>
       </div>
     </LinkComponent>
   );

@@ -1,0 +1,72 @@
+@use "breakpoints.scss" as bp;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #fafafa;
+  @apply font-body;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-heading;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+h1 {
+  font-size: 1.5rem;
+  letter-spacing: -0.0375rem;
+  line-height: 2.5rem;
+
+  @include bp.breakpoint(lg) {
+    font-size: 2rem;
+    letter-spacing: -0.0625rem;
+    line-height: 2.5rem;
+  }
+}
+
+h3 {
+  font-size: 1rem;
+  letter-spacing: -0.025rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+
+  @include bp.breakpoint(lg) {
+    font-size: 1rem;
+    letter-spacing: -0.025rem;
+    line-height: 1.5rem;
+  }
+}
+
+p {
+  font-size: 1rem;
+
+  @include bp.breakpoint(lg) {
+    font-size: 1.125rem;
+  }
+}
+
+section {
+  margin-bottom: 3rem;
+  @include bp.breakpoint(lg) {
+    margin-bottom: 6rem;
+  }
+
+  &:first-of-type {
+    margin-top: 3rem;
+    @include bp.breakpoint(lg) {
+      margin-top: 6rem;
+    }
+  }
+}

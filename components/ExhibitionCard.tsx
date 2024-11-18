@@ -17,7 +17,15 @@ export const ExhibitionCard = ({
   priority = false,
 }: ExhibitionCardProps) => {
   const {
-    frontmatter: { coverImage, title, artists, artistsData },
+    frontmatter: {
+      coverImage,
+      title,
+      artists,
+      artistsData,
+      formattedStartDate,
+      formattedEndDate,
+      city,
+    },
   } = exhibition;
 
   const artistNames = artistsData
@@ -40,8 +48,12 @@ export const ExhibitionCard = ({
         />
       </div>
       <div className="p-4 pl-0">
-        <h3 className="text-xl tracking-tight">{title}</h3>
-        <p className="mt-2 text-gray-800">{artistNames}</p>
+        <h3 className="text-zinc-700">
+          {artistNames}: {title}
+        </h3>
+        <p className="mt-0.5 text-sm tracking-tight text-zinc-500">
+          {formattedStartDate} - {formattedEndDate}, {city}
+        </p>
       </div>
     </LinkComponent>
   );

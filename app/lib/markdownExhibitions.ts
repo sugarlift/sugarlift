@@ -19,6 +19,7 @@ interface ExhibitionFrontmatter {
   startDate: string;
   endDate: string;
   location: string;
+  city: string;
   galleryImages: string[];
 }
 
@@ -28,6 +29,8 @@ interface ProcessedExhibitionFrontmatter
   coverImage: StaticImageData;
   galleryImages: StaticImageData[];
   artistsData?: Artist[];
+  formattedStartDate: string;
+  formattedEndDate: string;
 }
 
 export interface Exhibition {
@@ -37,6 +40,15 @@ export interface Exhibition {
 }
 
 const exhibitionsDirectory = path.join(process.cwd(), "content", "exhibitions");
+
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
 function determineExhibitionStatus(endDate: string): "current" | "past" {
   const today = new Date();
@@ -122,6 +134,8 @@ export async function getExhibitionData(
         artistsData: artistsData.filter(
           (artist): artist is Artist => artist !== undefined,
         ),
+        formattedStartDate: formatDate(frontmatter.startDate),
+        formattedEndDate: formatDate(frontmatter.endDate),
       },
       content: contentHtml,
     };
