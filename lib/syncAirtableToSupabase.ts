@@ -112,6 +112,10 @@ export async function syncAirtableToSupabase() {
           first_name: record.get("first_name") as string,
           last_name: record.get("last_name") as string,
           biography: record.get("biography") as string,
+          year_of_birth: record.get("year_of_birth") as string,
+          location: record.get("location") as string,
+          instagram_url: record.get("instagram_url") as string,
+          website_url: record.get("website_url") as string,
           live_in_production:
             (record.get("live_in_production") as boolean) || false,
           attachments,

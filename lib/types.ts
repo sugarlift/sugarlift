@@ -3,6 +3,10 @@ export interface Artist {
   first_name: string;
   last_name: string;
   biography: string;
+  year_of_birth: string;
+  location: string;
+  instagram_url: string;
+  website_url: string;
   live_in_production: boolean;
   attachments: StoredAttachment[];
   artwork?: Artwork[];
