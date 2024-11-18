@@ -4,9 +4,35 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .container {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: calc(1440px + 4rem);
+    padding-left: 2rem;
+    padding-right: 2rem;
+
+    @include bp.breakpoint(md) {
+      max-width: calc(1440px + 6rem);
+      padding-left: 3rem;
+      padding-right: 3rem;
+    }
+  }
+}
+
 body {
   background: #fafafa;
   @apply font-body;
+}
+
+section {
+  padding-bottom: 4vw;
+  &:first-of-type {
+    padding-top: 4vw;
+  }
 }
 
 h1,
@@ -18,15 +44,9 @@ h6 {
   @apply font-heading;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
 h1,
 h2 {
-  font-size: 1.5rem;
+  font-size: 1.3125rem;
   letter-spacing: -0.0375rem;
   line-height: 2.5rem;
 
@@ -55,19 +75,5 @@ p {
 
   @include bp.breakpoint(lg) {
     font-size: 1.125rem;
-  }
-}
-
-section {
-  padding-bottom: 3rem;
-  @include bp.breakpoint(lg) {
-    padding-bottom: 6rem;
-  }
-
-  &:first-of-type {
-    padding-top: 3rem;
-    @include bp.breakpoint(lg) {
-      padding-top: 6rem;
-    }
   }
 }

@@ -39,7 +39,7 @@ export default async function Home() {
   return (
     <>
       <section className="container">
-        <div className="mb-4 md:mb-11">
+        <div className="mb-[1.33vw]">
           <QuickLink
             href="/exhibitions"
             className="group flex items-center text-zinc-700 transition hover:text-zinc-950"
@@ -65,7 +65,7 @@ export default async function Home() {
       </section>
 
       <section className="container">
-        <div className="mb-4 md:mb-11">
+        <div className="mb-[1.33vw]">
           <QuickLink
             href="/artists"
             className="group flex items-center text-zinc-700 transition hover:text-zinc-950"
@@ -88,7 +88,7 @@ export default async function Home() {
       </section>
 
       <section className="container">
-        <div className="mb-4 md:mb-11">
+        <div className="mb-[1.33vw]">
           <QuickLink
             href="/projects"
             className="group flex items-center text-zinc-700 transition hover:text-zinc-950"

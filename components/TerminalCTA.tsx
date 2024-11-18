@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 export function TerminalCTA() {
   return (
-    <section className="border-t pt-12 lg:pt-24">
+    <div className="border-t py-10 md:py-[4vw]">
       <div className="container text-center">
         <h2 className="mb-4">Get in touch</h2>
         <p className="mx-auto mb-8 max-w-3xl text-lg tracking-tight text-zinc-500">
@@ -27,6 +27,6 @@ export function TerminalCTA() {
           </QuickLink>
         </Button>
       </div>
-    </section>
+    </div>
   );
 }

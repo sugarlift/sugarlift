@@ -17,13 +17,12 @@ const navigation = [
 const CTA = [{ name: "Contact", href: "#" }];
 
 const linkStyles =
-  "text-zinc-700 px-6 py-8 text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] transition hover:text-zinc-950";
+  "text-zinc-700 px-3 lg:px-6 py-8 text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] transition hover:text-zinc-950";
 const linkStylesActive =
   "shadow-[inset_0_-1px_white,_0_1px_black] transition animate fade-in";
 const mobileLinkStyles =
   "block text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] text-zinc-700";
 const mobileLinkStylesActive = "";
-const navPadding = "px-6 py-8";
 
 export default function Example() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -67,29 +66,29 @@ export default function Example() {
     >
       <nav
         aria-label="Global"
-        className={`relative z-50 mx-auto flex max-w-[1488px] items-center justify-between`}
+        className={`relative z-50 mx-auto flex max-w-[1536px] items-center justify-between`}
       >
         <div className="flex">
           <QuickLink
             href="/"
-            className={`${navPadding} transition hover:opacity-50`}
+            className="px-8 py-6 transition hover:opacity-50 md:p-8 md:px-12"
             onClick={() => setMobileMenuOpen(false)}
           >
             <span className="sr-only">{COMPANY_METADATA.name}</span>
             <Logo />
           </QuickLink>
         </div>
-        <div className="mr-6 flex md:hidden">
+        <div className="mr-0 flex md:hidden">
           <Button
-            className="group"
-            variant="outline"
+            className="group px-10 py-7"
+            variant="ghost"
             size="icon"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
             aria-expanded={mobileMenuOpen}
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
           >
             <svg
-              className="pointer-events-none"
+              className="pointer-events-none scale-110"
               width={16}
               height={16}
               viewBox="0 0 24 24"
@@ -136,7 +135,7 @@ export default function Example() {
               <QuickLink
                 key={item.name}
                 href={item.href}
-                className={`${linkStyles} ${active ? linkStylesActive : ""}`}
+                className={`${linkStyles} ${active ? linkStylesActive : ""} px-8 md:px-12`}
               >
                 {item.name}
               </QuickLink>
@@ -148,7 +147,7 @@ export default function Example() {
         {mobileMenuOpen && (
           <>
             <motion.div
-              className="fixed inset-0 z-20 h-[100vh] bg-gray-500 pt-[73px] opacity-50 md:hidden"
+              className="fixed inset-0 z-20 h-[100vh] bg-zinc-700/90 pt-[60px] md:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -160,9 +159,19 @@ export default function Example() {
               animate={{ y: 0 }}
               exit={{ y: "-100%" }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="fixed inset-y-0 right-0 z-30 mb-10 h-[80vh] w-full overflow-y-auto rounded-bl-2xl rounded-br-2xl bg-white px-6 py-6 pt-[73px] backdrop-blur-3xl md:hidden"
+              className="fixed inset-y-0 right-0 z-30 mb-10 h-[90dvh] w-full overflow-y-auto rounded-bl-2xl rounded-br-2xl bg-white px-8 py-6 pt-[60px] backdrop-blur-3xl md:hidden"
             >
-              <div className="mt-6 flow-root">
+              <motion.div
+                initial={{ opacity: 0, y: "-10%" }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{
+                  opacity: 0,
+                  y: "-10%",
+                  transition: { duration: 0.075, delay: 0 },
+                }}
+                transition={{ duration: 0.2, delay: 0.2, ease: "easeInOut" }}
+                className="mt-6 flow-root"
+              >
                 <div className="-my-6 divide-y divide-gray-500/10">
                   <div className="space-y-2 py-6">
                     {navigation.map((item) => {
@@ -199,7 +208,7 @@ export default function Example() {
                     })}
                   </div>
                 </div>
-              </div>
+              </motion.div>
               <motion.div
                 drag="y"
                 dragConstraints={{ top: 0, bottom: 0 }}

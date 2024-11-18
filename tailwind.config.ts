@@ -8,15 +8,6 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    container: {
-      center: true,
-      padding: {
-        DEFAULT: "24px",
-      },
-      screens: {
-        DEFAULT: "1488px",
-      },
-    },
     extend: {
       fontFamily: {
         body: "var(--font-geist-sans)",
