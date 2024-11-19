@@ -34,8 +34,10 @@ export default async function ProjectsPage() {
 
   return (
     <>
-      <section className="container mt-12">
-        <h1 className="mb-8 text-2xl">Featured Projects</h1>
+      <section className="container">
+        <div className="mb-[1.33vw]">
+          <h1>Featured Projects</h1>
+        </div>
         <div className="relative w-full">
           <Slider slidesPerView={1}>
             {featuredProjects.map((project) => (
@@ -46,8 +48,10 @@ export default async function ProjectsPage() {
       </section>
 
       {Object.entries(projectsByCategory).map(([category, projects]) => (
-        <section key={category} className="container mt-12">
-          <h1 className="mb-8 text-2xl">{category}</h1>
+        <section key={category} className="container">
+          <div className="mb-[1.33vw]">
+            <h2>{category}</h2>
+          </div>
           <div className="relative w-full">
             <Slider slidesPerView={2}>
               {projects.map((project) => (

@@ -14,7 +14,7 @@ galleryImages:
   ]
 ---
 
-## How we each express love to one another is at the center of Lees' latest collection. LOVE LANGUAGE is Lees' investigation of her own. In contemporary dating practices, how we love has evolved into a referenceable taxonomy.
+### How we each express love to one another is at the center of Lees' latest collection. LOVE LANGUAGE is Lees' investigation of her own. In contemporary dating practices, how we love has evolved into a referenceable taxonomy.
 
 Couples slot themselves into labels that best fit their love language. Some prefer “acts of service” while others yearn for “words of affirmation.”
 

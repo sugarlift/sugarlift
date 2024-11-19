@@ -58,9 +58,12 @@ export default async function ProjectPage({
   return (
     <>
       <section className="container">
-        <div className="mb-8">
-          <h1 className="mb-2 text-3xl">{project.frontmatter.title}</h1>
-          <p className="text-gray-600">For {project.frontmatter.location}</p>
+        <div className="mb-16">
+          <h1 className="mb-4">{project.frontmatter.title}</h1>
+          <p className="text-zinc-500">For {project.frontmatter.location}</p>
+          <p className="text-zinc-500">
+            Completed in {project.frontmatter.year}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -82,27 +85,29 @@ export default async function ProjectPage({
             </div>
           ))}
         </div>
+      </section>
 
-        <div
-          className="prose prose-lg mt-8 max-w-none"
-          dangerouslySetInnerHTML={{ __html: project.content }}
-        />
+      <section
+        className="prose mx-auto max-w-[716px]"
+        dangerouslySetInnerHTML={{ __html: project.content }}
+      />
 
-        {project.frontmatter.artistsData && (
-          <div className="mt-16 space-y-36 border-t pt-8">
+      {project.frontmatter.artistsData && (
+        <section className="container">
+          <div className="space-y-36">
             {project.frontmatter.artistsData.map((artist, index) => (
               <ArtistCard key={index} artist={artist} />
             ))}
           </div>
-        )}
-      </section>
+        </section>
+      )}
 
-      <section className="container my-16">
-        <h2 className="mb-8 text-2xl font-semibold">
-          More Projects by Sugarlift
-        </h2>
+      <section className="container">
+        <div className="mb-[1.33vw]">
+          <h2>More projects by Sugarlift</h2>
+        </div>
         <div className="relative w-full">
-          <Slider slidesPerView={2}>
+          <Slider slidesPerView={{ mobile: 1, tablet: 2, desktop: 2 }}>
             {["450-washington-2", "450-washington-3"].map((projectSlug) => (
               <FeaturedProjects key={projectSlug} projects={[projectSlug]} />
             ))}

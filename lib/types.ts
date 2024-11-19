@@ -11,6 +11,7 @@ export interface Artist {
   attachments: StoredAttachment[];
   artwork?: Artwork[];
   profile_image?: string;
+  view_count?: number;
 }
 
 export interface WebhookError extends Error {

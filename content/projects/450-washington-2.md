@@ -25,4 +25,6 @@ galleryImages:
 description: "A luxury residential building in Tribeca featuring contemporary artwork integrated with architectural design."
 ---
 
-Detailed project description and content goes here...
+### 50 Washington is a prestigious waterfront residence renowned for its intricate furnishings, extensive amenities, and a unique collection of artworks.
+
+Designed to cater to a round-the-clock lifestyle, the spaces within the building have been meticulously crafted to enrich the daily lives of its residents. Guided by persona-driven research, MAWD honed in on features that would most resonate with the inhabitants. Noteworthy amenities resulting from this research include a sophisticated golf simulator, a communal dining area complemented by a concealed industrial-grade kitchen, and vast co-working spaces. These spaces also boast a library, several conference facilities, and rooms specifically designed for virtual meetings. An expansive rooftop deck offers unparalleled 360-degree vistas, capturing the breathtaking beauty of the Hudson River and the iconic skyline of downtown Manhattan.

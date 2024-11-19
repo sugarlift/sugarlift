@@ -7,6 +7,7 @@ import { Instagram, Globe } from "lucide-react";
 import Link from "next/link";
 import { TerminalCTA } from "@/components/TerminalCTA";
 import { ArtistCard } from "@/components/ArtistCard";
+import { incrementViewCount } from "./actions";
 
 async function getArtistBySlug(slug: string): Promise<Artist | null> {
   const [firstName, lastName] = slug
@@ -54,12 +55,14 @@ async function getArtistBySlug(slug: string): Promise<Artist | null> {
   }
 }
 
+type Params = Promise<{ slug: string }>;
+
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Params;
 }): Promise<Metadata> {
-  const slug = (await params).slug;
+  const { slug } = await params;
   const artist = await getArtistBySlug(slug);
 
   if (!artist) {
@@ -76,17 +79,20 @@ export async function generateMetadata({
   };
 }
 
-export default async function ArtistPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const slug = (await params).slug;
+export default async function ArtistPage({ params }: { params: Params }) {
+  const { slug } = await params;
   const artist = await getArtistBySlug(slug);
 
   if (!artist) {
     notFound();
   }
+
+  await incrementViewCount(
+    artist.first_name,
+    artist.last_name,
+    artist.view_count,
+    slug,
+  );
 
   return (
     <>
@@ -130,7 +136,7 @@ export default async function ArtistPage({
             <p className="mb-6 inline-block border-b border-zinc-950 pb-6 text-lg text-zinc-950">
               Biography
             </p>
-            <p>{artist.biography}</p>
+            <p className="prose">{artist.biography}</p>
           </div>
         </div>
       </section>

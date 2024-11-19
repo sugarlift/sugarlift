@@ -58,17 +58,17 @@ export default async function Page({
   return (
     <>
       <section className="container">
-        <div className="mb-8">
-          <h1>{exhibition.frontmatter.title}</h1>
-          <p className="mb-4 text-xl text-gray-600">
+        <div className="mb-16">
+          <h1 className="mb-4">
             {exhibition.frontmatter.artistsData
               ? exhibition.frontmatter.artistsData
                   .map((artist) => `${artist.first_name} ${artist.last_name}`)
                   .join(", ")
               : exhibition.frontmatter.artists.join(", ")}
-          </p>
-          <p className="text-gray-600">{exhibition.frontmatter.location}</p>
-          <p className="text-gray-600">
+            : {exhibition.frontmatter.title}
+          </h1>
+          <p className="text-zinc-500">{exhibition.frontmatter.location}</p>
+          <p className="text-zinc-500">
             {exhibition.frontmatter.formattedStartDate} -{" "}
             {exhibition.frontmatter.formattedEndDate}
           </p>
@@ -93,20 +93,21 @@ export default async function Page({
             </div>
           ))}
         </div>
+      </section>
+      <section
+        className="prose mx-auto max-w-[716px]"
+        dangerouslySetInnerHTML={{ __html: exhibition.content }}
+      />
 
-        <div
-          className="prose prose-lg mt-8 max-w-none"
-          dangerouslySetInnerHTML={{ __html: exhibition.content }}
-        />
-
-        {exhibition.frontmatter.artistsData && (
-          <div className="mt-16 space-y-36 border-t pt-8">
+      {exhibition.frontmatter.artistsData && (
+        <section className="container">
+          <div className="space-y-36">
             {exhibition.frontmatter.artistsData.map((artist, index) => (
               <ArtistCard key={index} artist={artist} />
             ))}
           </div>
-        )}
-      </section>
+        </section>
+      )}
       <TerminalCTA />
     </>
   );
