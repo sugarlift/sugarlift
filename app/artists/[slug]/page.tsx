@@ -200,5 +200,5 @@ export async function generateStaticParams() {
   }));
 }
 
-export const dynamic = "force-static";
-export const revalidate = 3600; // Revalidate every hour
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
