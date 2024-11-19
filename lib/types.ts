@@ -12,6 +12,8 @@ export interface Artist {
   artwork?: Artwork[];
   profile_image?: string;
   view_count?: number;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface WebhookError extends Error {

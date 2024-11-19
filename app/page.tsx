@@ -5,6 +5,7 @@ import { Slider } from "@/components/Slider";
 import { TerminalCTA } from "@/components/TerminalCTA";
 import { QuickLink } from "@/components/Link";
 import { ArrowRight } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 // Mark the page as static
 export const dynamic = "force-static";
@@ -13,23 +14,25 @@ export const dynamic = "force-static";
 export const revalidate = 3600; // revalidate every hour
 
 async function getFeaturedData() {
+  const { data: artists } = await supabase
+    .from("artists")
+    .select("*")
+    .eq("live_in_production", true)
+    .order("view_count", { ascending: false })
+    .order("last_name", { ascending: true })
+    .order("first_name", { ascending: true })
+    .limit(9);
+
   const exhibitions = [
     "celia-lees-love-language",
     "celia-lees-love-language-2",
   ];
   const projects = ["450-washington", "450-washington-2", "450-washington-3"];
-  const artists = [
-    "maja-dlugolecki",
-    "celia-lees",
-    "fabienne-meyer",
-    "kenny-nguyen",
-    "alicia-gimeno",
-  ];
 
   return {
     exhibitions,
     projects,
-    artists,
+    artists: artists || [],
   };
 }
 
@@ -81,7 +84,7 @@ export default async function Home() {
         <div className="relative w-full">
           <Slider slidesPerView={{ mobile: 2, tablet: 3, desktop: 4 }}>
             {artists.map((artist) => (
-              <FeaturedArtists key={artist} slug={artist} />
+              <FeaturedArtists key={artist.id} artist={artist} />
             ))}
           </Slider>
         </div>

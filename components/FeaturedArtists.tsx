@@ -2,39 +2,20 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { Artist } from "@/lib/types";
 
 interface FeaturedArtistsProps {
-  slug: string;
+  artist: Artist;
 }
 
-interface Artist {
-  first_name: string;
-  last_name: string;
-  attachments: { url: string }[];
-}
-
-export function FeaturedArtists({ slug }: FeaturedArtistsProps) {
-  const [artist, setArtist] = useState<Artist | null>(null);
-
-  useEffect(() => {
-    async function fetchArtist() {
-      const response = await fetch(`/api/artists/${slug}`);
-      const data = await response.json();
-      if (!response.ok) {
-        console.error("Failed to fetch artist:", data.error);
-        return;
-      }
-      setArtist(data);
-    }
-
-    fetchArtist();
-  }, [slug]);
-
+export function FeaturedArtists({ artist }: FeaturedArtistsProps) {
   if (!artist) return null;
 
   return (
-    <Link href={`/artists/${slug}`} className="block">
+    <Link
+      href={`/artists/${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`}
+      className="block"
+    >
       <div className="relative aspect-[2/3] w-full overflow-hidden">
         {artist.attachments && artist.attachments.length > 0 && (
           <Image
