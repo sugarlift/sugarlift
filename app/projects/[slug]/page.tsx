@@ -6,9 +6,9 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { FAQ } from "@/components/FAQ";
 import { ConsultationCTA } from "@/components/ConsultationCTA";
-import { QuickLink } from "@/components/Link";
 import { FeaturedProjects } from "@/components/FeaturedProjects";
 import { Slider } from "@/components/Slider";
+import { ArtistCard } from "@/components/ArtistCard";
 
 export async function generateStaticParams() {
   const projects = await getAllProjects();
@@ -89,42 +89,9 @@ export default async function ProjectPage({
         />
 
         {project.frontmatter.artistsData && (
-          <div className="mt-16 border-t pt-8">
+          <div className="mt-16 space-y-36 border-t pt-8">
             {project.frontmatter.artistsData.map((artist, index) => (
-              <div key={index} className="mb-8">
-                <div className="flex flex-col md:flex-row md:gap-8">
-                  {artist.attachments && (
-                    <div className="mb-6 md:mb-0 md:w-1/3">
-                      <div className="relative aspect-square w-full">
-                        <Image
-                          src={artist.attachments[0].url}
-                          alt={`${artist.first_name} ${artist.last_name}`}
-                          fill
-                          className="rounded-lg object-cover"
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  <div className="md:w-2/3">
-                    <QuickLink
-                      href={`/artists/${project.frontmatter.artists[index]}`}
-                      className="mb-4 block text-xl font-semibold hover:text-gray-600"
-                    >
-                      {artist.first_name} {artist.last_name}
-                    </QuickLink>
-                    <div className="prose max-w-none">
-                      <p>{artist.biography}</p>
-                    </div>
-                    <QuickLink
-                      href={`/artists/${project.frontmatter.artists[index]}`}
-                      className="mt-4 inline-block text-blue-600 hover:text-blue-800"
-                    >
-                      View Artist Profile →
-                    </QuickLink>
-                  </div>
-                </div>
-              </div>
+              <ArtistCard key={index} artist={artist} />
             ))}
           </div>
         )}

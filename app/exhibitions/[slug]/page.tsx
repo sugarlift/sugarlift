@@ -8,7 +8,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { TerminalCTA } from "@/components/TerminalCTA";
-import { QuickLink } from "@/components/Link";
+import { ArtistCard } from "@/components/ArtistCard";
 
 export async function generateStaticParams() {
   const exhibitions = await getAllExhibitions();
@@ -59,7 +59,7 @@ export default async function Page({
     <>
       <section className="container">
         <div className="mb-8">
-          <h1 className="mb-2 text-3xl">{exhibition.frontmatter.title}</h1>
+          <h1>{exhibition.frontmatter.title}</h1>
           <p className="mb-4 text-xl text-gray-600">
             {exhibition.frontmatter.artistsData
               ? exhibition.frontmatter.artistsData
@@ -67,11 +67,11 @@ export default async function Page({
                   .join(", ")
               : exhibition.frontmatter.artists.join(", ")}
           </p>
-          <p className="text-gray-600">
-            {new Date(exhibition.frontmatter.startDate).toLocaleDateString()} -{" "}
-            {new Date(exhibition.frontmatter.endDate).toLocaleDateString()}
-          </p>
           <p className="text-gray-600">{exhibition.frontmatter.location}</p>
+          <p className="text-gray-600">
+            {exhibition.frontmatter.formattedStartDate} -{" "}
+            {exhibition.frontmatter.formattedEndDate}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -100,42 +100,9 @@ export default async function Page({
         />
 
         {exhibition.frontmatter.artistsData && (
-          <div className="mt-16 border-t pt-8">
+          <div className="mt-16 space-y-36 border-t pt-8">
             {exhibition.frontmatter.artistsData.map((artist, index) => (
-              <div key={index} className="mb-8">
-                <div className="flex flex-col md:flex-row md:gap-8">
-                  {artist.attachments && (
-                    <div className="mb-6 md:mb-0 md:w-1/3">
-                      <div className="relative aspect-square w-full">
-                        <Image
-                          src={artist.attachments[0].url}
-                          alt={`${artist.first_name} ${artist.last_name}`}
-                          fill
-                          className="rounded-lg object-cover"
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  <div className="md:w-2/3">
-                    <QuickLink
-                      href={`/artists/${exhibition.frontmatter.artists[index]}`}
-                      className="mb-4 block text-xl font-semibold hover:text-gray-600"
-                    >
-                      {artist.first_name} {artist.last_name}
-                    </QuickLink>
-                    <div className="prose max-w-none">
-                      <p>{artist.biography}</p>
-                    </div>
-                    <QuickLink
-                      href={`/artists/${exhibition.frontmatter.artists[index]}`}
-                      className="mt-4 inline-block text-blue-600 hover:text-blue-800"
-                    >
-                      View Artist Profile →
-                    </QuickLink>
-                  </div>
-                </div>
-              </div>
+              <ArtistCard key={index} artist={artist} />
             ))}
           </div>
         )}
