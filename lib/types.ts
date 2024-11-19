@@ -54,6 +54,8 @@ export interface Artwork {
   last_name: string;
   title: string | null;
   medium: string | null;
+  width: string | null;
+  height: string | null;
   year: number | null;
   live_in_production: boolean;
   artwork_images: StoredAttachment[];

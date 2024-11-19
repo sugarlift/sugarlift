@@ -121,6 +121,8 @@ export async function syncArtworkToSupabase() {
           last_name: record.get("last_name") as string,
           title: (record.get("title") as string) || null,
           medium: (record.get("medium") as string) || null,
+          width: (record.get("width") as string) || null,
+          height: (record.get("height") as string) || null,
           year: record.get("year") ? Number(record.get("year")) : null,
           live_in_production:
             (record.get("live_in_production") as boolean) || false,

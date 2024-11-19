@@ -163,11 +163,10 @@ export default async function ArtistPage({
                     </div>
                   )}
                   <h3 className="text-lg font-medium">
-                    {artwork.title || "Untitled"}
+                    {artwork.title || "Untitled"}, {artwork.year}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    {artwork.medium}
-                    {artwork.year && `, ${artwork.year}`}
+                    {artwork.medium}, {artwork.year}
                   </p>
                 </div>
               ))}
