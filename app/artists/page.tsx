@@ -1,11 +1,10 @@
 // app/artists/page.tsx
 
-import { TerminalCTA } from "@/components/TerminalCTA";
+import { ArtistsClient } from "./client";
 import { supabase } from "@/lib/supabase";
 import { Artist } from "@/lib/types";
-import { ArtistCard } from "@/components/ArtistCard";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 async function getArtists(): Promise<Artist[]> {
   const { data, error } = await supabase
@@ -26,20 +25,5 @@ async function getArtists(): Promise<Artist[]> {
 
 export default async function ArtistsPage() {
   const artists = await getArtists();
-
-  return (
-    <>
-      <section className="mb-[-4vw]">
-        <h1 className="container mb-12">Featured artists</h1>
-        <div className="bg-white py-24">
-          <div className="bg-w container space-y-36">
-            {artists.map((artist) => (
-              <ArtistCard key={artist.id} artist={artist} />
-            ))}
-          </div>
-        </div>
-      </section>
-      <TerminalCTA />
-    </>
-  );
+  return <ArtistsClient initialArtists={artists} />;
 }

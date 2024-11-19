@@ -91,7 +91,6 @@ export default async function ArtistPage({ params }: { params: Params }) {
     artist.first_name,
     artist.last_name,
     artist.view_count,
-    slug,
   );
 
   return (

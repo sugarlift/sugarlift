@@ -6,7 +6,6 @@ export async function incrementViewCount(
   firstName: string,
   lastName: string,
   currentCount: number | undefined,
-  slug: string,
 ) {
   // Only increment view count in production
   if (process.env.NODE_ENV === "production") {

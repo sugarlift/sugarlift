@@ -39,7 +39,7 @@ export function ArtistCard({
         ) : (
           <QuickLink
             href={`/artists/${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`}
-            className="text-xl transition-colors hover:text-gray-600"
+            className="text-xl text-zinc-700 transition-colors hover:text-zinc-950"
           >
             <ArtistInfo />
           </QuickLink>
