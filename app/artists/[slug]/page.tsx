@@ -138,11 +138,11 @@ export default async function ArtistPage({
       <section className="container">
         {artist.artwork && artist.artwork.length > 0 && (
           <div className="mt-12">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
               {artist.artwork.map((artwork) => (
-                <div key={artwork.id} className="space-y-2">
+                <div key={artwork.id}>
                   {artwork.artwork_images && (
-                    <div className="grid gap-2">
+                    <div>
                       {artwork.artwork_images.map((image, imageIndex) => (
                         <div
                           key={imageIndex}
@@ -155,19 +155,21 @@ export default async function ArtistPage({
                               `Artwork ${imageIndex + 1} by ${artist.first_name} ${artist.last_name}`
                             }
                             fill
-                            className="rounded-lg object-cover"
+                            className="object-cover"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           />
                         </div>
                       ))}
                     </div>
                   )}
-                  <h3 className="text-lg font-medium">
-                    {artwork.title || "Untitled"}, {artwork.year}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {artwork.medium}, {artwork.year}
-                  </p>
+                  <div className="p-4 pl-0">
+                    <h3 className="text-zinc-700">
+                      {artwork.title || "Untitled"}, {artwork.year}
+                    </h3>
+                    <p className="mt-0.5 text-sm tracking-tight text-zinc-500">
+                      {artwork.medium}, {artwork.height}"H x {artwork.width}"W
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
