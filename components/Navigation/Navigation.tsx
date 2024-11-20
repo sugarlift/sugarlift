@@ -17,7 +17,7 @@ const navigation = [
 const CTA = [{ name: "Contact", href: "#" }];
 
 const linkStyles =
-  "text-zinc-700 px-3 lg:px-6 py-8 text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] transition hover:text-zinc-950";
+  "text-zinc-700 py-8 text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] transition hover:text-zinc-950";
 const linkStylesActive =
   "shadow-[inset_0_-1px_white,_0_1px_black] transition animate fade-in";
 const mobileLinkStyles =
@@ -121,7 +121,7 @@ export default function Example() {
               <QuickLink
                 key={item.name}
                 href={item.href}
-                className={`${linkStyles} ${active ? linkStylesActive : ""}`}
+                className={`${linkStyles} ${active ? linkStylesActive : ""} px-3 lg:px-6`}
               >
                 {item.name}
               </QuickLink>
@@ -135,7 +135,7 @@ export default function Example() {
               <QuickLink
                 key={item.name}
                 href={item.href}
-                className={`${linkStyles} ${active ? linkStylesActive : ""} px-8 md:px-12`}
+                className={`${linkStyles} ${active ? linkStylesActive : ""} px-12`}
               >
                 {item.name}
               </QuickLink>

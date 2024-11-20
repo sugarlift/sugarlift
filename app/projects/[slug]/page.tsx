@@ -4,10 +4,7 @@ import { getProjectData, getAllProjects } from "@/app/lib/markdownProjects";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { FAQ } from "@/components/FAQ";
 import { ConsultationCTA } from "@/components/ConsultationCTA";
-import { FeaturedProjects } from "@/components/FeaturedProjects";
-import { Slider } from "@/components/Slider";
 import { ArtistCard } from "@/components/ArtistCard";
 
 export async function generateStaticParams() {
@@ -101,21 +98,6 @@ export default async function ProjectPage({
           </div>
         </section>
       )}
-
-      <section className="container">
-        <div className="mb-[1.33vw]">
-          <h2>More projects by Sugarlift</h2>
-        </div>
-        <div className="relative w-full">
-          <Slider slidesPerView={{ mobile: 1, tablet: 2, desktop: 2 }}>
-            {["450-washington-2", "450-washington-3"].map((projectSlug) => (
-              <FeaturedProjects key={projectSlug} projects={[projectSlug]} />
-            ))}
-          </Slider>
-        </div>
-      </section>
-
-      <FAQ />
       <ConsultationCTA />
     </>
   );
