@@ -18,7 +18,7 @@ const airtable = new Airtable({
 });
 
 export const getArtistsTable = () => {
-  return airtable.base(AIRTABLE_BASE_ID).table("tblkYraa6YhVleHVu");
+  return airtable.base(AIRTABLE_BASE_ID).table("tblDYfUM8SVh14Hmg");
 };
 
 export const getArtworkTable = () => {
