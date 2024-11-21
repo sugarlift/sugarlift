@@ -23,9 +23,9 @@ export async function POST(request: Request) {
 
     // Log Airtable credentials status
     console.log("Checking Airtable configuration...");
-    if (!process.env.AIRTABLE_API_KEY) {
-      console.error("Missing AIRTABLE_API_KEY");
-      throw new Error("Missing AIRTABLE_API_KEY");
+    if (!process.env.AIRTABLE_PERSONAL_ACCESS_TOKEN) {
+      console.error("Missing AIRTABLE_PERSONAL_ACCESS_TOKEN");
+      throw new Error("Missing AIRTABLE_PERSONAL_ACCESS_TOKEN");
     }
     if (!process.env.AIRTABLE_BASE_ID) {
       console.error("Missing AIRTABLE_BASE_ID");
