@@ -10,18 +10,17 @@ import { ArtistCard } from "@/components/ArtistCard";
 import { incrementViewCount } from "./actions";
 
 async function getArtistBySlug(slug: string): Promise<Artist | null> {
-  const [firstName, lastName] = slug
+  const artistName = slug
     .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
   try {
-    // First get the artist
     const { data: artist, error: artistError } = await supabase
       .from("artists")
       .select("*")
       .eq("live_in_production", true)
-      .eq("first_name", firstName)
-      .eq("last_name", lastName)
+      .eq("artist_name", artistName)
       .single();
 
     if (artistError || !artist) {
@@ -29,8 +28,6 @@ async function getArtistBySlug(slug: string): Promise<Artist | null> {
       return null;
     }
 
-    // Then get their artwork using artist_id
-    // Using ilike to match the ID within the string
     const { data: artwork, error: artworkError } = await supabase
       .from("artwork")
       .select("*")
@@ -42,9 +39,6 @@ async function getArtistBySlug(slug: string): Promise<Artist | null> {
       return null;
     }
 
-    console.log("Found artwork:", artwork); // Add this to debug
-
-    // Combine the data
     return {
       ...artist,
       artwork: artwork || [],
@@ -72,10 +66,10 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${artist.first_name} ${artist.last_name} | Artist Profile`,
+    title: `${artist.artist_name} | Artist Profile`,
     description:
-      artist.biography?.slice(0, 160) ||
-      `Profile of artist ${artist.first_name} ${artist.last_name}`,
+      artist.artist_bio?.slice(0, 160) ||
+      `Profile of artist ${artist.artist_name}`,
   };
 }
 
@@ -87,11 +81,7 @@ export default async function ArtistPage({ params }: { params: Params }) {
     notFound();
   }
 
-  await incrementViewCount(
-    artist.first_name,
-    artist.last_name,
-    artist.view_count,
-  );
+  await incrementViewCount(artist.artist_name, artist.view_count || 0, slug);
 
   return (
     <>
@@ -106,10 +96,10 @@ export default async function ArtistPage({ params }: { params: Params }) {
       <section className="container">
         <div className="grid grid-cols-4 items-start">
           <div className="flex flex-row">
-            {artist.instagram_url && (
+            {artist.ig_handle && (
               <p>
                 <Link
-                  href={artist.instagram_url}
+                  href={`https://instagram.com/${artist.ig_handle}`}
                   className="block p-2 px-4 pl-0 hover:opacity-50"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -118,10 +108,10 @@ export default async function ArtistPage({ params }: { params: Params }) {
                 </Link>
               </p>
             )}
-            {artist.website_url && (
+            {artist.website && (
               <p>
                 <Link
-                  href={artist.website_url}
+                  href={artist.website}
                   className="block p-2 px-4 hover:opacity-50"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -135,7 +125,7 @@ export default async function ArtistPage({ params }: { params: Params }) {
             <p className="mb-6 inline-block border-b border-zinc-950 pb-6 text-lg text-zinc-950">
               Biography
             </p>
-            <p className="prose">{artist.biography}</p>
+            <p className="prose">{artist.artist_bio}</p>
           </div>
         </div>
       </section>
@@ -157,7 +147,7 @@ export default async function ArtistPage({ params }: { params: Params }) {
                             src={image.url}
                             alt={
                               artwork.title ||
-                              `Artwork ${imageIndex + 1} by ${artist.first_name} ${artist.last_name}`
+                              `Artwork ${imageIndex + 1} by ${artist.artist_name}`
                             }
                             fill
                             className="object-cover"
@@ -189,13 +179,13 @@ export default async function ArtistPage({ params }: { params: Params }) {
 export async function generateStaticParams() {
   const { data: artists } = await supabase
     .from("artists")
-    .select("first_name, last_name")
+    .select("artist_name")
     .eq("live_in_production", true);
 
   if (!artists) return [];
 
   return artists.map((artist) => ({
-    slug: `${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`,
+    slug: artist.artist_name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "-"),
   }));
 }
 

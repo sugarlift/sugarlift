@@ -61,17 +61,17 @@ function determineExhibitionStatus(endDate: string): "current" | "past" {
 }
 
 async function getArtistBySlug(slug: string): Promise<Artist | undefined> {
-  const [firstName, lastName] = slug
+  const artistName = slug
     .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
   try {
     const { data: artist, error: artistError } = await supabase
       .from("artists")
       .select("*")
       .eq("live_in_production", true)
-      .eq("first_name", firstName)
-      .eq("last_name", lastName)
+      .eq("artist_name", artistName)
       .single();
 
     if (artistError || !artist) {

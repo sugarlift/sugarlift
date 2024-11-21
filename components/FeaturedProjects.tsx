@@ -1,22 +1,21 @@
-import { Project, getProjectData } from "@/app/lib/markdownProjects";
-import { ProjectCard } from "./ProjectCard";
+import { Project, getAllProjects } from "@/app/lib/markdownProjects";
+import { ProjectCard } from "@/components/ProjectCard";
 
 interface FeaturedProjectsProps {
   projects: string[];
 }
 
 export async function FeaturedProjects({ projects }: FeaturedProjectsProps) {
-  const projectPromises = projects.map((slug) => getProjectData(slug));
-  const projectResults = await Promise.all(projectPromises);
+  const allProjects = await getAllProjects();
 
-  const featuredProjects = projectResults
-    .filter((project): project is Project => project !== null)
+  const featuredProjects = allProjects
+    .filter((project) => projects.includes(project.slug))
     .map((project) => ({
       ...project,
       frontmatter: {
         ...project.frontmatter,
         displayName: project.frontmatter.artistsData?.[0]
-          ? `${project.frontmatter.artistsData[0].first_name} ${project.frontmatter.artistsData[0].last_name}`
+          ? project.frontmatter.artistsData[0].artist_name
           : project.frontmatter.artists?.[0],
       },
     }));

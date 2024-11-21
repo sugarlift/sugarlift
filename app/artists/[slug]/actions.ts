@@ -3,9 +3,9 @@
 import { supabase } from "@/lib/supabase";
 
 export async function incrementViewCount(
-  firstName: string,
-  lastName: string,
-  currentCount: number | undefined,
+  artistName: string,
+  currentCount: number,
+  slug: string,
 ) {
   // Only increment view count in production
   if (process.env.NODE_ENV === "production") {
@@ -14,7 +14,6 @@ export async function incrementViewCount(
       .update({
         view_count: currentCount ? currentCount + 1 : 1,
       })
-      .eq("first_name", firstName)
-      .eq("last_name", lastName);
+      .eq("artist_name", artistName);
   }
 }

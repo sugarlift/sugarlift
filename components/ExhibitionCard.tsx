@@ -29,9 +29,7 @@ export const ExhibitionCard = ({
   } = exhibition;
 
   const artistNames = artistsData
-    ? artistsData
-        .map((artist) => `${artist.first_name} ${artist.last_name}`)
-        .join(", ")
+    ? artistsData.map((artist) => `${artist.artist_name}`).join(", ")
     : artists.join(", ");
 
   return (

@@ -30,7 +30,7 @@ export async function generateMetadata({
 
   const artistNames = project.frontmatter.artistsData
     ? project.frontmatter.artistsData
-        .map((artist) => `${artist.first_name} ${artist.last_name}`)
+        .map((artist) => artist.artist_name)
         .join(", ")
     : project.frontmatter.artists.join(", ");
 
@@ -51,6 +51,12 @@ export default async function ProjectPage({
   if (!project) {
     notFound();
   }
+
+  const artistNames = project.frontmatter.artistsData
+    ? project.frontmatter.artistsData
+        .map((artist) => artist.artist_name)
+        .join(", ")
+    : project.frontmatter.artists.join(", ");
 
   return (
     <>

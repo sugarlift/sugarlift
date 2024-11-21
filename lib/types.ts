@@ -1,19 +1,17 @@
 export interface Artist {
   id: string;
-  first_name: string;
-  last_name: string;
-  biography: string;
-  year_of_birth: string;
-  location: string;
-  instagram_url: string;
-  website_url: string;
+  artist_name: string;
+  artist_bio: string;
+  born: string;
+  city: string;
+  state: string;
+  country: string;
+  ig_handle: string;
+  website: string;
   live_in_production: boolean;
-  attachments: StoredAttachment[];
-  artwork?: Artwork[];
-  profile_image?: string;
+  artist_photo: StoredAttachment[];
   view_count?: number;
-  latitude?: number;
-  longitude?: number;
+  artwork?: Artwork[];
 }
 
 export interface WebhookError extends Error {

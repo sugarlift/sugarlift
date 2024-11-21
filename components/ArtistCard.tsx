@@ -19,15 +19,19 @@ export function ArtistCard({
 }: ArtistCardProps) {
   const ArtistInfo = () => (
     <>
-      <h2>
-        {artist.first_name}
-        <br />
-        {artist.last_name}
-      </h2>
-      <p className="mt-4 tracking-tight text-zinc-500">{artist.location}</p>
-      <p className="tracking-tight text-zinc-500">b. {artist.year_of_birth}</p>
+      <h2>{artist.artist_name}</h2>
+      <p className="mt-4 tracking-tight text-zinc-500">
+        {artist.city}
+        {artist.state && `, ${artist.state}`}
+        {artist.country && `, ${artist.country}`}
+      </p>
+      <p className="tracking-tight text-zinc-500">b. {artist.born}</p>
     </>
   );
+
+  const artistSlug = artist.artist_name
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9]/g, "-");
 
   return (
     <div className="grid grid-cols-4 items-start">
@@ -38,7 +42,7 @@ export function ArtistCard({
           </div>
         ) : (
           <QuickLink
-            href={`/artists/${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`}
+            href={`/artists/${artistSlug}`}
             className="text-xl text-zinc-700 transition-colors hover:text-zinc-950"
           >
             <ArtistInfo />
@@ -63,26 +67,26 @@ export function ArtistCard({
         )}
       </div>
       <div className="col-span-3">
-        {artist.attachments && artist.attachments.length > 0 ? (
+        {artist.artist_photo && artist.artist_photo.length > 0 ? (
           <Slider slidesPerView={3}>
-            {artist.attachments.map((attachment, index) => (
+            {artist.artist_photo.map((attachment, index) => (
               <div key={index} className="relative aspect-[2/3] w-full">
                 {disableLink ? (
                   <Image
                     src={attachment.url}
-                    alt={`${artist.first_name} ${artist.last_name} - Work ${index + 1}`}
+                    alt={`${artist.artist_name} - Work ${index + 1}`}
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
                   />
                 ) : (
                   <Link
-                    href={`/artists/${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`}
+                    href={`/artists/${artistSlug}`}
                     className="text-xl transition-colors hover:text-gray-600"
                   >
                     <Image
                       src={attachment.url}
-                      alt={`${artist.first_name} ${artist.last_name} - Work ${index + 1}`}
+                      alt={`${artist.artist_name} - Work ${index + 1}`}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"

@@ -10,6 +10,8 @@ import type { Metadata } from "next";
 import { TerminalCTA } from "@/components/TerminalCTA";
 import { ArtistCard } from "@/components/ArtistCard";
 
+type Params = Promise<{ slug: string }>;
+
 export async function generateStaticParams() {
   const exhibitions = await getAllExhibitions();
   return exhibitions.map((exhibition) => ({
@@ -20,7 +22,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Params;
 }): Promise<Metadata> {
   const { slug } = await params;
   const exhibition = await getExhibitionData(slug);
@@ -33,7 +35,7 @@ export async function generateMetadata({
 
   const artistNames = exhibition.frontmatter.artistsData
     ? exhibition.frontmatter.artistsData
-        .map((artist) => `${artist.first_name} ${artist.last_name}`)
+        .map((artist) => artist.artist_name)
         .join(", ")
     : exhibition.frontmatter.artists.join(", ");
 
@@ -43,11 +45,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function ExhibitionPage({ params }: { params: Params }) {
   const { slug } = await params;
   const exhibition = await getExhibitionData(slug);
 
@@ -55,17 +53,18 @@ export default async function Page({
     notFound();
   }
 
+  const artistNames = exhibition.frontmatter.artistsData
+    ? exhibition.frontmatter.artistsData
+        .map((artist) => artist.artist_name)
+        .join(", ")
+    : exhibition.frontmatter.artists.join(", ");
+
   return (
     <>
       <section className="container">
         <div className="mb-16">
           <h1 className="mb-4">
-            {exhibition.frontmatter.artistsData
-              ? exhibition.frontmatter.artistsData
-                  .map((artist) => `${artist.first_name} ${artist.last_name}`)
-                  .join(", ")
-              : exhibition.frontmatter.artists.join(", ")}
-            : {exhibition.frontmatter.title}
+            {artistNames}: {exhibition.frontmatter.title}
           </h1>
           <p className="text-zinc-500">{exhibition.frontmatter.location}</p>
           <p className="text-zinc-500">

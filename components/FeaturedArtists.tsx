@@ -11,23 +11,24 @@ interface FeaturedArtistsProps {
 export function FeaturedArtists({ artist }: FeaturedArtistsProps) {
   if (!artist) return null;
 
+  const artistSlug = artist.artist_name
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9]/g, "-");
+
   return (
-    <Link
-      href={`/artists/${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`}
-      className="block"
-    >
+    <Link href={`/artists/${artistSlug}`} className="block">
       <div className="relative aspect-[2/3] w-full overflow-hidden">
-        {artist.attachments && artist.attachments.length > 0 && (
+        {artist.artist_photo && artist.artist_photo.length > 0 && (
           <Image
-            src={artist.attachments[0].url}
-            alt={`${artist.first_name} ${artist.last_name}`}
+            src={artist.artist_photo[0].url}
+            alt={artist.artist_name}
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         )}
       </div>
-      <h3 className="p-4 pl-0 text-zinc-700">{`${artist.first_name} ${artist.last_name}`}</h3>
+      <h3 className="p-4 pl-0 text-zinc-700">{artist.artist_name}</h3>
     </Link>
   );
 }

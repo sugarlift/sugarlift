@@ -9,9 +9,11 @@ import {
 
 async function uploadAttachmentToSupabase(
   attachment: AirtableAttachment,
-  artist: { first_name: string; last_name: string },
+  artist: { artist_name: string },
 ): Promise<StoredAttachment> {
-  const folderName = `${artist.first_name.toLowerCase()}-${artist.last_name.toLowerCase()}`;
+  const folderName = artist.artist_name
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9]/g, "-");
   const cleanFilename = attachment.filename
     .replace(/[^a-zA-Z0-9.-]/g, "-")
     .toLowerCase();
@@ -81,7 +83,7 @@ export async function syncAirtableToSupabase() {
       try {
         console.log("Record structure:", record._rawJson);
 
-        const rawAttachments = record.get("attachments");
+        const rawAttachments = record.get("artist_photo");
         let attachments: StoredAttachment[] = [];
 
         if (rawAttachments && Array.isArray(rawAttachments)) {
@@ -100,8 +102,7 @@ export async function syncAirtableToSupabase() {
           attachments = await Promise.all(
             airtableAttachments.map((attachment) =>
               uploadAttachmentToSupabase(attachment, {
-                first_name: record.get("first_name") as string,
-                last_name: record.get("last_name") as string,
+                artist_name: record.get("Artist Name") as string,
               }),
             ),
           );
@@ -109,16 +110,17 @@ export async function syncAirtableToSupabase() {
 
         const artist: Artist = {
           id: record.id,
-          first_name: record.get("first_name") as string,
-          last_name: record.get("last_name") as string,
-          biography: record.get("biography") as string,
-          year_of_birth: record.get("year_of_birth") as string,
-          location: record.get("location") as string,
-          instagram_url: record.get("instagram_url") as string,
-          website_url: record.get("website_url") as string,
+          artist_name: record.get("Artist Name") as string,
+          artist_bio: record.get("Artist Bio") as string,
+          born: record.get("Born") as string,
+          city: record.get("City") as string,
+          state: record.get("State") as string,
+          country: record.get("Country") as string,
+          ig_handle: record.get("IG Handle") as string,
+          website: record.get("Website") as string,
           live_in_production:
-            (record.get("live_in_production") as boolean) || false,
-          attachments,
+            (record.get("Add to Website") as boolean) || false,
+          artist_photo: attachments,
         };
 
         console.log("Processing artist:", artist);
@@ -131,7 +133,7 @@ export async function syncAirtableToSupabase() {
         if (upsertError) {
           console.error(
             "Error upserting artist:",
-            artist.first_name,
+            artist.artist_name,
             upsertError,
           );
           throw upsertError;
