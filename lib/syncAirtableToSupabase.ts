@@ -128,12 +128,24 @@ export async function syncAirtableToSupabase() {
 
         airtableIds.add(record.id);
 
-        const { error: upsertError } = await supabase
+        console.log("Attempting to upsert artist:", {
+          id: artist.id,
+          name: artist.artist_name,
+          live: artist.live_in_production,
+        });
+
+        const { error: upsertError, data: upsertData } = await supabase
           .from("artists")
-          .upsert(artist, { onConflict: "id" });
+          .upsert(artist, {
+            onConflict: "id",
+            returning: "minimal",
+          });
 
         if (upsertError) {
+          console.error("Upsert error:", upsertError);
           throw upsertError;
+        } else {
+          console.log("Successfully upserted artist:", artist.artist_name);
         }
       } catch (recordError) {
         const syncError = recordError as SyncError;
