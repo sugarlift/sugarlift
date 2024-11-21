@@ -51,8 +51,6 @@ async function uploadAttachmentToSupabase(
 export async function syncAirtableToSupabase() {
   try {
     console.log("Starting sync process...");
-
-    // Test Airtable connection
     const table = getArtistsTable();
     console.log("Successfully connected to Airtable table");
 
@@ -60,135 +58,103 @@ export async function syncAirtableToSupabase() {
     console.log("Created Airtable query");
 
     const records = await query.all();
+    console.log(`Found ${records.length} records in Airtable`);
+
+    // Batch size configuration
+    const BATCH_SIZE = 5;
+    const batches = [];
+    for (let i = 0; i < records.length; i += BATCH_SIZE) {
+      batches.push(records.slice(i, i + BATCH_SIZE));
+    }
     console.log(
-      `Found ${records.length} records in Airtable:`,
-      records.map((r) => ({
-        id: r.id,
-        name: r.get("Artist Name"),
-        addToWebsite: r.get("Add to Website"),
-      })),
+      `Split records into ${batches.length} batches of ${BATCH_SIZE}`,
     );
 
-    const { data: existingArtists, error: fetchError } = await supabase
-      .from("artists")
-      .select("id");
-
-    if (fetchError) {
-      console.error("Error fetching from Supabase:", fetchError);
-      throw fetchError;
-    }
-
-    const existingIds = new Set(existingArtists?.map((a) => a.id) || []);
-    const airtableIds = new Set();
     const skippedRecords = [];
+    let processedCount = 0;
 
-    // Sync all records from Airtable
-    console.log("Starting record sync...");
-    for (const record of records) {
-      try {
-        const artistName = record.get("Artist Name") as string;
+    // Process each batch
+    for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+      const batch = batches[batchIndex];
+      console.log(`Processing batch ${batchIndex + 1}/${batches.length}`);
 
-        // Skip records with missing artist name
-        if (!artistName) {
+      // Process records in the current batch
+      for (const record of batch) {
+        try {
+          const artistName = record.get("Artist Name") as string;
+          if (!artistName) {
+            skippedRecords.push({
+              id: record.id,
+              reason: "Missing artist name",
+              fields: record.fields,
+            });
+            console.warn(`Skipping record ${record.id} - Missing artist name`);
+            continue;
+          }
+
+          const artist: Artist = {
+            id: record.id,
+            artist_name: artistName,
+            artist_bio: record.get("Artist Bio") as string,
+            born: record.get("Born") as string,
+            city: record.get("City") as string,
+            state: record.get("State (USA)") as string,
+            country: record.get("Country") as string,
+            ig_handle: record.get("IG Handle") as string,
+            website: record.get("Website") as string,
+            live_in_production:
+              (record.get("Add to Website") as boolean) || false,
+            artist_photo: [],
+          };
+
+          const rawAttachments = record.get("Artist Photo");
+          if (rawAttachments && Array.isArray(rawAttachments)) {
+            artist.artist_photo = await Promise.all(
+              rawAttachments.map((att: AirtableAttachment) =>
+                uploadAttachmentToSupabase(att, { artist_name: artistName }),
+              ),
+            );
+          }
+
+          const { error: upsertError } = await supabase
+            .from("artists")
+            .upsert(artist, { onConflict: "id" });
+
+          if (upsertError) {
+            throw upsertError;
+          }
+
+          processedCount++;
+          console.log(
+            `Successfully processed ${artistName} (${processedCount}/${records.length})`,
+          );
+        } catch (recordError) {
+          console.error(`Error processing record ${record.id}:`, recordError);
           skippedRecords.push({
             id: record.id,
-            reason: "Missing artist name",
+            reason: "Processing error",
             fields: record.fields,
+            error: recordError,
           });
-          console.warn(`Skipping record ${record.id} - Missing artist name`);
-          continue;
         }
-
-        const artist: Artist = {
-          id: record.id,
-          artist_name: artistName,
-          artist_bio: record.get("Artist Bio") as string,
-          born: record.get("Born") as string,
-          city: record.get("City") as string,
-          state: record.get("State (USA)") as string,
-          country: record.get("Country") as string,
-          ig_handle: record.get("IG Handle") as string,
-          website: record.get("Website") as string,
-          live_in_production:
-            (record.get("Add to Website") as boolean) || false,
-          artist_photo: [],
-        };
-
-        // Handle attachments
-        const rawAttachments = record.get("Artist Photo");
-        if (rawAttachments && Array.isArray(rawAttachments)) {
-          artist.artist_photo = await Promise.all(
-            rawAttachments.map((att: AirtableAttachment) =>
-              uploadAttachmentToSupabase(att, { artist_name: artistName }),
-            ),
-          );
-        }
-
-        airtableIds.add(record.id);
-
-        console.log("Attempting to upsert artist:", {
-          id: artist.id,
-          name: artist.artist_name,
-          live: artist.live_in_production,
-        });
-
-        const { error: upsertError } = await supabase
-          .from("artists")
-          .upsert(artist, {
-            onConflict: "id",
-          });
-
-        if (upsertError) {
-          console.error("Upsert error:", upsertError);
-          throw upsertError;
-        } else {
-          console.log("Successfully upserted artist:", artist.artist_name);
-        }
-      } catch (recordError) {
-        const syncError = recordError as SyncError;
-        syncError.record = { id: record.id, fields: record.fields };
-        console.error("Error processing record:", record.id, syncError);
-        throw syncError;
       }
-    }
 
-    // Log summary of skipped records
-    if (skippedRecords.length > 0) {
-      console.warn(`Skipped ${skippedRecords.length} records:`, skippedRecords);
-    }
-
-    // Set live_in_production to false for records that no longer exist in Airtable
-    const idsToUnpublish = [...existingIds].filter(
-      (id) => !airtableIds.has(id),
-    );
-    if (idsToUnpublish.length > 0) {
-      console.log(`Unpublishing ${idsToUnpublish.length} obsolete records...`);
-      const { error: unpublishError } = await supabase
-        .from("artists")
-        .update({ live_in_production: false })
-        .in("id", idsToUnpublish);
-
-      if (unpublishError) {
-        console.error("Error unpublishing records:", unpublishError);
-        throw unpublishError;
+      // Add a small delay between batches to prevent rate limiting
+      if (batchIndex < batches.length - 1) {
+        console.log("Waiting before processing next batch...");
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
 
     console.log("Sync completed successfully");
-
     return {
       success: true,
-      processedCount: records.length - skippedRecords.length,
+      processedCount,
       skippedCount: skippedRecords.length,
       skippedRecords,
     };
   } catch (error) {
-    const syncError = error as SyncError;
-    console.error("Sync error:", {
-      message: syncError.message || "Unknown error",
-      stack: syncError.stack,
-      error: syncError,
-    });
-    throw syncError;
+    console.error("Sync error:", error);
+    throw error;
   }
 }
