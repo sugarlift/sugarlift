@@ -134,11 +134,10 @@ export async function syncAirtableToSupabase() {
           live: artist.live_in_production,
         });
 
-        const { error: upsertError, data: upsertData } = await supabase
+        const { error: upsertError } = await supabase
           .from("artists")
           .upsert(artist, {
             onConflict: "id",
-            returning: "minimal",
           });
 
         if (upsertError) {
