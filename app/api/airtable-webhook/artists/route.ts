@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { syncAirtableToSupabase } from "@/lib/syncAirtableToSupabase";
 import { WebhookError } from "@/lib/types";
 
+// Increase timeout to 60 seconds (default is 10 seconds)
+export const maxDuration = 60;
+
+// Add runtime config for Edge functions
+export const runtime = "edge";
+
 export async function POST(request: Request) {
   try {
     console.log("Starting artists webhook handler...");

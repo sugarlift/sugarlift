@@ -139,10 +139,10 @@ export async function syncAirtableToSupabase() {
         }
       }
 
-      // Add a small delay between batches to prevent rate limiting
+      // Add a longer delay between batches to prevent timeouts
       if (batchIndex < batches.length - 1) {
         console.log("Waiting before processing next batch...");
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }
 
