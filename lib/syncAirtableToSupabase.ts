@@ -86,7 +86,10 @@ export async function syncAirtableToSupabase() {
     console.log("Starting record sync...");
     for (const record of records) {
       try {
-        const artistName = record.get("Artist Name") as string;
+        const firstName = record.get("first_name") as string;
+        const lastName = record.get("last_name") as string;
+        const artistName =
+          firstName && lastName ? `${firstName} ${lastName}` : null;
 
         // Skip records with missing artist name
         if (!artistName) {
@@ -99,45 +102,30 @@ export async function syncAirtableToSupabase() {
           continue;
         }
 
-        // Rest of your existing sync logic...
-        const rawAttachments = record.get("artist_photo");
-        let attachments: StoredAttachment[] = [];
-
-        if (rawAttachments && Array.isArray(rawAttachments)) {
-          const airtableAttachments = rawAttachments.map(
-            (att: AirtableAttachment) => ({
-              id: att.id,
-              width: att.width,
-              height: att.height,
-              url: att.url,
-              filename: att.filename,
-              type: att.type,
-            }),
-          );
-
-          attachments = await Promise.all(
-            airtableAttachments.map((attachment) =>
-              uploadAttachmentToSupabase(attachment, {
-                artist_name: artistName,
-              }),
-            ),
-          );
-        }
-
         const artist: Artist = {
           id: record.id,
           artist_name: artistName,
-          artist_bio: record.get("Artist Bio") as string,
-          born: record.get("Born") as string,
-          city: record.get("City") as string,
-          state: record.get("State") as string,
-          country: record.get("Country") as string,
-          ig_handle: record.get("IG Handle") as string,
-          website: record.get("Website") as string,
+          artist_bio: record.get("biography") as string,
+          born: record.get("year_of_birth") as string,
+          city: record.get("location") as string,
+          state: "",
+          country: "",
+          ig_handle: record.get("instagram_url") as string,
+          website: record.get("website_url") as string,
           live_in_production:
-            (record.get("Add to Website") as boolean) || false,
-          artist_photo: attachments,
+            (record.get("live_in_production") as boolean) || false,
+          artist_photo: [],
         };
+
+        // Handle attachments
+        const rawAttachments = record.get("attachments");
+        if (rawAttachments && Array.isArray(rawAttachments)) {
+          artist.artist_photo = await Promise.all(
+            rawAttachments.map((att: AirtableAttachment) =>
+              uploadAttachmentToSupabase(att, { artist_name: artistName }),
+            ),
+          );
+        }
 
         airtableIds.add(record.id);
 
