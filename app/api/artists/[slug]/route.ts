@@ -7,18 +7,16 @@ export async function GET(
 ) {
   try {
     const { slug } = await context.params;
-    const [firstName, lastName] = slug
+    const artistName = slug
       .split("-")
-      .map(
-        (part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase(),
-      );
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join(" ");
 
     const { data: artist, error } = await supabase
       .from("artists")
       .select("*")
       .eq("live_in_production", true)
-      .eq("first_name", firstName)
-      .eq("last_name", lastName)
+      .ilike("artist_name", artistName)
       .single();
 
     if (error || !artist) {
