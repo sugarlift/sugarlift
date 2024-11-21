@@ -51,10 +51,23 @@ async function uploadAttachmentToSupabase(
 export async function syncAirtableToSupabase() {
   try {
     console.log("Starting sync process...");
+
+    // Test Airtable connection
     const table = getArtistsTable();
+    console.log("Successfully connected to Airtable table");
+
     const query = table.select();
+    console.log("Created Airtable query");
+
     const records = await query.all();
-    console.log(`Found ${records.length} records in Airtable`);
+    console.log(
+      `Found ${records.length} records in Airtable:`,
+      records.map((r) => ({
+        id: r.id,
+        name: r.get("Artist Name"),
+        addToWebsite: r.get("Add to Website"),
+      })),
+    );
 
     const { data: existingArtists, error: fetchError } = await supabase
       .from("artists")

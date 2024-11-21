@@ -21,13 +21,36 @@ export async function POST(request: Request) {
       );
     }
 
+    // Log Airtable credentials status
+    console.log("Checking Airtable configuration...");
+    if (!process.env.AIRTABLE_API_KEY) {
+      console.error("Missing AIRTABLE_API_KEY");
+      throw new Error("Missing AIRTABLE_API_KEY");
+    }
+    if (!process.env.AIRTABLE_BASE_ID) {
+      console.error("Missing AIRTABLE_BASE_ID");
+      throw new Error("Missing AIRTABLE_BASE_ID");
+    }
+
+    // Log Supabase configuration
+    console.log("Checking Supabase configuration...");
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      console.error("Missing SUPABASE_URL");
+      throw new Error("Missing SUPABASE_URL");
+    }
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error("Missing SUPABASE_SERVICE_ROLE_KEY");
+      throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
+    }
+
     console.log("Starting Airtable to Supabase sync...");
-    await syncAirtableToSupabase();
-    console.log("Sync completed successfully");
+    const result = await syncAirtableToSupabase();
+    console.log("Sync completed with result:", result);
 
     return NextResponse.json({
       message: "Artists sync completed",
       timestamp: new Date().toISOString(),
+      result,
       payload,
     });
   } catch (error) {
