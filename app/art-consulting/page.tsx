@@ -1,11 +1,14 @@
-import { FeaturedExhibitions } from "@/components/FeaturedExhibitions";
 import { FeaturedProjects } from "@/components/FeaturedProjects";
 import { FeaturedArtists } from "@/components/FeaturedArtists";
 import { Slider } from "@/components/Slider";
-import { TerminalCTA } from "@/components/TerminalCTA";
+import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { QuickLink } from "@/components/Link";
 import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
+import { FAQ } from "@/components/FAQ";
+import { ServicesSection } from "@/components/ServicesSection";
+import { TerminalCTA } from "@/components/TerminalCTA";
 
 // Mark the page as static
 export const dynamic = "force-static";
@@ -22,31 +25,55 @@ async function getFeaturedData() {
     .order("artist_name", { ascending: true })
     .limit(9);
 
-  const exhibitions = [
-    "celia-lees-love-language",
-    "celia-lees-love-language-2",
-  ];
   const projects = ["450-washington", "450-washington-2", "450-washington-3"];
 
   return {
-    exhibitions,
     projects,
     artists: artists || [],
   };
 }
 
 export default async function Home() {
-  const { exhibitions, projects, artists } = await getFeaturedData();
+  const { projects, artists } = await getFeaturedData();
 
   return (
     <>
       <section className="container">
         <div className="mb-[1.33vw]">
+          <h1 className="big-title mb-6 max-w-[790px] text-balance">
+            Sugarlift helps real estate developers and design firms create
+            high-quality art programs for their most important properties.
+          </h1>
+          <p className="mb-8 max-w-3xl">
+            We do this by providing access to a vast community of artists and
+            simplifying art procurement. As a result, we enable our clients to
+            develop exceptional properties while supporting the artists who
+            bring them to life.
+          </p>
+          <Button asChild className="group">
+            <QuickLink
+              href="/contact"
+              className="inline-flex items-center rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800"
+            >
+              Schedule a Consultation
+              <ArrowRight
+                className="-me-1 ms-2 mt-0.5 transition-transform group-hover:translate-x-0.5"
+                size={16}
+                strokeWidth={2}
+                aria-hidden="true"
+              />
+            </QuickLink>
+          </Button>
+        </div>
+      </section>
+
+      <section className="container">
+        <div className="mb-[1.33vw]">
           <QuickLink
-            href="/exhibitions"
+            href="/art-consulting/projects"
             className="group flex items-center text-zinc-700 transition hover:text-zinc-950"
           >
-            <h1>Exhibitions</h1>
+            <h2>Featured projects</h2>
             <ArrowRight
               className="-me-1 ms-1 mt-0.5 h-4 transition-transform group-hover:translate-x-1 lg:ms-2 lg:mt-1 lg:h-10"
               strokeWidth={1.75}
@@ -56,14 +83,22 @@ export default async function Home() {
         </div>
         <div className="relative w-full">
           <Slider slidesPerView={1}>
-            {exhibitions.map((exhibition) => (
-              <FeaturedExhibitions
-                key={exhibition}
-                exhibitions={[exhibition]}
-              />
+            {projects.map((project) => (
+              <FeaturedProjects key={project} projects={[project]} />
             ))}
           </Slider>
         </div>
+      </section>
+
+      <section className="container">
+        <div className="mb-[1.33vw]">
+          <h1 className="mb-6 max-w-[760px]">
+            Full suite of services to help you build an exceptional art program
+            that will delight your clients and help you stand out from the
+            competition.
+          </h1>
+        </div>
+        <ServicesSection />
       </section>
 
       <section className="container">
@@ -89,30 +124,9 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="container">
-        <div className="mb-[1.33vw]">
-          <QuickLink
-            href="/art-consulting"
-            className="group flex items-center text-zinc-700 transition hover:text-zinc-950"
-          >
-            <h2>Art consulting</h2>
-            <ArrowRight
-              className="-me-1 ms-1 mt-0.5 h-4 transition-transform group-hover:translate-x-1 lg:ms-2 lg:mt-1 lg:h-10"
-              strokeWidth={1.75}
-              aria-hidden="true"
-            />
-          </QuickLink>
-        </div>
-        <div className="relative w-full">
-          <Slider slidesPerView={{ mobile: 1, tablet: 2, desktop: 2 }}>
-            {projects.map((project) => (
-              <FeaturedProjects key={project} projects={[project]} />
-            ))}
-          </Slider>
-        </div>
-      </section>
+      <FAQ />
 
-      <TerminalCTA />
+      <ConsultationCTA />
     </>
   );
 }

@@ -1,7 +1,7 @@
 // app/projects/page.tsx
 
 import { FAQ } from "@/components/FAQ";
-import { getAllProjects } from "../lib/markdownProjects";
+import { getAllProjects } from "@/app/lib/markdownProjects";
 import { FeaturedProjects } from "@/components/FeaturedProjects";
 import { Slider } from "@/components/Slider";
 import { ConsultationCTA } from "@/components/ConsultationCTA";

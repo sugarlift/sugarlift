@@ -13,33 +13,6 @@ interface FAQProps {
   className?: string;
 }
 
-const FAQItem = ({ question, answer, isOpen, onClick }: FAQItemProps) => {
-  return (
-    <div className="border-b border-neutral-200">
-      <button
-        className="flex w-full items-center py-4 text-left"
-        onMouseDown={onClick}
-      >
-        <span className="mr-4">{isOpen ? "−" : "+"}</span>
-        <span className="text-lg font-medium">{question}</span>
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="overflow-hidden"
-          >
-            <div className="pb-8 pl-12 text-neutral-600">{answer}</div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
-
 // Developer FAQ sections
 const ExperienceAndExpertiseFAQ = [
   {
@@ -214,7 +187,7 @@ const FAQSection = ({
               {items.map((item, index) => (
                 <div key={index} className="space-y-2">
                   <h4 className="font-medium">{item.question}</h4>
-                  <p className="text-zinc-600">{item.answer}</p>
+                  <p className="text-base text-zinc-600">{item.answer}</p>
                 </div>
               ))}
             </div>
@@ -418,8 +391,8 @@ export function FAQ({ className = "" }: FAQProps) {
     <section
       className={`container grid grid-cols-1 gap-8 md:grid-cols-2 ${className}`}
     >
-      <div className="sticky top-24 h-fit">
-        <h2 className="mb-8 text-3xl">Frequently asked questions</h2>
+      <div>
+        <h2 className="mb-10 text-3xl">Frequently asked questions</h2>
         <p className="max-w-xl">
           Curabitur blandit tempus porttitor. Etiam porta sem malesuada magna
           mollis euismod. Lorem ipsum dolor sit amet, consectetur adipiscing
@@ -428,7 +401,7 @@ export function FAQ({ className = "" }: FAQProps) {
         </p>
       </div>
       <div>
-        <div className="mb-4 flex gap-12 border-b border-[#F1F1F0]">
+        <div className="mb-2 flex gap-12 border-b border-[#F1F1F0]">
           {categories.map((category) => (
             <button
               key={category}
@@ -436,7 +409,7 @@ export function FAQ({ className = "" }: FAQProps) {
                 setActiveCategory(category as CategoryKey);
                 setExpandedSection(0);
               }}
-              className={`px-0 py-6 text-lg ${
+              className={`px-0 pb-4 pt-[9px] text-lg ${
                 activeCategory === category
                   ? "animate text-[#141414] shadow-[inset_0_-1px_white,_0_1px_black] transition fade-in"
                   : "text-neutral-500 transition hover:opacity-50"

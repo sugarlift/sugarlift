@@ -21,6 +21,27 @@
       padding-right: 3rem;
     }
   }
+
+  .big-title {
+    font-size: 1.3125rem;
+    letter-spacing: -0.0375rem;
+    line-height: 1.5rem;
+
+    @include bp.breakpoint(lg) {
+      font-size: 2.5rem;
+      line-height: 3rem;
+      letter-spacing: -0.083125rem;
+    }
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 }
 
 body {
@@ -48,7 +69,7 @@ h1,
 h2 {
   font-size: 1.3125rem;
   letter-spacing: -0.0375rem;
-  line-height: 2.5rem;
+  line-height: 1.5rem;
 
   @include bp.breakpoint(lg) {
     font-size: 2rem;

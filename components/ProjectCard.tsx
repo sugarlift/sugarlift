@@ -22,7 +22,7 @@ export const ProjectCard = ({
   } = project;
 
   return (
-    <LinkComponent href={`/projects/${project.slug}`}>
+    <LinkComponent href={`/art-consulting/projects/${project.slug}`}>
       <div className="relative aspect-video w-full">
         <Image
           src={coverImage}

@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const navigation = [
   { name: "Artists", href: "/artists" },
   { name: "Exhibitions", href: "/exhibitions" },
-  { name: "Art consulting", href: "/projects" },
+  { name: "Art consulting", href: "/art-consulting" },
 ];
 
 const CTA = [{ name: "Contact", href: "#" }];
