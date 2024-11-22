@@ -60,8 +60,8 @@ export async function syncAirtableToSupabase() {
     const records = await query.all();
     console.log(`Found ${records.length} records in Airtable`);
 
-    // Batch size configuration
-    const BATCH_SIZE = 5;
+    // Reduced batch size and increased delay
+    const BATCH_SIZE = 1; // Process one record at a time
     const batches = [];
     for (let i = 0; i < records.length; i += BATCH_SIZE) {
       batches.push(records.slice(i, i + BATCH_SIZE));
@@ -139,10 +139,16 @@ export async function syncAirtableToSupabase() {
         }
       }
 
-      // Add a longer delay between batches to prevent timeouts
+      // Increased delay between batches
       if (batchIndex < batches.length - 1) {
         console.log("Waiting before processing next batch...");
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 4000)); // 4 seconds delay
+      }
+
+      // Add a checkpoint every 15 records
+      if (processedCount % 15 === 0) {
+        console.log("Adding extra delay at checkpoint...");
+        await new Promise((resolve) => setTimeout(resolve, 5000)); // 5 seconds extra delay
       }
     }
 

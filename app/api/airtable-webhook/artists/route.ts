@@ -11,50 +11,40 @@ export const runtime = "edge";
 export async function POST(request: Request) {
   try {
     console.log("Starting artists webhook handler...");
-
     let payload;
     try {
       payload = await request.json();
-      console.log(
-        "Received artists webhook payload:",
-        JSON.stringify(payload, null, 2),
-      );
     } catch (parseError) {
-      console.error("Failed to parse webhook payload:", parseError);
       return NextResponse.json(
         { error: "Invalid JSON payload" },
         { status: 400 },
       );
     }
 
-    // Log Airtable credentials status
-    console.log("Checking Airtable configuration...");
-    if (!process.env.AIRTABLE_PERSONAL_ACCESS_TOKEN) {
-      console.error("Missing AIRTABLE_PERSONAL_ACCESS_TOKEN");
-      throw new Error("Missing AIRTABLE_PERSONAL_ACCESS_TOKEN");
-    }
-    if (!process.env.AIRTABLE_BASE_ID) {
-      console.error("Missing AIRTABLE_BASE_ID");
-      throw new Error("Missing AIRTABLE_BASE_ID");
-    }
+    // Instead of processing everything, just sync the first batch
+    const INITIAL_BATCH_SIZE = 2;
 
-    // Log Supabase configuration
-    console.log("Checking Supabase configuration...");
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      console.error("Missing SUPABASE_URL");
-      throw new Error("Missing SUPABASE_URL");
-    }
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error("Missing SUPABASE_SERVICE_ROLE_KEY");
-      throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
-    }
+    const result = await syncAirtableToSupabase(INITIAL_BATCH_SIZE);
 
-    console.log("Starting Airtable to Supabase sync...");
-    const result = await syncAirtableToSupabase();
-    console.log("Sync completed with result:", result);
+    // Queue the remaining records for background processing
+    if (result.remainingCount > 0) {
+      // Trigger subsequent syncs via separate API calls
+      for (
+        let offset = INITIAL_BATCH_SIZE;
+        offset < result.totalCount;
+        offset += INITIAL_BATCH_SIZE
+      ) {
+        fetch(
+          `${process.env.NEXT_PUBLIC_APP_URL}/api/sync?offset=${offset}&limit=${INITIAL_BATCH_SIZE}`,
+          {
+            method: "POST",
+          },
+        );
+      }
+    }
 
     return NextResponse.json({
-      message: "Artists sync completed",
+      message: "Initial sync completed, remaining records queued",
       timestamp: new Date().toISOString(),
       result,
       payload,
