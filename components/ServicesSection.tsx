@@ -24,71 +24,71 @@ interface ServiceContent {
 const DEFAULT_SERVICES: Record<ServiceCategory, ServiceContent> = {
   "Budgeting and<br />prioritization": {
     left: {
-      title: "Budgeting title",
+      title: "Smart Budgeting Strategies",
       description:
-        "Curabitur blandit tempus porttitor. Etiam porta sem malesuada magna mollis euismod. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Curabitur blandit tempus porttitor lorem ipsum dolor.",
+        "Optimize your art investment with tailored budgeting solutions that align with your goals. We help you allocate resources effectively to maximize impact, ensuring a thoughtful balance between cost and value.",
       image: "/images/services/budgeting-2.jpg",
     },
     right: {
-      title: "Prioritization title",
+      title: "Focused Prioritization",
       description:
-        "Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Curabitur blandit tempus porttitor. Curabitur blandit tempus porttitor. Etiam porta sem malesuada magna mollis euismod. Lorem ipsum dolor sit amet, consectetur adipiscing elit lorem ipsum dolor sit amet.",
+        "Identify and focus on high-impact opportunities with our prioritization framework. We guide you in selecting the right artworks for your space, elevating your project while staying within budget.",
       image: "/images/services/budgeting-2.jpg",
     },
   },
   "Access and<br />artwork curation": {
     left: {
-      title: "Access title",
+      title: "Unparalleled Art Access",
       description:
-        "Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Curabitur blandit tempus porttitor. Etiam porta sem malesuada magna mollis euismod.",
+        "Gain access to a vast network of artists, galleries, and unique pieces. Our connections ensure that you can discover exclusive works tailored to your project's vision.",
       image: "/images/services/curation-1.jpg",
     },
     right: {
-      title: "Artwork curation title",
+      title: "Expert Artwork Curation",
       description:
-        "Etiam porta sem malesuada magna mollis euismod. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.",
+        "Our curation services bring cohesion to your spaces by selecting pieces that align with your brand, aesthetic, and audience preferences, creating an unforgettable visual experience.",
       image: "/images/services/curation-2.jpg",
     },
   },
   "Visualization and<br />decision-making": {
     left: {
-      title: "Visualization title",
+      title: "Immersive Visualization Tools",
       description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.",
+        "Preview how artworks will look in your space with advanced visualization techniques. We help bring your vision to life, ensuring confidence in your decisions.",
       image: "/images/services/visualization-1.jpg",
     },
     right: {
-      title: "Decision-making title",
+      title: "Informed Decision-Making",
       description:
-        "Etiam porta sem malesuada magna mollis euismod. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "Navigate your art selection journey with clarity and precision. Our expertise ensures that each decision aligns with your goals and enhances your space's identity.",
       image: "/images/services/visualization-2.jpg",
     },
   },
   "Procurement and<br />custom commissions": {
     left: {
-      title: "Procurement title",
+      title: "Seamless Art Procurement",
       description:
-        "Etiam porta sem malesuada magna mollis euismod. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "Streamline the process of acquiring exceptional artworks with our procurement services. From sourcing to delivery, we handle all the details to ensure a smooth experience.",
       image: "/images/services/procurement-1.jpg",
     },
     right: {
-      title: "Custom commissions title",
+      title: "Bespoke Custom Commissions",
       description:
-        "Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Curabitur blandit tempus porttitor.",
+        "Collaborate with artists to create custom pieces designed exclusively for your project. Tailor-made artworks transform your space into a unique and inspiring environment.",
       image: "/images/services/procurement-2.jpg",
     },
   },
   "Activation and<br />content creation": {
     left: {
-      title: "Activation title",
+      title: "Dynamic Space Activation",
       description:
-        "Curabitur blandit tempus porttitor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "Transform your space into a cultural destination with thoughtfully curated activations. Our art programs foster engagement and enrich visitor experiences.",
       image: "/images/services/activation-1.jpg",
     },
     right: {
-      title: "Content creation title",
+      title: "Engaging Content Creation",
       description:
-        "Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Etiam porta sem malesuada magna mollis euismod.",
+        "Enhance your project’s story with custom content that highlights the art and its impact. From visuals to storytelling, we craft compelling narratives that captivate audiences.",
       image: "/images/services/activation-2.jpg",
     },
   },
