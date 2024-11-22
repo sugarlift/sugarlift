@@ -48,65 +48,78 @@ async function uploadArtworkImageToSupabase(
   };
 }
 
-export async function syncArtworkToSupabase(limit?: number, offset?: number) {
+export async function syncArtworkToSupabase() {
   try {
-    console.log("Starting artwork sync process...");
+    console.log("Starting sync process...");
+
+    // Get all records from Airtable
+    console.log("Fetching records from Airtable...");
     const table = getArtworkTable();
-    console.log("Successfully connected to Airtable table");
 
+    console.log("Selecting records...");
     const query = table.select();
-    console.log("Created Airtable query");
 
+    console.log("Fetching all records...");
     const records = await query.all();
-    const totalCount = records.length;
-    console.log(`Found ${totalCount} records in Airtable`);
+    console.log(`Found ${records.length} records in Airtable`);
 
-    // Use provided limit or default to 1
-    const BATCH_SIZE = limit || 1;
-    // Use provided offset or default to 0
-    const startIndex = offset || 0;
-    const endIndex = Math.min(startIndex + BATCH_SIZE, records.length);
+    // Get all existing artwork from Supabase for comparison
+    console.log("Fetching existing artwork from Supabase...");
+    const { data: existingArtwork, error: fetchError } = await supabase
+      .from("artwork")
+      .select("id");
 
-    // Get only the records for this batch
-    const batchRecords = records.slice(startIndex, endIndex);
-    console.log(
-      `Processing records ${startIndex + 1} to ${endIndex} of ${totalCount}`,
-    );
+    if (fetchError) {
+      console.error("Error fetching from Supabase:", fetchError);
+      throw fetchError;
+    }
 
-    const skippedRecords = [];
-    let processedCount = 0;
+    const existingIds = new Set(existingArtwork?.map((a) => a.id) || []);
+    const airtableIds = new Set();
 
-    // Process records in this batch
-    for (const record of batchRecords) {
+    // Sync all records from Airtable
+    console.log("Starting record sync...");
+    for (const record of records) {
       try {
-        const title = record.get("title") as string;
-        if (!title) {
-          skippedRecords.push({
-            id: record.id,
-            reason: "Missing title",
-            fields: record.fields,
-          });
-          console.warn(`Skipping record ${record.id} - Missing title`);
-          continue;
-        }
+        console.log("Record structure:", record._rawJson);
 
         const rawAttachments = record.get("artwork_images");
         let artwork_images: StoredAttachment[] = [];
 
         if (rawAttachments && Array.isArray(rawAttachments)) {
+          const airtableAttachments = rawAttachments.map(
+            (att: AirtableAttachment) => ({
+              id: att.id,
+              width: att.width,
+              height: att.height,
+              url: att.url,
+              filename: att.filename,
+              type: att.type,
+            }),
+          );
+
           artwork_images = await Promise.all(
-            rawAttachments.map((att: AirtableAttachment) =>
-              uploadArtworkImageToSupabase(att, { title }),
+            airtableAttachments.map((attachment) =>
+              uploadArtworkImageToSupabase(attachment, {
+                title: record.get("title") as string,
+              }),
             ),
           );
         }
 
+        // Debug log the raw artist_id value
+        const debugArtistId = record.get("artist_id");
+        console.log("Raw artist_id from Airtable:", {
+          value: debugArtistId,
+          type: typeof debugArtistId,
+        });
+
         const artwork: Artwork = {
           id: record.id,
-          artist_id: record.get("artist_id") as string,
+          artist_id: record.get("artist_id") as string, // Direct approach
           first_name: record.get("first_name") as string,
           last_name: record.get("last_name") as string,
-          title,
+          title: (record.get("title") as string) || null,
           medium: (record.get("medium") as string) || null,
           width: (record.get("width") as string) || null,
           height: (record.get("height") as string) || null,
@@ -120,47 +133,50 @@ export async function syncArtworkToSupabase(limit?: number, offset?: number) {
             (record.get("updated_at") as string) || new Date().toISOString(),
         };
 
+        console.log("Processing artwork:", artwork);
+        airtableIds.add(record.id);
+
         const { error: upsertError } = await supabase
           .from("artwork")
           .upsert(artwork, { onConflict: "id" });
 
         if (upsertError) {
+          console.error("Error upserting artwork:", artwork.title, upsertError);
           throw upsertError;
         }
-
-        processedCount++;
-        console.log(
-          `Successfully processed ${title} (${processedCount}/${totalCount})`,
-        );
       } catch (recordError) {
-        console.error(`Error processing record ${record.id}:`, recordError);
-        skippedRecords.push({
-          id: record.id,
-          reason: "Processing error",
-          fields: record.fields,
-          error: recordError,
-        });
+        const syncError = recordError as SyncError;
+        syncError.record = { id: record.id, fields: record.fields };
+        console.error("Error processing record:", record.id, syncError);
+        throw syncError;
       }
     }
 
-    // Add delay if there are more records to process
-    if (endIndex < totalCount) {
-      console.log("Waiting before next batch...");
-      await new Promise((resolve) => setTimeout(resolve, 4000));
+    // Set live_in_production to false for records that no longer exist in Airtable
+    const idsToUnpublish = [...existingIds].filter(
+      (id) => !airtableIds.has(id),
+    );
+    if (idsToUnpublish.length > 0) {
+      console.log(`Unpublishing ${idsToUnpublish.length} obsolete records...`);
+      const { error: unpublishError } = await supabase
+        .from("artwork")
+        .update({ live_in_production: false })
+        .in("id", idsToUnpublish);
+
+      if (unpublishError) {
+        console.error("Error unpublishing records:", unpublishError);
+        throw unpublishError;
+      }
     }
 
-    console.log("Batch completed successfully");
-    return {
-      success: true,
-      processedCount,
-      skippedCount: skippedRecords.length,
-      skippedRecords,
-      remainingCount: totalCount - endIndex,
-      totalCount,
-      nextOffset: endIndex < totalCount ? endIndex : null,
-    };
+    console.log("Sync completed successfully");
   } catch (error) {
-    console.error("Sync error:", error);
-    throw error;
+    const syncError = error as SyncError;
+    console.error("Sync error:", {
+      message: syncError.message || "Unknown error",
+      stack: syncError.stack,
+      error: syncError,
+    });
+    throw syncError;
   }
 }
