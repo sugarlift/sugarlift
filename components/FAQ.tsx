@@ -392,7 +392,7 @@ export function FAQ({ className = "" }: FAQProps) {
       className={`container grid grid-cols-1 gap-8 md:grid-cols-2 ${className}`}
     >
       <div>
-        <h2 className="mb-10 text-3xl">Frequently asked questions</h2>
+        <h2 className="mb-10">Frequently asked questions</h2>
         <p className="max-w-xl">
           Curabitur blandit tempus porttitor. Etiam porta sem malesuada magna
           mollis euismod. Lorem ipsum dolor sit amet, consectetur adipiscing

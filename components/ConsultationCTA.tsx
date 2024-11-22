@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { QuickLink } from "@/components/Link";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 import AvrokoLogo from "@/components/LogoCarousel/AVRO.png";
 import RafflesLogo from "@/components/LogoCarousel/Raffles.png";
 import RottetLogo from "@/components/LogoCarousel/RottetStudio.png";
@@ -50,21 +52,20 @@ export function ConsultationCTA() {
         </div>
 
         <div className="text-center">
-          <QuickLink
-            href="/contact"
-            className="inline-flex items-center rounded bg-black px-8 py-4 text-white transition-colors hover:bg-gray-800"
-          >
-            Schedule a Consultation
-            <svg
-              className="ml-2 h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
+          <Button asChild className="group">
+            <QuickLink
+              href="/contact"
+              className="inline-flex items-center rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800"
             >
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </QuickLink>
+              Schedule a Consultation
+              <ArrowRight
+                className="-me-1 ms-2 mt-0.5 transition-transform group-hover:translate-x-0.5"
+                size={16}
+                strokeWidth={2}
+                aria-hidden="true"
+              />
+            </QuickLink>
+          </Button>
         </div>
       </div>
     </section>
