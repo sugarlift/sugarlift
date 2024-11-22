@@ -21,25 +21,27 @@ export async function POST(request: Request) {
       );
     }
 
-    // Instead of processing everything, just sync the first batch
-    const INITIAL_BATCH_SIZE = 2;
-
-    const result = await syncAirtableToSupabase(INITIAL_BATCH_SIZE);
+    // Process first batch with 2 records
+    const result = await syncAirtableToSupabase(2, 0);
 
     // Queue the remaining records for background processing
-    if (result.remainingCount > 0) {
+    if (result.remainingCount > 0 && result.nextOffset) {
       // Trigger subsequent syncs via separate API calls
+      const batchSize = 1; // Process one record at a time for remaining records
       for (
-        let offset = INITIAL_BATCH_SIZE;
+        let offset = result.nextOffset;
         offset < result.totalCount;
-        offset += INITIAL_BATCH_SIZE
+        offset += batchSize
       ) {
-        fetch(
-          `${process.env.NEXT_PUBLIC_APP_URL}/api/sync?offset=${offset}&limit=${INITIAL_BATCH_SIZE}`,
-          {
-            method: "POST",
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/sync/batch`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        );
+          body: JSON.stringify({ offset, limit: batchSize }),
+        });
+        // Add small delay between triggering batches
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
 
