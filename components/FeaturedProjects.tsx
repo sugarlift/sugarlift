@@ -1,4 +1,4 @@
-import { Project, getAllProjects } from "@/app/lib/markdownProjects";
+import { getAllProjects } from "@/app/lib/markdownProjects";
 import { ProjectCard } from "@/components/ProjectCard";
 
 interface FeaturedProjectsProps {

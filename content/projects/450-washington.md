@@ -1,6 +1,6 @@
 ---
 title: "450 Washington"
-artists: ["celia-lees", "alicia-gimeno"]
+artists: ["adam-sultan"]
 location: "New York, Related Companies"
 category: "Workplace"
 client: "Related Companies"

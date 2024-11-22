@@ -1,11 +1,6 @@
 import { getArtistsTable } from "./airtable";
 import { supabase } from "./supabase";
-import {
-  Artist,
-  AirtableAttachment,
-  StoredAttachment,
-  SyncError,
-} from "./types";
+import { Artist, AirtableAttachment, StoredAttachment } from "./types";
 
 async function uploadAttachmentToSupabase(
   attachment: AirtableAttachment,

@@ -52,12 +52,6 @@ export default async function ProjectPage({
     notFound();
   }
 
-  const artistNames = project.frontmatter.artistsData
-    ? project.frontmatter.artistsData
-        .map((artist) => artist.artist_name)
-        .join(", ")
-    : project.frontmatter.artists.join(", ");
-
   return (
     <>
       <section className="container">

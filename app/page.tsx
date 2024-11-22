@@ -19,8 +19,7 @@ async function getFeaturedData() {
     .select("*")
     .eq("live_in_production", true)
     .order("view_count", { ascending: false })
-    .order("last_name", { ascending: true })
-    .order("first_name", { ascending: true })
+    .order("artist_name", { ascending: true })
     .limit(9);
 
   const exhibitions = [

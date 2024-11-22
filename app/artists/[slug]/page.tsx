@@ -81,7 +81,7 @@ export default async function ArtistPage({ params }: { params: Params }) {
     notFound();
   }
 
-  await incrementViewCount(artist.artist_name, artist.view_count || 0, slug);
+  await incrementViewCount({ artistName: artist.artist_name });
 
   return (
     <>
