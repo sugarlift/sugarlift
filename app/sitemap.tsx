@@ -3,6 +3,7 @@ import { COMPANY_METADATA } from "@/app/lib/constants";
 import { getAllProjects } from "@/app/lib/markdownProjects";
 import { getAllExhibitions } from "@/app/lib/markdownExhibitions";
 import { supabase } from "@/lib/supabase";
+import { PostgrestError } from "@supabase/supabase-js";
 
 type ArtistRow = {
   artist_name: string;
@@ -59,10 +60,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .select("artist_name")
     .eq("live_in_production", true)) as {
     data: ArtistRow[] | null;
-    error: any;
+    error: PostgrestError | null;
   };
 
-  console.log("Supabase artists query result:", { artists, error });
+  if (error) {
+    console.error("Error fetching artists:", error);
+  }
 
   const artistRoutes = (artists || []).map((artist: ArtistRow) => {
     const slug = generateSlug(artist.artist_name);
