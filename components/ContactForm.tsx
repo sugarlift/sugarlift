@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import useWeb3Forms from "@web3forms/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@headlessui/react";
 
@@ -33,11 +33,13 @@ type FormData = {
 
 export default function Contact() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     register,
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     mode: "onTouched",
@@ -67,6 +69,19 @@ export default function Contact() {
       setMessage(msg);
     },
   });
+
+  useEffect(() => {
+    const topic = searchParams.get("topic");
+    const artistName = searchParams.get("artistName");
+
+    if (topic) {
+      setValue("topic", topic);
+    }
+
+    if (artistName) {
+      setValue("artistName", artistName);
+    }
+  }, [searchParams, setValue]);
 
   return (
     <>
