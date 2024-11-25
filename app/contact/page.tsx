@@ -4,6 +4,9 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FAQ } from "@/components/FAQ";
 import ContactForm from "@/components/ContactForm";
+import Image from "next/image";
+import GalleryImage from "@/app/images/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_1_2321f22bdb.jpg";
+import TeamImage from "@/app/images/Sugarlift_Team_Zoey_web_3770655c98.jpg";
 // Mark the page as static
 export const dynamic = "force-static";
 
@@ -48,15 +51,22 @@ export default async function Home() {
       <section className="container flex h-full w-full items-center justify-center">
         <div className="grid h-full w-full grid-cols-1 grid-rows-2 gap-4 lg:grid-cols-2">
           <div className="order-1 col-span-1 row-span-1 flex aspect-video items-center justify-center bg-zinc-100">
-            <p>IMAGE</p>
+            <Image src={TeamImage} alt="Team" className="object-cover" />
           </div>
 
           <div className="order-3 col-span-1 row-span-2 flex aspect-square items-center justify-center bg-zinc-100 lg:order-2 lg:aspect-auto">
-            <p>MAP</p>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5250.027678005579!2d-74.0050555225209!3d40.7509231713878!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259bf517702cb%3A0x450277d825f89251!2sSugarlift!5e1!3m2!1sen!2sfi!4v1732540543459!5m2!1sen!2sfi"
+              width="100%"
+              height="100%"
+              className="border-0e"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
           </div>
 
           <div className="order-2 col-span-1 row-span-1 flex aspect-video items-center justify-center bg-zinc-100 lg:order-3">
-            <p>IMAGE</p>
+            <Image src={GalleryImage} alt="Gallery" className="object-cover" />
           </div>
         </div>
       </section>
