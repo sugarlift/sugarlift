@@ -1,7 +1,7 @@
 "use client";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import { KeenSliderInstance } from "keen-slider";
 
 interface SliderProps {
@@ -74,8 +74,6 @@ export function Slider({
   spacing = 16,
   mobileSpacing = 12,
 }: SliderProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
-
   const defaultSlides =
     typeof slidesPerView === "number" ? slidesPerView : slidesPerView.desktop;
   const mobileSlides =
@@ -112,20 +110,12 @@ export function Slider({
       defaultAnimation: {
         duration: 500,
       },
-      created: () => {
-        setIsLoaded(true);
-      },
     },
     [WheelControls],
   );
 
   return (
-    <div
-      ref={sliderRef}
-      className={`keen-slider !overflow-visible transition-opacity ${
-        isLoaded ? "opacity-100 duration-1000" : "opacity-0"
-      }`}
-    >
+    <div ref={sliderRef} className="keen-slider !overflow-visible">
       {Array.isArray(children) ? (
         children.map((child, index) => (
           <div key={index} className="keen-slider__slide">

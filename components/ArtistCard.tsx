@@ -76,6 +76,7 @@ export function ArtistCard({
                     src={attachment.url}
                     alt={`${artist.artist_name} - Work ${index + 1}`}
                     fill
+                    loading="eager"
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
                   />
@@ -88,6 +89,7 @@ export function ArtistCard({
                       src={attachment.url}
                       alt={`${artist.artist_name} - Work ${index + 1}`}
                       fill
+                      loading="eager"
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
                     />
@@ -97,7 +99,7 @@ export function ArtistCard({
             ))}
           </Slider>
         ) : (
-          <div className="flex h-48 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
+          <div className="flex h-48 items-center justify-center bg-gray-100 text-gray-400">
             No images available
           </div>
         )}

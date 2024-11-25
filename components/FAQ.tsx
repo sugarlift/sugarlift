@@ -169,7 +169,7 @@ const FAQSection = ({
   onToggle,
 }: FAQSectionProps) => {
   return (
-    <div className="border-b border-neutral-200">
+    <div className="border-b border-zinc-200 last:border-b-0">
       <button
         className="flex w-full items-center justify-between py-4 text-left"
         onClick={onToggle}

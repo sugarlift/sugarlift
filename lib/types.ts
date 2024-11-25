@@ -12,6 +12,8 @@ export interface Artist {
   artist_photo: StoredAttachment[];
   view_count?: number;
   artwork?: Artwork[];
+  featured_image?: string;
+  slug: string;
 }
 
 export interface WebhookError extends Error {

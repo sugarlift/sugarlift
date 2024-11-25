@@ -2,6 +2,10 @@ import { getArtistsTable } from "./airtable";
 import { supabase } from "./supabase";
 import { Artist, AirtableAttachment, StoredAttachment } from "./types";
 
+const generateSlug = (name: string) => {
+  return name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "-");
+};
+
 async function uploadAttachmentToSupabase(
   attachment: AirtableAttachment,
   artist: { artist_name: string },
@@ -100,6 +104,7 @@ export async function syncAirtableToSupabase() {
             live_in_production:
               (record.get("Add to Website") as boolean) || false,
             artist_photo: [],
+            slug: generateSlug(artistName),
           };
 
           const rawAttachments = record.get("Artist Photo");
