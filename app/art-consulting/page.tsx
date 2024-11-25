@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { FAQ } from "@/components/FAQ";
 import { ServicesSection } from "@/components/ServicesSection";
-import { TerminalCTA } from "@/components/TerminalCTA";
 
 // Mark the page as static
 export const dynamic = "force-static";

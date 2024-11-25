@@ -14,7 +14,7 @@ const navigation = [
   { name: "Art consulting", href: "/art-consulting" },
 ];
 
-const CTA = [{ name: "Contact", href: "#" }];
+const CTA = [{ name: "Contact", href: "/contact" }];
 
 const linkStyles =
   "text-zinc-700 py-8 text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] transition hover:text-zinc-950";

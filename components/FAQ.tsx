@@ -2,12 +2,15 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Remove or comment out the unused interface
+/* Remove these lines:
 interface FAQItemProps {
   question: string;
   answer: string;
   isOpen: boolean;
   onClick: () => void;
 }
+*/
 
 interface FAQProps {
   className?: string;
