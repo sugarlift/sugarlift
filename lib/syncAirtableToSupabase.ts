@@ -6,6 +6,9 @@ const generateSlug = (name: string) => {
   return name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "-");
 };
 
+const BATCH_SIZE = 1;
+const BATCH_DELAY = 1000;
+
 async function uploadAttachmentToSupabase(
   attachment: AirtableAttachment,
   artist: { artist_name: string },
@@ -18,7 +21,20 @@ async function uploadAttachmentToSupabase(
     .toLowerCase();
   const storagePath = `${folderName}/${cleanFilename}`;
 
-  // Upload the new file
+  const { data: existingFile } = await supabase.storage
+    .from("attachments_artists")
+    .getPublicUrl(storagePath);
+
+  if (existingFile.publicUrl) {
+    return {
+      url: existingFile.publicUrl,
+      width: attachment.width,
+      height: attachment.height,
+      filename: attachment.filename,
+      type: attachment.type,
+    };
+  }
+
   const response = await fetch(attachment.url);
   const blob = await response.blob();
 
@@ -51,16 +67,15 @@ export async function syncAirtableToSupabase() {
   try {
     console.log("Starting sync process...");
     const table = getArtistsTable();
-    console.log("Successfully connected to Airtable table");
 
-    const query = table.select();
-    console.log("Created Airtable query");
+    const query = table.select({
+      sort: [{ field: "Last Modified", direction: "desc" }],
+      maxRecords: 100,
+    });
 
     const records = await query.all();
     console.log(`Found ${records.length} records in Airtable`);
 
-    // Batch size configuration
-    const BATCH_SIZE = 5;
     const batches = [];
     for (let i = 0; i < records.length; i += BATCH_SIZE) {
       batches.push(records.slice(i, i + BATCH_SIZE));
@@ -72,13 +87,14 @@ export async function syncAirtableToSupabase() {
     const skippedRecords = [];
     let processedCount = 0;
 
-    // Process each batch
     for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
       const batch = batches[batchIndex];
-      console.log(`Processing batch ${batchIndex + 1}/${batches.length}`);
+      console.log(
+        `Processing batch ${batchIndex + 1}/${batches.length} (${new Date().toISOString()})`,
+      );
 
-      // Process records in the current batch
       for (const record of batch) {
+        const startTime = Date.now();
         try {
           const artistName = record.get("Artist Name") as string;
           if (!artistName) {
@@ -126,10 +142,13 @@ export async function syncAirtableToSupabase() {
 
           processedCount++;
           console.log(
-            `Successfully processed ${artistName} (${processedCount}/${records.length})`,
+            `Processed ${artistName} in ${Date.now() - startTime}ms (${processedCount}/${records.length})`,
           );
         } catch (recordError) {
-          console.error(`Error processing record ${record.id}:`, recordError);
+          console.error(
+            `Error processing record ${record.id} after ${Date.now() - startTime}ms:`,
+            recordError,
+          );
           skippedRecords.push({
             id: record.id,
             reason: "Processing error",
@@ -139,10 +158,9 @@ export async function syncAirtableToSupabase() {
         }
       }
 
-      // Add a longer delay between batches to prevent timeouts
       if (batchIndex < batches.length - 1) {
-        console.log("Waiting before processing next batch...");
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        console.log(`Waiting ${BATCH_DELAY}ms before next batch...`);
+        await new Promise((resolve) => setTimeout(resolve, BATCH_DELAY));
       }
     }
 

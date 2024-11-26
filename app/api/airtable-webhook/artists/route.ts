@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import { syncAirtableToSupabase } from "@/lib/syncAirtableToSupabase";
 import { WebhookError } from "@/lib/types";
 
-// Increase timeout to 60 seconds (default is 10 seconds)
-export const maxDuration = 60;
+// Increase timeout to 300 seconds (5 minutes)
+export const maxDuration = 300;
 
-// Add runtime config for Edge functions
-export const runtime = "edge";
+// Use nodejs runtime instead of edge for better stability with long-running tasks
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
