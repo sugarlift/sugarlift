@@ -1,10 +1,6 @@
 import { getArtistsTable } from "./airtable";
 import { supabase } from "./supabase";
 
-const generateSlug = (name: string) => {
-  return name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "-");
-};
-
 export async function syncAirtableToSupabase() {
   try {
     console.log("Starting sync process...");
@@ -43,9 +39,6 @@ export async function syncAirtableToSupabase() {
       website: (record.get("Website") as string) || null,
       live_in_production: Boolean(record.get("Add to Website")),
       artist_photo: [], // Start with empty array
-      slug: generateSlug(
-        (record.get("Artist Name") as string) || "unknown-artist",
-      ),
     };
 
     console.log("Attempting to upsert artist:", {
