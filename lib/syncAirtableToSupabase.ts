@@ -1,148 +1,85 @@
 import { getArtistsTable } from "./airtable";
 import { supabase } from "./supabase";
-import { AirtableAttachment, StoredAttachment, ArtistTable } from "./types";
 
 const generateSlug = (name: string) => {
   return name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "-");
 };
-
-async function uploadAttachmentToSupabase(
-  attachment: AirtableAttachment,
-  artist: { artist_name: string },
-): Promise<StoredAttachment> {
-  const folderName = artist.artist_name
-    .toLowerCase()
-    .replace(/[^a-zA-Z0-9]/g, "-");
-  const cleanFilename = attachment.filename
-    .replace(/[^a-zA-Z0-9.-]/g, "-")
-    .toLowerCase();
-  const storagePath = `${folderName}/${cleanFilename}`;
-
-  // Check if file already exists first
-  const { data: existingFile } = await supabase.storage
-    .from("attachments_artists")
-    .getPublicUrl(storagePath);
-
-  if (existingFile.publicUrl) {
-    // File exists, return existing data
-    return {
-      url: existingFile.publicUrl,
-      width: attachment.width,
-      height: attachment.height,
-      filename: attachment.filename,
-      type: attachment.type,
-    };
-  }
-
-  // Only upload if file doesn't exist
-  const response = await fetch(attachment.url);
-  const blob = await response.blob();
-
-  const { error: uploadError } = await supabase.storage
-    .from("attachments_artists")
-    .upload(storagePath, blob, {
-      contentType: attachment.type,
-      upsert: true,
-    });
-
-  if (uploadError) {
-    console.error("Error uploading attachment:", uploadError);
-    throw uploadError;
-  }
-
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from("attachments_artists").getPublicUrl(storagePath);
-
-  return {
-    url: publicUrl,
-    width: attachment.width,
-    height: attachment.height,
-    filename: attachment.filename,
-    type: attachment.type,
-  };
-}
 
 export async function syncAirtableToSupabase() {
   try {
     console.log("Starting sync process...");
     const table = getArtistsTable();
 
-    // Only get the most recently modified record
+    // Get the most recently modified record
+    console.log("Fetching records from Airtable view: Artists-LIVE");
     const records = await table
       .select({
         maxRecords: 1,
         sort: [{ field: "Last Modified", direction: "desc" }],
+        view: "Artists-LIVE",
       })
       .firstPage();
 
     if (records.length === 0) {
       console.log("No records found to sync");
-      return { success: true, processedCount: 0, skippedCount: 0 };
+      return { success: true, processedCount: 0 };
     }
 
     const record = records[0];
-    const artistName = record.get("Artist Name") as string;
-
-    if (!artistName) {
-      console.warn(`Skipping record ${record.id} - Missing artist name`);
-      return {
-        success: false,
-        processedCount: 0,
-        skippedCount: 1,
-        skippedRecords: [{ id: record.id, reason: "Missing artist name" }],
-      };
-    }
-
-    const artist: ArtistTable = {
+    console.log("Found record:", {
       id: record.id,
-      artist_name: artistName,
-      artist_bio: (record.get("Artist Bio") as string) ?? null,
-      born: (record.get("Born") as string) ?? null,
-      city: (record.get("City") as string) ?? null,
-      state: (record.get("State (USA)") as string) ?? null,
-      country: (record.get("Country") as string) ?? null,
-      ig_handle: (record.get("IG Handle") as string) ?? null,
-      website: (record.get("Website") as string) ?? null,
-      live_in_production: (record.get("Add to Website") as boolean) || false,
-      artist_photo: [],
-      slug: generateSlug(artistName),
+      fields: record.fields,
+    });
+
+    // Create a basic artist record without photos first
+    const artist = {
+      id: record.id,
+      artist_name: (record.get("Artist Name") as string) || "Unknown Artist",
+      artist_bio: (record.get("Artist Bio") as string) || null,
+      born: (record.get("Born") as string) || null,
+      city: (record.get("City") as string) || null,
+      state: (record.get("State (USA)") as string) || null,
+      country: (record.get("Country") as string) || null,
+      ig_handle: (record.get("IG Handle") as string) || null,
+      website: (record.get("Website") as string) || null,
+      live_in_production: Boolean(record.get("Add to Website")),
+      artist_photo: [], // Start with empty array
+      slug: generateSlug(
+        (record.get("Artist Name") as string) || "unknown-artist",
+      ),
     };
 
-    const rawAttachments = record.get("Artist Photo");
-    if (rawAttachments && Array.isArray(rawAttachments)) {
-      artist.artist_photo = await Promise.all(
-        rawAttachments.map((att: AirtableAttachment) =>
-          uploadAttachmentToSupabase(att, { artist_name: artistName }),
-        ),
-      );
-    }
-
-    console.log("Attempting to upsert artist:", {
+    console.log("Attempting to upsert artist to Supabase table: artists", {
       id: artist.id,
       name: artist.artist_name,
     });
 
-    const { error: upsertError } = await supabase
+    // Try the upsert with explicit table name
+    const { data, error } = await supabase
       .from("artists")
       .upsert(artist, {
         onConflict: "id",
-        ignoreDuplicates: false,
-      });
+      })
+      .select();
 
-    if (upsertError) {
-      console.error("Upsert error:", upsertError);
-      throw upsertError;
+    if (error) {
+      console.error("Upsert failed:", {
+        error,
+        errorMessage: error.message,
+        details: error.details,
+      });
+      throw error;
     }
 
-    console.log(`Successfully processed ${artistName}`);
+    console.log("Upsert successful:", data);
+
     return {
       success: true,
       processedCount: 1,
-      skippedCount: 0,
+      artist: data?.[0],
     };
   } catch (error) {
-    console.error("Sync error:", {
+    console.error("Sync failed:", {
       error,
       message: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined,
