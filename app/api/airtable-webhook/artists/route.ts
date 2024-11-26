@@ -1,9 +1,30 @@
 import { NextResponse } from "next/server";
 import { syncAirtableToSupabase } from "@/lib/syncAirtableToSupabase";
 
-export async function POST() {
+// Webhook secret should match the one in your Airtable script
+const WEBHOOK_SECRET = process.env.AIRTABLE_WEBHOOK_SECRET;
+
+export async function POST(request: Request) {
   try {
+    // Verify the webhook secret
+    const webhookSecret = request.headers.get("x-airtable-webhook-secret");
+    if (!WEBHOOK_SECRET || webhookSecret !== WEBHOOK_SECRET) {
+      console.error("Invalid webhook secret");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Parse the webhook payload
+    const payload = await request.json();
+    console.log("Received webhook payload:", payload);
+
+    // Verify the base and table IDs match
+    if (payload.baseId !== process.env.AIRTABLE_BASE_ID) {
+      console.error("Invalid base ID");
+      return NextResponse.json({ error: "Invalid base ID" }, { status: 400 });
+    }
+
     const result = await syncAirtableToSupabase();
+
     return NextResponse.json({
       message: "Sync completed",
       result,
