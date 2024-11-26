@@ -13,23 +13,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Parse the webhook payload
-    const payload = await request.json();
-    console.log("Received webhook payload:", payload);
-
-    // Debug log to compare base IDs
-    console.log("Environment base ID:", process.env.AIRTABLE_BASE_ID);
-    console.log("Webhook payload base ID:", payload.baseId);
-
-    // Verify the base and table IDs match
-    if (payload.baseId !== process.env.AIRTABLE_BASE_ID) {
-      console.error("Base ID mismatch:", {
-        expected: process.env.AIRTABLE_BASE_ID,
-        received: payload.baseId,
-      });
-      return NextResponse.json({ error: "Invalid base ID" }, { status: 400 });
-    }
-
+    // Just sync the most recent record
     const result = await syncAirtableToSupabase();
 
     return NextResponse.json({
