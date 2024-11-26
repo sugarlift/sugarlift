@@ -8,6 +8,7 @@ const generateSlug = (name: string) => {
 
 const BATCH_SIZE = 1;
 const BATCH_DELAY = 1000;
+const RECORDS_PER_PAGE = 10;
 
 async function uploadAttachmentToSupabase(
   attachment: AirtableAttachment,
@@ -69,12 +70,12 @@ export async function syncAirtableToSupabase() {
     const table = getArtistsTable();
 
     const query = table.select({
+      pageSize: RECORDS_PER_PAGE,
       sort: [{ field: "Last Modified", direction: "desc" }],
-      maxRecords: 100,
     });
 
-    const records = await query.all();
-    console.log(`Found ${records.length} records in Airtable`);
+    const records = await query.firstPage();
+    console.log(`Found ${records.length} records in current page`);
 
     const batches = [];
     for (let i = 0; i < records.length; i += BATCH_SIZE) {

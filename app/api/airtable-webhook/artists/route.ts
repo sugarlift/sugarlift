@@ -49,12 +49,11 @@ export async function POST(request: Request) {
       throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
     }
 
-    console.log("Starting Airtable to Supabase sync...");
+    console.log("Starting Airtable to Supabase sync (paginated)...");
     const result = await syncAirtableToSupabase();
-    console.log("Sync completed with result:", result);
 
     return NextResponse.json({
-      message: "Artists sync completed",
+      message: "Artists sync completed (partial - first page only)",
       timestamp: new Date().toISOString(),
       result,
       payload,
