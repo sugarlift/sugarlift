@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { FAQ } from "@/components/FAQ";
 import { ServicesSection } from "@/components/ServicesSection";
+import { FEATURED_PROJECTS } from "@/app/lib/constants";
 
 // Mark the page as static
 export const dynamic = "force-static";
@@ -24,10 +25,8 @@ async function getFeaturedData() {
     .order("artist_name", { ascending: true })
     .limit(9);
 
-  const projects = ["450-washington", "450-washington-2", "450-washington-3"];
-
   return {
-    projects,
+    projects: [...FEATURED_PROJECTS],
     artists: artists || [],
   };
 }

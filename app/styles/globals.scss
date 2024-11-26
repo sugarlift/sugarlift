@@ -44,6 +44,10 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: #fafafa;
   @apply font-body;

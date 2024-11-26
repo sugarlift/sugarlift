@@ -33,7 +33,7 @@ export default async function Home() {
           </p>
           <Button asChild className="group">
             <QuickLink
-              href="/contact"
+              href="/contact#inquiry-form"
               className="inline-flex items-center rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800"
             >
               Fill an inquiry
@@ -98,7 +98,7 @@ export default async function Home() {
           </div>
         </div>
         <div>
-          <h3 className="mb-4">Inquiry form</h3>
+          <h3 className="mb-5">Inquiry form</h3>
           <ContactForm />
         </div>
       </section>

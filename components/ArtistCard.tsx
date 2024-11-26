@@ -52,7 +52,7 @@ export function ArtistCard({
         {showInquiryButton && (
           <Button asChild className="group">
             <QuickLink
-              href={`/contact?topic=artist&artistName=${encodeURIComponent(artist.artist_name)}`}
+              href={`/contact?topic=artist&artistName=${encodeURIComponent(artist.artist_name)}#inquiry-form`}
               className="mr-8 inline-flex w-[calc(100%-10rem)] min-w-[10rem] items-center justify-between rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800"
             >
               Inquire

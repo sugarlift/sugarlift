@@ -396,12 +396,17 @@ export function FAQ({ className = "" }: FAQProps) {
     >
       <div>
         <h2 className="mb-10">Frequently asked questions</h2>
-        <p className="max-w-xl">
-          Curabitur blandit tempus porttitor. Etiam porta sem malesuada magna
-          mollis euismod. Lorem ipsum dolor sit amet, consectetur adipiscing
-          elit. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor
-          auctor.
-        </p>
+        <div className="max-w-[45ch]">
+          <p className="text-base">
+            Our goal is to provide you with all the information you need to make
+            informed decisions about your art projects.
+          </p>
+          <p className="mt-8 text-base">
+            If you have any additional queries, please don't hesitate to reach
+            out to us at{" "}
+            <a href="mailto:hello@sugarlift.com">hello@sugarlift.com</a>.
+          </p>
+        </div>
       </div>
       <div>
         <div className="mb-2 flex gap-12 border-b border-[#F1F1F0]">

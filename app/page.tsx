@@ -6,6 +6,7 @@ import { TerminalCTA } from "@/components/TerminalCTA";
 import { QuickLink } from "@/components/Link";
 import { ArrowRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { FEATURED_EXHIBITIONS, FEATURED_PROJECTS } from "@/app/lib/constants";
 
 // Mark the page as static
 export const dynamic = "force-static";
@@ -22,15 +23,9 @@ async function getFeaturedData() {
     .order("artist_name", { ascending: true })
     .limit(9);
 
-  const exhibitions = [
-    "celia-lees-love-language",
-    "celia-lees-love-language-2",
-  ];
-  const projects = ["450-washington", "450-washington-2", "450-washington-3"];
-
   return {
-    exhibitions,
-    projects,
+    exhibitions: [...FEATURED_EXHIBITIONS],
+    projects: [...FEATURED_PROJECTS],
     artists: artists || [],
   };
 }

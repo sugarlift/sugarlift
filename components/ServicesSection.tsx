@@ -114,7 +114,7 @@ export function ServicesSection() {
                 "border-b border-[#F1F1F0] px-6 py-6 text-left text-lg transition first:pl-0 last:pr-0",
                 activeCategory === category
                   ? "animate border-black text-[#141414] transition fade-in"
-                  : "text-neutral-500 hover:opacity-50",
+                  : "text-zinc-500 hover:text-zinc-950",
               )}
               dangerouslySetInnerHTML={{ __html: category }}
             />

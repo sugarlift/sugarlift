@@ -3,20 +3,24 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import useWeb3Forms from "@web3forms/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@headlessui/react";
 
 // Add input class constants
 const INPUT_STYLES = {
-  base: "w-full border border-zinc-500 px-4 py-3 bg-transparent placeholder:text-zinc-800 focus:ring-4 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-200",
+  base: "w-full border border-zinc-500 text-zinc-950 px-4 py-3 bg-transparent placeholder:text-zinc-400 focus:ring-4 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-200",
   error: "border-red-600 ring-red-100 focus:border-red-600 dark:ring-0",
   normal:
     "ring-zinc-100 focus:border-zinc-600 dark:border-zinc-600 dark:ring-0 dark:focus:border-white",
+  select:
+    "appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%227%22%20height%3D%2212%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M3.5%2012a.498.498%200%200%201-.353-.146l-3-3a.5.5%200%201%201%20.707-.708L3.5%2010.794l2.647-2.647a.5.5%200%201%201%20.707.707l-3%203A.499.499%200%200%201%203.5%2012Zm0-12c.128%200%20.256.049.354.146l3%203a.5.5%200%201%201-.707.708L3.5%201.206.854%203.853a.5.5%200%201%201-.708-.707l3-3A.499.499%200%200%201%203.5%200Z%22%20fill%3D%22%23000%22%20fill-rule%3D%22nonzero%22%2F%3E%3C%2Fsvg%3E')] bg-[length:8px] bg-[right_1.25rem_center] bg-no-repeat",
 };
 
-const getInputClassName = (error?: boolean) => {
-  return `${INPUT_STYLES.base} ${error ? INPUT_STYLES.error : INPUT_STYLES.normal}`;
+const getInputClassName = (error?: boolean, isSelect?: boolean) => {
+  return `${INPUT_STYLES.base} ${error ? INPUT_STYLES.error : INPUT_STYLES.normal} ${
+    isSelect ? INPUT_STYLES.select : ""
+  }`;
 };
 
 type FormData = {
@@ -34,6 +38,7 @@ type FormData = {
 export default function Contact() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const {
     register,
     handleSubmit,
@@ -83,9 +88,25 @@ export default function Contact() {
     }
   }, [searchParams, setValue]);
 
+  useEffect(() => {
+    // Check if we're on the contact page and there's a hash
+    if (pathname === "/contact" && window.location.hash === "#inquiry-form") {
+      const element = document.getElementById("inquiry-form");
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
+      }
+    }
+  }, [pathname, searchParams]);
+
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} className="my-10">
+      <form
+        id="inquiry-form"
+        className="scroll-mt-40"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <input
           type="checkbox"
           id=""
@@ -96,10 +117,11 @@ export default function Contact() {
 
         <div className="mb-5">
           <select
-            className={getInputClassName(!!errors.topic)}
+            className={getInputClassName(!!errors.topic, true)}
             {...register("topic", { required: "Please select a topic" })}
           >
             <option value="">Select a topic...</option>
+            <option value="general">General inquiry</option>
             <option value="consultation">Scheduling a consultation</option>
             <option value="artist">Artist inquiry</option>
             <option value="custom">Custom artwork inquiry</option>
@@ -107,49 +129,6 @@ export default function Contact() {
           {errors.topic && (
             <div className="mt-1 text-red-600">
               <small>{errors.topic.message?.toString()}</small>
-            </div>
-          )}
-        </div>
-
-        <div className="mb-5">
-          <input
-            type="text"
-            placeholder="Full Name"
-            autoComplete="false"
-            className={getInputClassName(!!errors.name)}
-            {...register("name", {
-              required: "Full name is required",
-              maxLength: 80,
-            })}
-          />
-          {errors.name && (
-            <div className="mt-1 text-red-600">
-              <small>{errors.name.message?.toString()}</small>
-            </div>
-          )}
-        </div>
-
-        <div className="mb-5">
-          <label htmlFor="email_address" className="sr-only">
-            Email Address
-          </label>
-          <input
-            id="email_address"
-            type="email"
-            placeholder="Email Address"
-            autoComplete="false"
-            className={getInputClassName(!!errors.email)}
-            {...register("email", {
-              required: "Enter your email",
-              pattern: {
-                value: /^\S+@\S+$/i,
-                message: "Please enter a valid email",
-              },
-            })}
-          />
-          {errors.email && (
-            <div className="mt-1 text-red-600">
-              <small>{errors.email.message?.toString()}</small>
             </div>
           )}
         </div>
@@ -219,12 +198,57 @@ export default function Contact() {
           </div>
         )}
 
+        <h3 className="mb-5 mt-8">Contact details</h3>
+
+        <div className="mb-5">
+          <input
+            type="text"
+            placeholder="Your name..."
+            autoComplete="false"
+            className={getInputClassName(!!errors.name)}
+            {...register("name", {
+              required: "Your name is required",
+              maxLength: 80,
+            })}
+          />
+          {errors.name && (
+            <div className="mt-1 text-red-600">
+              <small>{errors.name.message?.toString()}</small>
+            </div>
+          )}
+        </div>
+
+        <div className="mb-5">
+          <label htmlFor="email_address" className="sr-only">
+            Your email...
+          </label>
+          <input
+            id="email_address"
+            type="email"
+            placeholder="Your email..."
+            autoComplete="false"
+            className={getInputClassName(!!errors.email)}
+            {...register("email", {
+              required: "Your email is required",
+              pattern: {
+                value: /^\S+@\S+$/i,
+                message: "Please enter a valid email",
+              },
+            })}
+          />
+          {errors.email && (
+            <div className="mt-1 text-red-600">
+              <small>{errors.email.message?.toString()}</small>
+            </div>
+          )}
+        </div>
+
         <div className="mb-3">
           <textarea
-            placeholder="Your Message"
+            placeholder="Your message..."
             className={`h-36 ${getInputClassName(!!errors.message)}`}
             {...register("message", {
-              required: "Enter your Message",
+              required: "A message is required",
             })}
           />
           {errors.message && (

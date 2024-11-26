@@ -5,10 +5,10 @@ import { getAllProjects } from "@/app/lib/markdownProjects";
 import { FeaturedProjects } from "@/components/FeaturedProjects";
 import { Slider } from "@/components/Slider";
 import { ConsultationCTA } from "@/components/ConsultationCTA";
+import { FEATURED_PROJECTS } from "@/app/lib/constants";
 
 async function getFeaturedData() {
   const allProjects = await getAllProjects();
-  const featuredProjects = ["450-washington", "450-washington-2"];
 
   // Group projects by category
   const projectsByCategory = allProjects.reduce(
@@ -25,7 +25,7 @@ async function getFeaturedData() {
 
   return {
     projectsByCategory,
-    featuredProjects,
+    featuredProjects: [...FEATURED_PROJECTS],
   };
 }
 
