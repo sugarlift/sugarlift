@@ -1,79 +1,19 @@
 import { NextResponse } from "next/server";
 import { syncAirtableToSupabase } from "@/lib/syncAirtableToSupabase";
-import { WebhookError } from "@/lib/types";
 
-// Increase timeout to 300 seconds (5 minutes)
-export const maxDuration = 300;
-
-// Use nodejs runtime instead of edge for better stability with long-running tasks
-export const runtime = "nodejs";
-
-export async function POST(request: Request) {
+export async function POST() {
   try {
     console.log("Starting artists webhook handler...");
-
-    let payload;
-    try {
-      payload = await request.json();
-      console.log(
-        "Received artists webhook payload:",
-        JSON.stringify(payload, null, 2),
-      );
-    } catch (parseError) {
-      console.error("Failed to parse webhook payload:", parseError);
-      return NextResponse.json(
-        { error: "Invalid JSON payload" },
-        { status: 400 },
-      );
-    }
-
-    // Log Airtable credentials status
-    console.log("Checking Airtable configuration...");
-    if (!process.env.AIRTABLE_PERSONAL_ACCESS_TOKEN) {
-      console.error("Missing AIRTABLE_PERSONAL_ACCESS_TOKEN");
-      throw new Error("Missing AIRTABLE_PERSONAL_ACCESS_TOKEN");
-    }
-    if (!process.env.AIRTABLE_BASE_ID) {
-      console.error("Missing AIRTABLE_BASE_ID");
-      throw new Error("Missing AIRTABLE_BASE_ID");
-    }
-
-    // Log Supabase configuration
-    console.log("Checking Supabase configuration...");
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      console.error("Missing SUPABASE_URL");
-      throw new Error("Missing SUPABASE_URL");
-    }
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error("Missing SUPABASE_SERVICE_ROLE_KEY");
-      throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
-    }
-
-    console.log("Starting Airtable to Supabase sync (paginated)...");
     const result = await syncAirtableToSupabase();
 
     return NextResponse.json({
-      message: "Artists sync completed (partial - first page only)",
-      timestamp: new Date().toISOString(),
+      message: "Artists sync completed",
       result,
-      payload,
     });
   } catch (error) {
-    const webhookError = error as WebhookError;
-    console.error("Artists webhook error:", {
-      message: webhookError.message || "Unknown error",
-      status: webhookError.status,
-      response: webhookError.response,
-      stack: webhookError.stack,
-      error: webhookError,
-    });
-
+    console.error("Artists webhook error:", error);
     return NextResponse.json(
-      {
-        error: "Internal server error",
-        details: webhookError.message,
-        timestamp: new Date().toISOString(),
-      },
+      { error: "Internal server error" },
       { status: 500 },
     );
   }
