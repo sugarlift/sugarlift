@@ -10,13 +10,13 @@ export async function syncAirtableToSupabase() {
     console.log("Starting sync process...");
     const table = getArtistsTable();
 
-    // Get the most recently modified record
-    console.log("Fetching records from Airtable view: Artists-LIVE");
+    // Get the most recently modified record without specifying a view
+    console.log("Fetching records from Airtable");
     const records = await table
       .select({
         maxRecords: 1,
         sort: [{ field: "Last Modified", direction: "desc" }],
-        view: "Artists-LIVE",
+        filterByFormula: "Add to Website = 1", // Only get records marked for website
       })
       .firstPage();
 
@@ -26,9 +26,10 @@ export async function syncAirtableToSupabase() {
     }
 
     const record = records[0];
-    console.log("Found record:", {
+    console.log("Found Airtable record:", {
       id: record.id,
-      fields: record.fields,
+      name: record.get("Artist Name"),
+      fields: Object.keys(record.fields),
     });
 
     // Create a basic artist record without photos first
@@ -49,24 +50,23 @@ export async function syncAirtableToSupabase() {
       ),
     };
 
-    console.log("Attempting to upsert artist to Supabase table: artists", {
+    console.log("Attempting to upsert artist:", {
       id: artist.id,
       name: artist.artist_name,
     });
 
     // Try the upsert with explicit table name
-    const { data, error } = await supabase
-      .from("artists")
-      .upsert(artist, {
-        onConflict: "id",
-      })
-      .select();
+    const { data, error } = await supabase.from("artists").upsert(artist, {
+      onConflict: "id",
+    });
 
     if (error) {
       console.error("Upsert failed:", {
         error,
         errorMessage: error.message,
         details: error.details,
+        hint: error.hint,
+        code: error.code,
       });
       throw error;
     }
