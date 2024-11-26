@@ -18,7 +18,23 @@ async function uploadAttachmentToSupabase(
     .toLowerCase();
   const storagePath = `${folderName}/${cleanFilename}`;
 
-  // Upload the new file
+  // Check if file already exists first
+  const { data: existingFile } = await supabase.storage
+    .from("attachments_artists")
+    .getPublicUrl(storagePath);
+
+  if (existingFile.publicUrl) {
+    // File exists, return existing data
+    return {
+      url: existingFile.publicUrl,
+      width: attachment.width,
+      height: attachment.height,
+      filename: attachment.filename,
+      type: attachment.type,
+    };
+  }
+
+  // Only upload if file doesn't exist
   const response = await fetch(attachment.url);
   const blob = await response.blob();
 
@@ -52,71 +68,69 @@ export async function syncAirtableToSupabase() {
     console.log("Starting sync process...");
     const table = getArtistsTable();
 
-    const records = await table.select().firstPage();
-    console.log(`Found ${records.length} records in Airtable`);
+    // Only get the most recently modified record
+    const records = await table
+      .select({
+        maxRecords: 1,
+        sort: [{ field: "Last Modified", direction: "desc" }],
+      })
+      .firstPage();
 
-    const skippedRecords = [];
-    let processedCount = 0;
-
-    for (const record of records) {
-      try {
-        const artistName = record.get("Artist Name") as string;
-        if (!artistName) {
-          console.warn(`Skipping record ${record.id} - Missing artist name`);
-          continue;
-        }
-
-        const artist: Artist = {
-          id: record.id,
-          artist_name: artistName,
-          artist_bio: record.get("Artist Bio") as string,
-          born: record.get("Born") as string,
-          city: record.get("City") as string,
-          state: record.get("State (USA)") as string,
-          country: record.get("Country") as string,
-          ig_handle: record.get("IG Handle") as string,
-          website: record.get("Website") as string,
-          live_in_production:
-            (record.get("Add to Website") as boolean) || false,
-          artist_photo: [],
-          slug: generateSlug(artistName),
-        };
-
-        const rawAttachments = record.get("Artist Photo");
-        if (rawAttachments && Array.isArray(rawAttachments)) {
-          artist.artist_photo = await Promise.all(
-            rawAttachments.map((att: AirtableAttachment) =>
-              uploadAttachmentToSupabase(att, { artist_name: artistName }),
-            ),
-          );
-        }
-
-        const { error: upsertError } = await supabase
-          .from("artists")
-          .upsert(artist);
-
-        if (upsertError) {
-          throw upsertError;
-        }
-
-        processedCount++;
-        console.log(`Successfully processed ${artistName}`);
-      } catch (recordError) {
-        console.error(`Error processing record ${record.id}:`, recordError);
-        skippedRecords.push({
-          id: record.id,
-          reason: "Processing error",
-          error: recordError,
-        });
-      }
+    if (records.length === 0) {
+      console.log("No records found to sync");
+      return { success: true, processedCount: 0, skippedCount: 0 };
     }
 
-    console.log("Sync completed successfully");
+    const record = records[0];
+    const artistName = record.get("Artist Name") as string;
+
+    if (!artistName) {
+      console.warn(`Skipping record ${record.id} - Missing artist name`);
+      return {
+        success: false,
+        processedCount: 0,
+        skippedCount: 1,
+        skippedRecords: [{ id: record.id, reason: "Missing artist name" }],
+      };
+    }
+
+    const artist: Artist = {
+      id: record.id,
+      artist_name: artistName,
+      artist_bio: record.get("Artist Bio") as string,
+      born: record.get("Born") as string,
+      city: record.get("City") as string,
+      state: record.get("State (USA)") as string,
+      country: record.get("Country") as string,
+      ig_handle: record.get("IG Handle") as string,
+      website: record.get("Website") as string,
+      live_in_production: (record.get("Add to Website") as boolean) || false,
+      artist_photo: [],
+      slug: generateSlug(artistName),
+    };
+
+    const rawAttachments = record.get("Artist Photo");
+    if (rawAttachments && Array.isArray(rawAttachments)) {
+      artist.artist_photo = await Promise.all(
+        rawAttachments.map((att: AirtableAttachment) =>
+          uploadAttachmentToSupabase(att, { artist_name: artistName }),
+        ),
+      );
+    }
+
+    const { error: upsertError } = await supabase
+      .from("artists")
+      .upsert(artist);
+
+    if (upsertError) {
+      throw upsertError;
+    }
+
+    console.log(`Successfully processed ${artistName}`);
     return {
       success: true,
-      processedCount,
-      skippedCount: skippedRecords.length,
-      skippedRecords,
+      processedCount: 1,
+      skippedCount: 0,
     };
   } catch (error) {
     console.error("Sync error:", error);

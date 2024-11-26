@@ -13,14 +13,20 @@ const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_PERSONAL_ACCESS_TOKEN =
   process.env.AIRTABLE_PERSONAL_ACCESS_TOKEN;
 
+// Configure Airtable with a lower rate limit
 const airtable = new Airtable({
   apiKey: AIRTABLE_PERSONAL_ACCESS_TOKEN,
+  requestTimeout: 25000, // 25 seconds timeout
+  endpointUrl: "https://api.airtable.com",
 });
 
+// Cache the base connection
+const base = airtable.base(AIRTABLE_BASE_ID);
+
 export const getArtistsTable = () => {
-  return airtable.base(AIRTABLE_BASE_ID).table("tblDYfUM8SVh14Hmg");
+  return base.table("tblDYfUM8SVh14Hmg");
 };
 
 export const getArtworkTable = () => {
-  return airtable.base(AIRTABLE_BASE_ID).table("tblj8MEqwAWKPnxmd");
+  return base.table("tblj8MEqwAWKPnxmd");
 };
