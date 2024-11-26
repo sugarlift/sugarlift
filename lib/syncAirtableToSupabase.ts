@@ -1,6 +1,6 @@
 import { getArtistsTable } from "./airtable";
 import { supabase } from "./supabase";
-import { Artist, AirtableAttachment, StoredAttachment } from "./types";
+import { AirtableAttachment, StoredAttachment, ArtistTable } from "./types";
 
 const generateSlug = (name: string) => {
   return name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "-");
@@ -94,16 +94,16 @@ export async function syncAirtableToSupabase() {
       };
     }
 
-    const artist: Artist = {
+    const artist: ArtistTable = {
       id: record.id,
       artist_name: artistName,
-      artist_bio: record.get("Artist Bio") as string,
-      born: record.get("Born") as string,
-      city: record.get("City") as string,
-      state: record.get("State (USA)") as string,
-      country: record.get("Country") as string,
-      ig_handle: record.get("IG Handle") as string,
-      website: record.get("Website") as string,
+      artist_bio: (record.get("Artist Bio") as string) ?? null,
+      born: (record.get("Born") as string) ?? null,
+      city: (record.get("City") as string) ?? null,
+      state: (record.get("State (USA)") as string) ?? null,
+      country: (record.get("Country") as string) ?? null,
+      ig_handle: (record.get("IG Handle") as string) ?? null,
+      website: (record.get("Website") as string) ?? null,
       live_in_production: (record.get("Add to Website") as boolean) || false,
       artist_photo: [],
       slug: generateSlug(artistName),
@@ -118,11 +118,20 @@ export async function syncAirtableToSupabase() {
       );
     }
 
+    console.log("Attempting to upsert artist:", {
+      id: artist.id,
+      name: artist.artist_name,
+    });
+
     const { error: upsertError } = await supabase
       .from("artists")
-      .upsert(artist);
+      .upsert(artist, {
+        onConflict: "id",
+        ignoreDuplicates: false,
+      });
 
     if (upsertError) {
+      console.error("Upsert error:", upsertError);
       throw upsertError;
     }
 
@@ -133,7 +142,11 @@ export async function syncAirtableToSupabase() {
       skippedCount: 0,
     };
   } catch (error) {
-    console.error("Sync error:", error);
+    console.error("Sync error:", {
+      error,
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     throw error;
   }
 }
