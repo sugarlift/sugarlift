@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { Tab, Tabs, Sliders } from "./Tabs";
 
 type ServiceCategory =
   | "Budgeting and<br />prioritization"
@@ -94,69 +94,66 @@ const DEFAULT_SERVICES: Record<ServiceCategory, ServiceContent> = {
   },
 };
 
-export function ServicesSection() {
-  const [activeCategory, setActiveCategory] = useState<ServiceCategory>(
-    "Budgeting and<br />prioritization",
-  );
+const ServiceContent: React.FC<{ content: ServiceContent }> = ({ content }) => (
+  <div className="container grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div>
+      <div className="relative aspect-video overflow-hidden bg-zinc-100">
+        <Image
+          src={content.left.image}
+          alt={content.left.title}
+          fill
+          className="object-cover"
+        />
+      </div>
+      <div className="p-4 pl-0">
+        <h3>{content.left.title}</h3>
+        <p className="text-base text-zinc-600">{content.left.description}</p>
+      </div>
+    </div>
 
+    <div>
+      <div className="relative aspect-video overflow-hidden bg-zinc-100">
+        <Image
+          src={content.right.image}
+          alt={content.right.title}
+          fill
+          className="object-cover"
+        />
+      </div>
+      <div className="p-4 pl-0">
+        <h3>{content.right.title}</h3>
+        <p className="text-base text-zinc-600">{content.right.description}</p>
+      </div>
+    </div>
+  </div>
+);
+
+export function ServicesSection() {
+  const [focusedIdx, setFocusedIdx] = useState(0);
   const categories = Object.keys(DEFAULT_SERVICES) as ServiceCategory[];
-  const activeContent = DEFAULT_SERVICES[activeCategory];
 
   return (
     <>
-      <div className="mb-12 border-b border-[#F1F1F0]">
-        <div className="no-scrollbar flex gap-16 overflow-x-auto">
+      <div className="container">
+        <Tabs
+          focusedIdx={focusedIdx}
+          onChange={setFocusedIdx}
+          className="[&_ul]:flex-col [&_ul]:gap-4 md:[&_ul]:flex-row md:[&_ul]:gap-24"
+        >
           {categories.map((category) => (
-            <button
+            <Tab
               key={category}
-              onClick={() => setActiveCategory(category)}
-              className={cn(
-                "border-b border-[#F1F1F0] px-6 py-6 text-left text-lg transition first:pl-0 last:pr-0",
-                activeCategory === category
-                  ? "animate border-black text-[#141414] transition fade-in"
-                  : "text-zinc-500 hover:text-zinc-950",
-              )}
-              dangerouslySetInnerHTML={{ __html: category }}
+              title={<span dangerouslySetInnerHTML={{ __html: category }} />}
             />
           ))}
-        </div>
+        </Tabs>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div>
-          <div className="relative aspect-video overflow-hidden bg-zinc-100">
-            <Image
-              src={activeContent.left.image}
-              alt={activeContent.left.title}
-              fill
-              className="object-cover"
-            />
-          </div>
-          <div className="p-4 pl-0">
-            <h3>{activeContent.left.title}</h3>
-            <p className="text-base text-zinc-600">
-              {activeContent.left.description}
-            </p>
-          </div>
-        </div>
-
-        <div>
-          <div className="relative aspect-video overflow-hidden bg-zinc-100">
-            <Image
-              src={activeContent.right.image}
-              alt={activeContent.right.title}
-              fill
-              className="object-cover"
-            />
-          </div>
-          <div className="p-4 pl-0">
-            <h3>{activeContent.right.title}</h3>
-            <p className="text-base text-zinc-600">
-              {activeContent.right.description}
-            </p>
-          </div>
-        </div>
-      </div>
+      <Sliders focusedIdx={focusedIdx}>
+        {categories.map((category, idx) => (
+          <ServiceContent key={idx} content={DEFAULT_SERVICES[category]} />
+        ))}
+      </Sliders>
     </>
   );
 }

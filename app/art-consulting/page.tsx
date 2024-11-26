@@ -88,8 +88,8 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="container">
-        <div className="mb-[1.33vw]">
+      <section>
+        <div className="container mb-[1.33vw]">
           <h1 className="mb-6 max-w-[760px]">
             Full suite of services to help you build an exceptional art program
             that will delight your clients and help you stand out from the

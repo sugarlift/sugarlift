@@ -1,20 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-// Remove or comment out the unused interface
-/* Remove these lines:
-interface FAQItemProps {
-  question: string;
-  answer: string;
-  isOpen: boolean;
-  onClick: () => void;
-}
-*/
-
-interface FAQProps {
-  className?: string;
-}
+import { Tab, Tabs, Sliders } from "./Tabs";
 
 // Developer FAQ sections
 const ExperienceAndExpertiseFAQ = [
@@ -377,18 +364,33 @@ const DEFAULT_FAQ_ITEMS = {
 
 type CategoryKey = keyof typeof DEFAULT_FAQ_ITEMS;
 
-export function FAQ({ className = "" }: FAQProps) {
-  const [activeCategory, setActiveCategory] = useState<CategoryKey>(
-    "Interior design firms",
-  );
+const FAQContent: React.FC<{ sections: typeof DeveloperFAQSections }> = ({
+  sections,
+}) => {
   const [expandedSection, setExpandedSection] = useState<number | null>(0);
-
-  const categories = Object.keys(DEFAULT_FAQ_ITEMS);
-  const sections = DEFAULT_FAQ_ITEMS[activeCategory];
 
   const toggleSection = (index: number) => {
     setExpandedSection(expandedSection === index ? null : index);
   };
+
+  return (
+    <div className="max-w-3xl">
+      {sections.map((section, index) => (
+        <FAQSection
+          key={section.title}
+          title={section.title}
+          items={section.items}
+          isExpanded={expandedSection === index}
+          onToggle={() => toggleSection(index)}
+        />
+      ))}
+    </div>
+  );
+};
+
+export function FAQ({ className = "" }: { className?: string }) {
+  const [focusedIdx, setFocusedIdx] = useState(0);
+  const categories = Object.keys(DEFAULT_FAQ_ITEMS) as CategoryKey[];
 
   return (
     <section
@@ -409,35 +411,21 @@ export function FAQ({ className = "" }: FAQProps) {
         </div>
       </div>
       <div>
-        <div className="mb-2 flex gap-12 border-b border-[#F1F1F0]">
+        <Tabs
+          focusedIdx={focusedIdx}
+          onChange={setFocusedIdx}
+          className="[&_ul]:flex-col [&_ul]:gap-4 md:[&_ul]:flex-row md:[&_ul]:gap-12"
+        >
           {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => {
-                setActiveCategory(category as CategoryKey);
-                setExpandedSection(0);
-              }}
-              className={`px-0 pb-4 pt-[9px] text-lg ${
-                activeCategory === category
-                  ? "animate text-[#141414] shadow-[inset_0_-1px_white,_0_1px_black] transition fade-in"
-                  : "text-neutral-500 transition hover:opacity-50"
-              }`}
-            >
-              {category}
-            </button>
+            <Tab key={category} title={category} />
           ))}
-        </div>
-        <div className="max-w-3xl">
-          {sections.map((section, index) => (
-            <FAQSection
-              key={section.title}
-              title={section.title}
-              items={section.items}
-              isExpanded={expandedSection === index}
-              onToggle={() => toggleSection(index)}
-            />
+        </Tabs>
+
+        <Sliders focusedIdx={focusedIdx}>
+          {categories.map((category, idx) => (
+            <FAQContent key={idx} sections={DEFAULT_FAQ_ITEMS[category]} />
           ))}
-        </div>
+        </Sliders>
       </div>
     </section>
   );
