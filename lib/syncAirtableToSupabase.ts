@@ -133,13 +133,35 @@ export async function syncAirtableToSupabase() {
             );
           }
 
-          const { error: upsertError } = await supabase
+          console.log("Attempting to upsert artist:", {
+            id: artist.id,
+            name: artist.artist_name,
+            photoCount: artist.artist_photo.length,
+          });
+
+          const { error: upsertError, data: upsertData } = await supabase
             .from("artists")
-            .upsert(artist, { onConflict: "id" });
+            .upsert(artist, {
+              onConflict: "id",
+              returning: "minimal",
+            });
 
           if (upsertError) {
+            console.error("Supabase upsert error details:", {
+              error: upsertError,
+              errorMessage: upsertError.message,
+              errorDetails: upsertError.details,
+              errorHint: upsertError.hint,
+              errorCode: upsertError.code,
+              artist: {
+                id: artist.id,
+                name: artist.artist_name,
+              },
+            });
             throw upsertError;
           }
+
+          console.log(`Successfully upserted artist ${artist.artist_name}`);
 
           processedCount++;
           console.log(

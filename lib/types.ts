@@ -65,3 +65,18 @@ export interface Artwork {
   created_at?: string;
   updated_at?: string;
 }
+
+export interface ArtistTable {
+  id: string;
+  artist_name: string;
+  artist_bio: string | null;
+  born: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  ig_handle: string | null;
+  website: string | null;
+  live_in_production: boolean;
+  artist_photo: StoredAttachment[];
+  slug: string;
+}
