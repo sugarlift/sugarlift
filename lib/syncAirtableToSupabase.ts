@@ -10,13 +10,12 @@ export async function syncAirtableToSupabase() {
     console.log("Starting sync process...");
     const table = getArtistsTable();
 
-    // Get the most recently modified record without specifying a view
+    // Get the most recently modified record
     console.log("Fetching records from Airtable");
     const records = await table
       .select({
         maxRecords: 1,
         sort: [{ field: "Last Modified", direction: "desc" }],
-        filterByFormula: "Add to Website = 1", // Only get records marked for website
       })
       .firstPage();
 
@@ -29,7 +28,6 @@ export async function syncAirtableToSupabase() {
     console.log("Found Airtable record:", {
       id: record.id,
       name: record.get("Artist Name"),
-      fields: Object.keys(record.fields),
     });
 
     // Create a basic artist record without photos first
@@ -55,7 +53,6 @@ export async function syncAirtableToSupabase() {
       name: artist.artist_name,
     });
 
-    // Try the upsert with explicit table name
     const { data, error } = await supabase.from("artists").upsert(artist, {
       onConflict: "id",
     });
@@ -65,8 +62,6 @@ export async function syncAirtableToSupabase() {
         error,
         errorMessage: error.message,
         details: error.details,
-        hint: error.hint,
-        code: error.code,
       });
       throw error;
     }
@@ -82,7 +77,6 @@ export async function syncAirtableToSupabase() {
     console.error("Sync failed:", {
       error,
       message: error instanceof Error ? error.message : "Unknown error",
-      stack: error instanceof Error ? error.stack : undefined,
     });
     throw error;
   }
