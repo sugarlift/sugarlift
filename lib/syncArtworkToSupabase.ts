@@ -53,34 +53,21 @@ async function uploadArtworkImageToSupabase(
 export async function syncArtworkToSupabase() {
   try {
     console.log("Starting sync process...");
-
-    // Get all records from Airtable
-    console.log("Fetching records from Airtable...");
     const table = getArtworkTable();
 
-    console.log("Selecting records...");
-    const query = table.select();
+    // Get 5 most recently modified records
+    const records = await table
+      .select({
+        maxRecords: 5,
+        sort: [{ field: "Last Modified", direction: "desc" }],
+      })
+      .firstPage();
 
-    console.log("Fetching all records...");
-    const records = await query.all();
-    console.log(`Found ${records.length} records in Airtable`);
+    console.log(`Found ${records.length} records to sync`);
 
-    // Get all existing artwork from Supabase for comparison
-    console.log("Fetching existing artwork from Supabase...");
-    const { data: existingArtwork, error: fetchError } = await supabaseAdmin
-      .from("artwork")
-      .select("id");
+    let processedCount = 0;
 
-    if (fetchError) {
-      console.error("Error fetching from Supabase:", fetchError);
-      throw fetchError;
-    }
-
-    const existingIds = new Set(existingArtwork?.map((a) => a.id) || []);
-    const airtableIds = new Set();
-
-    // Sync all records from Airtable
-    console.log("Starting record sync...");
+    // Process each record
     for (const record of records) {
       try {
         const rawAttachments = record.get("Artwork images");
@@ -125,50 +112,24 @@ export async function syncArtworkToSupabase() {
             (record.get("updated_at") as string) || new Date().toISOString(),
         };
 
-        console.log("Processing artwork:", artwork);
-        airtableIds.add(record.id);
-
         const { error: upsertError } = await supabaseAdmin
           .from("artwork")
           .upsert(artwork, { onConflict: "id" });
 
-        if (upsertError) {
-          console.error("Error upserting artwork:", artwork.title, upsertError);
-          throw upsertError;
-        }
+        if (upsertError) throw upsertError;
+        processedCount++;
       } catch (recordError) {
-        const syncError = recordError as SyncError;
-        syncError.record = { id: record.id, fields: record.fields };
-        console.error("Error processing record:", record.id, syncError);
-        throw syncError;
+        console.error(`Error processing artwork ${record.id}:`, recordError);
+        // Continue with next record instead of failing entire batch
       }
     }
 
-    // Set live_in_production to false for records that no longer exist in Airtable
-    const idsToUnpublish = [...existingIds].filter(
-      (id) => !airtableIds.has(id),
-    );
-    if (idsToUnpublish.length > 0) {
-      console.log(`Unpublishing ${idsToUnpublish.length} obsolete records...`);
-      const { error: unpublishError } = await supabaseAdmin
-        .from("artwork")
-        .update({ live_in_production: false })
-        .in("id", idsToUnpublish);
-
-      if (unpublishError) {
-        console.error("Error unpublishing records:", unpublishError);
-        throw unpublishError;
-      }
-    }
-
-    console.log("Sync completed successfully");
+    return {
+      success: true,
+      processedCount,
+    };
   } catch (error) {
-    const syncError = error as SyncError;
-    console.error("Sync error:", {
-      message: syncError.message || "Unknown error",
-      stack: syncError.stack,
-      error: syncError,
-    });
-    throw syncError;
+    console.error("Sync error:", error);
+    throw error;
   }
 }
