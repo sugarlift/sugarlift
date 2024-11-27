@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     console.log("Received artwork webhook payload:", payload);
 
     // Get the record ID from the webhook payload
-    const recordId = payload.recordId;
+    const recordId = payload.changeSet?.[0]?.recordId || payload.recordId;
     if (!recordId) {
       console.log("No record ID provided, running full sync");
       // If no record ID, fall back to full sync
