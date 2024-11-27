@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { syncArtworkToSupabase } from "@/lib/syncArtworkToSupabase";
 import { WebhookError } from "@/lib/types";
 
+export const maxDuration = 30; // 30 seconds max runtime
+
 export async function POST(request: Request) {
   try {
     // Log the start of the webhook handling

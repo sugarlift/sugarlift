@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { syncAirtableToSupabase } from "@/lib/syncAirtableToSupabase";
 
+export const maxDuration = 30; // 30 seconds max runtime
+
 export async function POST() {
   try {
     console.log("Starting sync...");

@@ -1,6 +1,8 @@
 import { syncAirtableToSupabase } from "@/lib/syncAirtableToSupabase";
 import { syncArtworkToSupabase } from "@/lib/syncArtworkToSupabase";
 
+export const maxDuration = 30; // 30 seconds max runtime
+
 export async function POST() {
   try {
     await syncAirtableToSupabase();
