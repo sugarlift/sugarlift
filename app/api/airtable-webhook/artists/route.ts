@@ -15,13 +15,16 @@ export async function POST(request: Request) {
     const result = await syncAirtableToSupabase(batchNumber);
 
     if (result.hasMore) {
+      // Get URL from the request
+      const url = new URL(request.url);
+
       // Trigger next batch via fetch
       console.log(`Triggering batch ${batchNumber + 1}`);
-      fetch("/api/airtable-webhook/artists", {
+      await fetch(url.toString(), {
         method: "POST",
         body: JSON.stringify({ batchNumber: batchNumber + 1 }),
         headers: { "Content-Type": "application/json" },
-      }).catch(console.error);
+      });
     }
 
     return NextResponse.json({
