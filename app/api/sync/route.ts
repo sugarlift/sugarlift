@@ -4,14 +4,13 @@ import { syncArtworkToSupabase } from "@/lib/syncArtworkToSupabase";
 export async function POST(request: Request) {
   try {
     const { offset } = await request.json();
-    const numericOffset = offset ? parseInt(offset, 10) : undefined;
+    const numericOffset = offset != null ? parseInt(offset, 10) : undefined;
     const result = await syncArtworkToSupabase(5, numericOffset);
 
-    if (result.hasMore && result.nextOffset !== null) {
-      // If there are more records and we have a valid offset, schedule the next batch
+    if (result.hasMore && result.nextOffset != null) {
       await fetch("/api/sync", {
         method: "POST",
-        body: JSON.stringify({ offset: result.nextOffset.toString() }),
+        body: JSON.stringify({ offset: result.nextOffset }),
       });
     }
 

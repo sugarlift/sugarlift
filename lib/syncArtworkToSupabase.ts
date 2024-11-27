@@ -62,6 +62,10 @@ export async function syncArtworkToSupabase(
     .eq("type", "artwork")
     .single();
 
+  // If there's a stored offset in status, parse it to number
+  const startOffset =
+    offset ?? (statusData?.offset ? parseInt(statusData.offset, 10) : 0);
+
   if (statusData?.in_progress) {
     console.log("Sync already in progress, skipping...");
     return { success: false, message: "Sync already in progress" };
@@ -76,14 +80,14 @@ export async function syncArtworkToSupabase(
       type: "artwork",
       in_progress: true,
       last_synced_at: new Date().toISOString(),
-      offset: offset?.toString(), // Convert to string for storage
+      offset: startOffset.toString(),
     });
 
-    // Get records with pagination
+    // Get records with pagination using numeric offset
     const records = await table
       .select({
         pageSize: batchSize,
-        offset: offset, // Now correctly typed as number
+        offset: startOffset, // Always passing a number
       })
       .firstPage();
 
@@ -164,15 +168,15 @@ export async function syncArtworkToSupabase(
       await supabaseAdmin.from("sync_errors").insert(errors);
     }
 
-    // Update sync status with numeric offset converted to string
+    // Update sync status
+    const nextOffset =
+      records.length === batchSize ? startOffset + records.length : null;
+
     await supabaseAdmin.from("sync_status").upsert({
       type: "artwork",
       in_progress: false,
       last_synced_at: new Date().toISOString(),
-      offset:
-        records.length === batchSize
-          ? ((offset || 0) + records.length).toString()
-          : null, // Store offset as string
+      offset: nextOffset?.toString() ?? null,
       error: errors.length > 0 ? JSON.stringify(errors) : null,
     });
 
@@ -180,8 +184,7 @@ export async function syncArtworkToSupabase(
       success: true,
       processedCount,
       hasMore: records.length === batchSize,
-      nextOffset:
-        records.length === batchSize ? (offset || 0) + records.length : null, // Return numeric offset
+      nextOffset, // Return the numeric offset
       errors: errors.length > 0 ? errors : null,
     };
   } catch (error) {
