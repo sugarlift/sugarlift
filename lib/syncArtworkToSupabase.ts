@@ -101,7 +101,7 @@ export async function syncArtworkToSupabase() {
           artwork_images = await Promise.all(
             airtableAttachments.map((attachment) =>
               uploadArtworkImageToSupabase(attachment, {
-                title: record.get("TITLE") as string,
+                title: record.get("Title") as string,
               }),
             ),
           );
@@ -109,7 +109,7 @@ export async function syncArtworkToSupabase() {
 
         const artwork: Artwork = {
           id: record.id,
-          title: (record.get("TITLE") as string) || null,
+          title: (record.get("Title") as string) || null,
           artwork_images,
           medium: (record.get("Medium") as string) || null,
           year: record.get("Year") ? Number(record.get("Year")) : null,
