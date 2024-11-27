@@ -8,6 +8,9 @@ import {
   SyncError,
 } from "./types";
 
+// Add delay helper function
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function uploadArtworkImageToSupabase(
   attachment: AirtableAttachment,
   artwork: { title: string },
@@ -20,35 +23,47 @@ async function uploadArtworkImageToSupabase(
     .toLowerCase();
   const storagePath = `${folderName}/${cleanFilename}`;
 
-  // Upload the new file
-  const response = await fetch(attachment.url);
-  const blob = await response.blob();
+  // Add retry logic for fetch
+  let attempts = 0;
+  const maxAttempts = 3;
 
-  const { error: uploadError } = await supabaseAdmin.storage
-    .from("attachments_artwork")
-    .upload(storagePath, blob, {
-      contentType: attachment.type,
-      upsert: true,
-    });
+  while (attempts < maxAttempts) {
+    try {
+      const response = await fetch(attachment.url);
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+      const blob = await response.blob();
 
-  if (uploadError) {
-    console.error("Error uploading artwork image:", uploadError);
-    throw uploadError;
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from("attachments_artwork")
+        .upload(storagePath, blob, {
+          contentType: attachment.type,
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabaseAdmin.storage
+        .from("attachments_artwork")
+        .getPublicUrl(storagePath);
+
+      return {
+        url: publicUrl,
+        width: attachment.width,
+        height: attachment.height,
+        filename: attachment.filename,
+        type: attachment.type,
+      };
+    } catch (error) {
+      attempts++;
+      if (attempts === maxAttempts) throw error;
+      // Exponential backoff
+      await delay(Math.pow(2, attempts) * 1000);
+    }
   }
-
-  const {
-    data: { publicUrl },
-  } = supabaseAdmin.storage
-    .from("attachments_artwork")
-    .getPublicUrl(storagePath);
-
-  return {
-    url: publicUrl,
-    width: attachment.width,
-    height: attachment.height,
-    filename: attachment.filename,
-    type: attachment.type,
-  };
+  throw new Error("Failed to upload image after max attempts");
 }
 
 export async function syncArtworkToSupabase(
@@ -80,13 +95,41 @@ export async function syncArtworkToSupabase(
       last_synced_at: new Date().toISOString(),
     });
 
-    // Get records that haven't been synced yet
-    const records = await table
-      .select({
-        maxRecords: batchSize,
-        filterByFormula: `NOT({Title} = "")`,
-      })
-      .firstPage();
+    // Get records with rate limit handling
+    let records;
+    try {
+      records = await table
+        .select({
+          maxRecords: batchSize,
+          filterByFormula: `NOT({Title} = "")`,
+        })
+        .firstPage();
+      // Add small delay after Airtable request
+      await delay(250); // 250ms delay to stay well under rate limit
+    } catch (error: unknown) {
+      // Type check the error
+      let errorMessage = "";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      } else if (error && typeof error === "object" && "message" in error) {
+        errorMessage = (error as { message: string }).message;
+      }
+
+      if (errorMessage.toLowerCase().includes("rate_limit")) {
+        // If rate limited, wait longer and retry once
+        await delay(2000);
+        records = await table
+          .select({
+            maxRecords: batchSize,
+            filterByFormula: `NOT({Title} = "")`,
+          })
+          .firstPage();
+      } else {
+        throw error;
+      }
+    }
 
     // Filter out already synced records using record.id
     const newRecords = records.filter((record) => !syncedIds.has(record.id));
@@ -96,72 +139,74 @@ export async function syncArtworkToSupabase(
     let processedCount = 0;
     const errors: SyncError[] = [];
 
-    // Process records in parallel with controlled concurrency
-    await Promise.all(
-      newRecords.map(async (record) => {
-        try {
-          const rawAttachments = record.get("Artwork images");
-          const artwork_images: StoredAttachment[] = [];
+    // Process records sequentially instead of in parallel to avoid rate limits
+    for (const record of newRecords) {
+      try {
+        const rawAttachments = record.get("Artwork images");
+        const artwork_images: StoredAttachment[] = [];
 
-          if (rawAttachments && Array.isArray(rawAttachments)) {
-            for (const att of rawAttachments) {
-              const attachment = await uploadArtworkImageToSupabase(att, {
-                title: record.get("Title") as string,
-              });
-              artwork_images.push(attachment);
-            }
+        if (rawAttachments && Array.isArray(rawAttachments)) {
+          for (const att of rawAttachments) {
+            const attachment = await uploadArtworkImageToSupabase(att, {
+              title: record.get("Title") as string,
+            });
+            artwork_images.push(attachment);
+            // Add small delay between image uploads
+            await delay(250);
           }
-
-          const artwork: Artwork = {
-            id: record.id,
-            title: (record.get("Title") as string) || null,
-            artwork_images,
-            medium: (record.get("Medium") as string) || null,
-            year: record.get("Year") ? Number(record.get("Year")) : null,
-            width: (record.get("Width (e.)") as string) || null,
-            height: (record.get("Height (e.)") as string) || null,
-            live_in_production:
-              (record.get("ADD TO PRODUCTION") as boolean) || false,
-            artist_name: (record.get("Artist") as string) || null,
-            type: (record.get("Type") as string) || null,
-            created_at:
-              (record.get("created_at") as string) || new Date().toISOString(),
-            updated_at:
-              (record.get("updated_at") as string) || new Date().toISOString(),
-          };
-
-          // Upsert using id as the primary key
-          const { error: upsertError } = await supabaseAdmin
-            .from("artwork")
-            .upsert(artwork);
-
-          if (upsertError) throw upsertError;
-          processedCount++;
-        } catch (recordError) {
-          let errorMessage = "Unknown error";
-
-          // Type check the error
-          if (recordError instanceof Error) {
-            errorMessage = recordError.message;
-          } else if (typeof recordError === "string") {
-            errorMessage = recordError;
-          } else if (
-            recordError &&
-            typeof recordError === "object" &&
-            "message" in recordError
-          ) {
-            errorMessage = recordError.message as string;
-          }
-
-          errors.push({
-            record_id: record.id,
-            error: errorMessage,
-            timestamp: new Date().toISOString(),
-          });
-          console.error(`Error processing artwork ${record.id}:`, recordError);
         }
-      }),
-    );
+
+        const artwork: Artwork = {
+          id: record.id,
+          title: (record.get("Title") as string) || null,
+          artwork_images,
+          medium: (record.get("Medium") as string) || null,
+          year: record.get("Year") ? Number(record.get("Year")) : null,
+          width: (record.get("Width (e.)") as string) || null,
+          height: (record.get("Height (e.)") as string) || null,
+          live_in_production:
+            (record.get("ADD TO PRODUCTION") as boolean) || false,
+          artist_name: (record.get("Artist") as string) || null,
+          type: (record.get("Type") as string) || null,
+          created_at:
+            (record.get("created_at") as string) || new Date().toISOString(),
+          updated_at:
+            (record.get("updated_at") as string) || new Date().toISOString(),
+        };
+
+        const { error: upsertError } = await supabaseAdmin
+          .from("artwork")
+          .upsert(artwork);
+
+        if (upsertError) throw upsertError;
+        processedCount++;
+
+        // Add small delay between record processing
+        await delay(250);
+      } catch (recordError) {
+        let errorMessage = "Unknown error";
+
+        // Type check the error
+        if (recordError instanceof Error) {
+          errorMessage = recordError.message;
+        } else if (typeof recordError === "string") {
+          errorMessage = recordError;
+        } else if (
+          recordError &&
+          typeof recordError === "object" &&
+          "message" in recordError
+        ) {
+          errorMessage = recordError.message as string;
+        }
+
+        errors.push({
+          record_id: record.id,
+          error: errorMessage,
+          timestamp: new Date().toISOString(),
+        });
+        console.error(`Error processing artwork ${record.id}:`, recordError);
+      }
+    }
 
     // Store errors if any
     if (errors.length > 0) {
