@@ -51,22 +51,12 @@ export async function syncArtworkToSupabase() {
     console.log("Starting sync process...");
     const table = getArtworkTable();
 
-    // Get all records that are marked for production and have a Record_ID
+    // Get all records that are marked for production
     const records = await table
       .select({
-        filterByFormula: `
-          AND(
-            {ADD TO PRODUCTION} = 1,
-            NOT({Record_ID} = ''),
-            OR(
-              {Synced} = '',
-              {Synced} = 0,
-              IS_BEFORE({Last Modified}, NOW())
-            )
-          )
-        `,
+        filterByFormula: "{ADD TO PRODUCTION} = 1",
       })
-      .all();
+      .all(); // Get all records instead of pagination
 
     console.log(`Found ${records.length} records to sync`);
 
@@ -76,9 +66,7 @@ export async function syncArtworkToSupabase() {
     // Process each record
     for (const record of records) {
       try {
-        console.log(
-          `Processing record with Record_ID: ${record.get("Record_ID")}`,
-        );
+        console.log(`Processing: ${record.id} - ${record.get("Title")}`);
 
         // Process images
         const rawAttachments = record.get("Artwork images");
@@ -95,7 +83,7 @@ export async function syncArtworkToSupabase() {
 
         // Create artwork object
         const artwork: Artwork = {
-          id: record.get("Record_ID") as string,
+          id: record.id,
           title: (record.get("Title") as string) || null,
           artwork_images,
           medium: (record.get("Medium") as string) || null,
@@ -109,34 +97,19 @@ export async function syncArtworkToSupabase() {
           updated_at: new Date().toISOString(),
         };
 
-        // Upsert to Supabase using the Record_ID as the key
+        // Upsert to Supabase
         const { error: upsertError } = await supabaseAdmin
           .from("artwork")
-          .upsert(artwork, {
-            onConflict: "id",
-          });
+          .upsert(artwork);
 
         if (upsertError) throw upsertError;
-
-        // Mark record as synced in Airtable
-        await table.update([
-          {
-            id: record.id,
-            fields: {
-              Synced: true,
-            },
-          },
-        ]);
 
         processedCount++;
         console.log(`Successfully processed: ${artwork.title}`);
       } catch (error) {
-        console.error(
-          `Error processing artwork ${record.get("Record_ID")}:`,
-          error,
-        );
+        console.error(`Error processing artwork ${record.id}:`, error);
         errors.push({
-          record_id: record.get("Record_ID") as string,
+          record_id: record.id,
           error: error instanceof Error ? error.message : "Unknown error",
           timestamp: new Date().toISOString(),
         });

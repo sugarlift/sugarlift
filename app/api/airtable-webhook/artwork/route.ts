@@ -51,41 +51,34 @@ export async function POST(request: Request) {
     }
 
     const payload = await request.json();
-    console.log(
-      "Received artwork webhook payload:",
-      JSON.stringify(payload, null, 2),
-    );
+    console.log("Received artwork webhook payload:", payload);
 
-    // Get the table
-    const table = getArtworkTable();
-
-    // Get records that are marked for production and have a Record_ID
-    const records = await table
-      .select({
-        filterByFormula: `
-          AND(
-            {ADD TO PRODUCTION} = 1,
-            NOT({Record_ID} = ''),
-            OR(
-              {Synced} = '',
-              {Synced} = 0,
-              IS_BEFORE({Last Modified}, NOW())
-            )
-          )
-        `,
-        maxRecords: 1,
-      })
-      .firstPage();
-
-    if (records.length === 0) {
-      console.log("No new records to sync");
-      return NextResponse.json({ message: "No new records to process" });
+    // Get the record ID from the webhook payload
+    const recordId = payload.recordId;
+    if (!recordId) {
+      console.log("No record ID provided, running full sync");
+      // If no record ID, fall back to full sync
+      const { syncArtworkToSupabase } = await import(
+        "@/lib/syncArtworkToSupabase"
+      );
+      return NextResponse.json(await syncArtworkToSupabase());
     }
 
-    const record = records[0];
-    console.log(
-      `Processing new record with Record_ID: ${record.get("Record_ID")}`,
-    );
+    console.log(`Processing record: ${recordId}`);
+
+    // Get the specific record from Airtable
+    const table = getArtworkTable();
+    const record = await table.find(recordId);
+
+    // Check if record should be in production
+    const isProduction = record.get("ADD TO PRODUCTION");
+    if (!isProduction) {
+      console.log(`Record ${recordId} is not marked for production, skipping`);
+      return NextResponse.json({
+        message: "Record skipped - not marked for production",
+        recordId,
+      });
+    }
 
     // Process images
     const rawAttachments = record.get("Artwork images");
@@ -102,7 +95,7 @@ export async function POST(request: Request) {
 
     // Create artwork object
     const artwork: Artwork = {
-      id: record.get("Record_ID") as string,
+      id: record.id,
       title: (record.get("Title") as string) || null,
       artwork_images,
       medium: (record.get("Medium") as string) || null,
@@ -116,26 +109,14 @@ export async function POST(request: Request) {
       updated_at: new Date().toISOString(),
     };
 
-    // Upsert to Supabase using the Record_ID as the key
+    // Upsert to Supabase
     const { error: upsertError } = await supabaseAdmin
       .from("artwork")
-      .upsert(artwork, {
-        onConflict: "id",
-      });
+      .upsert(artwork);
 
     if (upsertError) throw upsertError;
 
     console.log(`Successfully processed: ${artwork.title}`);
-
-    // After successful upsert to Supabase, mark the record as synced in Airtable
-    await table.update([
-      {
-        id: record.id,
-        fields: {
-          Synced: true,
-        },
-      },
-    ]);
 
     return NextResponse.json({
       message: "Artwork sync completed",
@@ -143,7 +124,7 @@ export async function POST(request: Request) {
       result: {
         success: true,
         processedCount: 1,
-        recordId: record.get("Record_ID"),
+        recordId,
         title: artwork.title,
       },
     });
