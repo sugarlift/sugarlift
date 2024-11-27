@@ -53,58 +53,45 @@ async function uploadArtworkImageToSupabase(
 export async function syncArtworkToSupabase() {
   try {
     console.log("Starting sync process...");
-
-    // Get all records from Airtable
-    console.log("Fetching records from Airtable...");
     const table = getArtworkTable();
 
-    console.log("Selecting records...");
-    const query = table.select();
+    // Get the most recently modified records only
+    console.log("Fetching recent records from Airtable...");
+    const records = await table
+      .select({
+        maxRecords: 5, // Process 5 records at a time
+        sort: [{ field: "Last Modified", direction: "desc" }],
+      })
+      .firstPage();
 
-    console.log("Fetching all records...");
-    const records = await query.all();
-    console.log(`Found ${records.length} records in Airtable`);
+    console.log(`Found ${records.length} recent records to process`);
 
-    // Get all existing artwork from Supabase for comparison
-    console.log("Fetching existing artwork from Supabase...");
-    const { data: existingArtwork, error: fetchError } = await supabaseAdmin
-      .from("artwork")
-      .select("id");
-
-    if (fetchError) {
-      console.error("Error fetching from Supabase:", fetchError);
-      throw fetchError;
-    }
-
-    const existingIds = new Set(existingArtwork?.map((a) => a.id) || []);
-    const airtableIds = new Set();
-
-    // Sync all records from Airtable
-    console.log("Starting record sync...");
+    // Process each record
     for (const record of records) {
       try {
         const rawAttachments = record.get("Artwork images");
         let artwork_images: StoredAttachment[] = [];
 
         if (rawAttachments && Array.isArray(rawAttachments)) {
-          const airtableAttachments = rawAttachments.map(
-            (att: AirtableAttachment) => ({
+          // Process images sequentially instead of in parallel
+          for (const att of rawAttachments) {
+            const attachment = {
               id: att.id,
               width: att.width,
               height: att.height,
               url: att.url,
               filename: att.filename,
               type: att.type,
-            }),
-          );
+            };
 
-          artwork_images = await Promise.all(
-            airtableAttachments.map((attachment) =>
-              uploadArtworkImageToSupabase(attachment, {
+            const uploadedImage = await uploadArtworkImageToSupabase(
+              attachment,
+              {
                 title: record.get("Title") as string,
-              }),
-            ),
-          );
+              },
+            );
+            artwork_images.push(uploadedImage);
+          }
         }
 
         const artwork: Artwork = {
@@ -125,8 +112,7 @@ export async function syncArtworkToSupabase() {
             (record.get("updated_at") as string) || new Date().toISOString(),
         };
 
-        console.log("Processing artwork:", artwork);
-        airtableIds.add(record.id);
+        console.log(`Processing artwork: ${artwork.title}`);
 
         const { error: upsertError } = await supabaseAdmin
           .from("artwork")
@@ -137,38 +123,18 @@ export async function syncArtworkToSupabase() {
           throw upsertError;
         }
       } catch (recordError) {
-        const syncError = recordError as SyncError;
-        syncError.record = { id: record.id, fields: record.fields };
-        console.error("Error processing record:", record.id, syncError);
-        throw syncError;
+        console.error("Error processing record:", record.id, recordError);
+        // Continue with next record instead of failing completely
+        continue;
       }
     }
 
-    // Set live_in_production to false for records that no longer exist in Airtable
-    const idsToUnpublish = [...existingIds].filter(
-      (id) => !airtableIds.has(id),
-    );
-    if (idsToUnpublish.length > 0) {
-      console.log(`Unpublishing ${idsToUnpublish.length} obsolete records...`);
-      const { error: unpublishError } = await supabaseAdmin
-        .from("artwork")
-        .update({ live_in_production: false })
-        .in("id", idsToUnpublish);
-
-      if (unpublishError) {
-        console.error("Error unpublishing records:", unpublishError);
-        throw unpublishError;
-      }
-    }
-
-    console.log("Sync completed successfully");
+    return { success: true, processedCount: records.length };
   } catch (error) {
-    const syncError = error as SyncError;
     console.error("Sync error:", {
-      message: syncError.message || "Unknown error",
-      stack: syncError.stack,
-      error: syncError,
+      message: error instanceof Error ? error.message : "Unknown error",
+      error,
     });
-    throw syncError;
+    throw error;
   }
 }
