@@ -24,13 +24,10 @@ export interface WebhookError extends Error {
   };
 }
 
-export interface SyncError extends Error {
-  code?: string;
-  details?: unknown;
-  record?: {
-    id: string;
-    fields?: unknown;
-  };
+export interface SyncError {
+  record_id: string;
+  error: string;
+  timestamp: string;
 }
 
 export interface AirtableAttachment {
