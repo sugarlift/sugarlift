@@ -51,12 +51,12 @@ export async function syncArtworkToSupabase() {
     console.log("Starting sync process...");
     const table = getArtworkTable();
 
-    // Get all records that are marked for production
+    // Get all records that are marked for production and have a Record_ID
     const records = await table
       .select({
-        filterByFormula: "{ADD TO PRODUCTION} = 1",
+        filterByFormula: "AND({ADD TO PRODUCTION} = 1, NOT({Record_ID} = ''))",
       })
-      .all(); // Get all records instead of pagination
+      .all();
 
     console.log(`Found ${records.length} records to sync`);
 
@@ -66,7 +66,9 @@ export async function syncArtworkToSupabase() {
     // Process each record
     for (const record of records) {
       try {
-        console.log(`Processing: ${record.id} - ${record.get("Title")}`);
+        console.log(
+          `Processing record with Record_ID: ${record.get("Record_ID")}`,
+        );
 
         // Process images
         const rawAttachments = record.get("Artwork images");
@@ -83,7 +85,7 @@ export async function syncArtworkToSupabase() {
 
         // Create artwork object
         const artwork: Artwork = {
-          id: record.id,
+          id: record.get("Record_ID") as string,
           title: (record.get("Title") as string) || null,
           artwork_images,
           medium: (record.get("Medium") as string) || null,
@@ -97,19 +99,24 @@ export async function syncArtworkToSupabase() {
           updated_at: new Date().toISOString(),
         };
 
-        // Upsert to Supabase
+        // Upsert to Supabase using the Record_ID as the key
         const { error: upsertError } = await supabaseAdmin
           .from("artwork")
-          .upsert(artwork);
+          .upsert(artwork, {
+            onConflict: "id",
+          });
 
         if (upsertError) throw upsertError;
 
         processedCount++;
         console.log(`Successfully processed: ${artwork.title}`);
       } catch (error) {
-        console.error(`Error processing artwork ${record.id}:`, error);
+        console.error(
+          `Error processing artwork ${record.get("Record_ID")}:`,
+          error,
+        );
         errors.push({
-          record_id: record.id,
+          record_id: record.get("Record_ID") as string,
           error: error instanceof Error ? error.message : "Unknown error",
           timestamp: new Date().toISOString(),
         });

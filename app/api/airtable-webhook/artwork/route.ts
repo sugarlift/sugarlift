@@ -59,11 +59,10 @@ export async function POST(request: Request) {
     // Get the table
     const table = getArtworkTable();
 
-    // Get the most recently updated record that's marked for production
+    // Get record that's marked for production and has a Record_ID
     const records = await table
       .select({
         filterByFormula: "AND({ADD TO PRODUCTION} = 1, NOT({Record_ID} = ''))",
-        sort: [{ field: "Last modified time", direction: "desc" }],
         maxRecords: 1,
       })
       .firstPage();
