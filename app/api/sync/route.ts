@@ -3,13 +3,14 @@ import { syncArtworkToSupabase } from "@/lib/syncArtworkToSupabase";
 
 export async function POST(request: Request) {
   try {
-    const result = await syncArtworkToSupabase(5);
+    const { forceSync } = await request.json().catch(() => ({}));
+    const result = await syncArtworkToSupabase(5, undefined, forceSync);
 
     if (result.hasMore) {
       // Schedule next batch
       await fetch("/api/sync", {
         method: "POST",
-        body: JSON.stringify({}),
+        body: JSON.stringify({ forceSync }),
       });
     }
 

@@ -69,25 +69,33 @@ async function uploadArtworkImageToSupabase(
 export async function syncArtworkToSupabase(
   batchSize: number = 5,
   offset?: number,
+  forceSync: boolean = false,
 ) {
-  // Get or create sync status
-  const { data: statusData } = await supabaseAdmin
-    .from("sync_status")
-    .select("*")
-    .eq("type", "artwork")
-    .single();
-
-  // Get already synced records by id
-  const { data: syncedRecords } = await supabaseAdmin
-    .from("artwork")
-    .select("id");
-
-  const syncedIds = new Set(syncedRecords?.map((record) => record.id) || []);
-  console.log("Already synced IDs:", Array.from(syncedIds));
-
   try {
     console.log("Starting sync process...");
     const table = getArtworkTable();
+
+    // Clear previous sync status if forcing sync
+    if (forceSync) {
+      await supabaseAdmin.from("sync_status").upsert({
+        type: "artwork",
+        in_progress: false,
+        last_synced_at: null,
+        error: null,
+      });
+    }
+
+    // Get or create sync status
+    const { data: statusData } = await supabaseAdmin
+      .from("sync_status")
+      .select("*")
+      .eq("type", "artwork")
+      .single();
+
+    if (statusData?.in_progress && !forceSync) {
+      console.log("Sync already in progress, skipping...");
+      return { success: false, message: "Sync already in progress" };
+    }
 
     // Update sync status to in_progress
     await supabaseAdmin.from("sync_status").upsert({
@@ -109,6 +117,7 @@ export async function syncArtworkToSupabase(
           )`,
         })
         .firstPage();
+
       console.log(
         "Records from Airtable:",
         records.map((r) => ({
@@ -147,6 +156,14 @@ export async function syncArtworkToSupabase(
         throw error;
       }
     }
+
+    // Get current state of synced records (moved here to be more up-to-date)
+    const { data: syncedRecords } = await supabaseAdmin
+      .from("artwork")
+      .select("id");
+
+    const syncedIds = new Set(syncedRecords?.map((record) => record.id) || []);
+    console.log("Currently synced IDs:", Array.from(syncedIds));
 
     // Filter out already synced records using record.id
     const newRecords = records.filter((record) => !syncedIds.has(record.id));
