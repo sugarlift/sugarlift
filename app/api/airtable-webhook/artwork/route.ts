@@ -59,30 +59,22 @@ export async function POST(request: Request) {
     // Get the table
     const table = getArtworkTable();
 
-    // Extract the record ID from the webhook payload
-    const webhookRecordId = payload?.result?.recordId;
-    console.log("Webhook record ID:", webhookRecordId);
+    // Get the most recently updated record that's marked for production
+    const records = await table
+      .select({
+        filterByFormula: "AND({ADD TO PRODUCTION} = 1, NOT({Record_ID} = ''))",
+        sort: [{ field: "Last modified time", direction: "desc" }],
+        maxRecords: 1,
+      })
+      .firstPage();
 
-    if (!webhookRecordId) {
-      console.log("No webhook record ID found");
-      return NextResponse.json({ message: "No record ID in webhook" });
+    if (records.length === 0) {
+      console.log("No records found with Record_ID");
+      return NextResponse.json({ message: "No records to process" });
     }
 
-    // Get the specific record that was updated
-    const record = await table.find(webhookRecordId);
-    console.log(`Found record: ${record.id}`);
-
-    // Check if record should be in production
-    const isProduction = record.get("ADD TO PRODUCTION");
-    if (!isProduction) {
-      console.log(
-        `Record ${webhookRecordId} is not marked for production, skipping`,
-      );
-      return NextResponse.json({
-        message: "Record skipped - not marked for production",
-        recordId: webhookRecordId,
-      });
-    }
+    const record = records[0];
+    console.log(`Processing record with Record_ID: ${record.get("Record_ID")}`);
 
     // Process images
     const rawAttachments = record.get("Artwork images");
@@ -99,7 +91,7 @@ export async function POST(request: Request) {
 
     // Create artwork object
     const artwork: Artwork = {
-      id: record.id,
+      id: record.get("Record_ID") as string,
       title: (record.get("Title") as string) || null,
       artwork_images,
       medium: (record.get("Medium") as string) || null,
@@ -113,10 +105,12 @@ export async function POST(request: Request) {
       updated_at: new Date().toISOString(),
     };
 
-    // Upsert to Supabase
+    // Upsert to Supabase using the Record_ID as the key
     const { error: upsertError } = await supabaseAdmin
       .from("artwork")
-      .upsert(artwork);
+      .upsert(artwork, {
+        onConflict: "id",
+      });
 
     if (upsertError) throw upsertError;
 
@@ -128,7 +122,7 @@ export async function POST(request: Request) {
       result: {
         success: true,
         processedCount: 1,
-        recordId: webhookRecordId,
+        recordId: record.get("Record_ID"),
         title: artwork.title,
       },
     });
