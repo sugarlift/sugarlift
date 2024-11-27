@@ -83,6 +83,7 @@ export async function syncArtworkToSupabase(
     .select("id");
 
   const syncedIds = new Set(syncedRecords?.map((record) => record.id) || []);
+  console.log("Already synced IDs:", Array.from(syncedIds));
 
   try {
     console.log("Starting sync process...");
@@ -101,11 +102,23 @@ export async function syncArtworkToSupabase(
       records = await table
         .select({
           maxRecords: batchSize,
-          filterByFormula: `NOT({Title} = "")`,
+          filterByFormula: `AND(
+            NOT({Title} = ""),
+            NOT({ADD TO PRODUCTION} = ""),
+            {ADD TO PRODUCTION} = 1
+          )`,
         })
         .firstPage();
-      // Add small delay after Airtable request
-      await delay(250); // 250ms delay to stay well under rate limit
+      console.log(
+        "Records from Airtable:",
+        records.map((r) => ({
+          id: r.id,
+          title: r.get("Title"),
+          inProduction: r.get("ADD TO PRODUCTION"),
+        })),
+      );
+
+      await delay(250);
     } catch (error: unknown) {
       // Type check the error
       let errorMessage = "";
@@ -123,7 +136,11 @@ export async function syncArtworkToSupabase(
         records = await table
           .select({
             maxRecords: batchSize,
-            filterByFormula: `NOT({Title} = "")`,
+            filterByFormula: `AND(
+              NOT({Title} = ""),
+              NOT({ADD TO PRODUCTION} = ""),
+              {ADD TO PRODUCTION} = 1
+            )`,
           })
           .firstPage();
       } else {
@@ -133,25 +150,38 @@ export async function syncArtworkToSupabase(
 
     // Filter out already synced records using record.id
     const newRecords = records.filter((record) => !syncedIds.has(record.id));
-
-    console.log(`Found ${newRecords.length} new records to sync`);
+    console.log(
+      "New records to sync:",
+      newRecords.map((r) => ({
+        id: r.id,
+        title: r.get("Title"),
+        inProduction: r.get("ADD TO PRODUCTION"),
+      })),
+    );
 
     let processedCount = 0;
     const errors: SyncError[] = [];
 
-    // Process records sequentially instead of in parallel to avoid rate limits
+    // Process records sequentially
     for (const record of newRecords) {
       try {
+        console.log(`Processing record: ${record.id} - ${record.get("Title")}`);
+
         const rawAttachments = record.get("Artwork images");
+        const attachmentsArray = Array.isArray(rawAttachments)
+          ? rawAttachments
+          : [];
+        console.log(`Found ${attachmentsArray.length} attachments`);
+
         const artwork_images: StoredAttachment[] = [];
 
-        if (rawAttachments && Array.isArray(rawAttachments)) {
-          for (const att of rawAttachments) {
+        if (attachmentsArray.length > 0) {
+          for (const att of attachmentsArray) {
+            console.log(`Processing attachment: ${att.filename}`);
             const attachment = await uploadArtworkImageToSupabase(att, {
               title: record.get("Title") as string,
             });
             artwork_images.push(attachment);
-            // Add small delay between image uploads
             await delay(250);
           }
         }
@@ -164,8 +194,7 @@ export async function syncArtworkToSupabase(
           year: record.get("Year") ? Number(record.get("Year")) : null,
           width: (record.get("Width (e.)") as string) || null,
           height: (record.get("Height (e.)") as string) || null,
-          live_in_production:
-            (record.get("ADD TO PRODUCTION") as boolean) || false,
+          live_in_production: Boolean(record.get("ADD TO PRODUCTION")),
           artist_name: (record.get("Artist") as string) || null,
           type: (record.get("Type") as string) || null,
           created_at:
@@ -174,14 +203,15 @@ export async function syncArtworkToSupabase(
             (record.get("updated_at") as string) || new Date().toISOString(),
         };
 
+        console.log(`Upserting artwork: ${artwork.id} - ${artwork.title}`);
         const { error: upsertError } = await supabaseAdmin
           .from("artwork")
           .upsert(artwork);
 
         if (upsertError) throw upsertError;
         processedCount++;
+        console.log(`Successfully processed artwork: ${artwork.id}`);
 
-        // Add small delay between record processing
         await delay(250);
       } catch (recordError) {
         let errorMessage = "Unknown error";
@@ -225,7 +255,11 @@ export async function syncArtworkToSupabase(
     const remainingRecords = await table
       .select({
         maxRecords: 1,
-        filterByFormula: `NOT({Title} = "")`,
+        filterByFormula: `AND(
+          NOT({Title} = ""),
+          NOT({ADD TO PRODUCTION} = ""),
+          {ADD TO PRODUCTION} = 1
+        )`,
       })
       .firstPage();
 
