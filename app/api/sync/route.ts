@@ -3,11 +3,17 @@ import { syncArtworkToSupabase } from "@/lib/syncArtworkToSupabase";
 
 export async function POST(request: Request) {
   try {
-    await syncAirtableToSupabase();
-    await syncArtworkToSupabase();
-    return new Response("Sync completed successfully", { status: 200 });
+    const [artistsResult, artworkResult] = await Promise.all([
+      syncAirtableToSupabase(),
+      syncArtworkToSupabase(),
+    ]);
+
+    return Response.json({
+      artists: artistsResult,
+      artwork: artworkResult,
+    });
   } catch (error) {
-    console.error("Sync failed:", error);
-    return new Response("Sync failed", { status: 500 });
+    console.error("Sync error:", error);
+    return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
