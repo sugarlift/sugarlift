@@ -1,12 +1,24 @@
 import { NextResponse } from "next/server";
 import { syncAirtableToSupabase } from "@/lib/syncAirtableToSupabase";
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
+    console.log("Starting sync...");
     const result = await syncAirtableToSupabase();
-    return Response.json(result);
+
+    return NextResponse.json({
+      success: true,
+      result,
+    });
   } catch (error) {
-    console.error("Error in webhook handler:", error);
-    return Response.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Sync failed:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    );
   }
 }
