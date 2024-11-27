@@ -17,7 +17,7 @@ async function uploadArtistPhotoToSupabase(
   const blob = await response.blob();
 
   const { error: uploadError } = await supabaseAdmin.storage
-    .from("attachment_artists")
+    .from("attachments_artists")
     .upload(storagePath, blob, {
       contentType: attachment.type,
       upsert: true,
@@ -31,7 +31,7 @@ async function uploadArtistPhotoToSupabase(
   const {
     data: { publicUrl },
   } = supabaseAdmin.storage
-    .from("attachment_artists")
+    .from("attachments_artists")
     .getPublicUrl(storagePath);
 
   return {
