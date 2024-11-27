@@ -54,6 +54,18 @@ export async function syncAirtableToSupabase() {
       .select({
         maxRecords: 1,
         sort: [{ field: "Last Modified", direction: "desc" }],
+        fields: [
+          "Artist Name",
+          "Artist Photo",
+          "Artist Bio",
+          "Born",
+          "City",
+          "State (USA)",
+          "Country",
+          "IG Handle",
+          "Website",
+          "Add to Website",
+        ],
       })
       .firstPage();
 
@@ -63,14 +75,35 @@ export async function syncAirtableToSupabase() {
     }
 
     const record = records[0];
-    console.log("Found Airtable record:", {
+
+    // More detailed logging
+    console.log("Record details:", {
       id: record.id,
-      name: record.get("Artist Name"),
+      fields: record.fields,
+      rawJson: record._rawJson,
+      photoField: record._rawJson.fields["Artist Photo"],
+      hasPhoto: "Artist Photo" in record._rawJson.fields,
     });
 
-    // Log the artist photo data
+    // Try both methods of accessing the photo
+    const photoMethod1 = record.get("Artist Photo");
+    const photoMethod2 = record.fields["Artist Photo"];
+
+    console.log("Photo access attempts:", {
+      usingGet: photoMethod1,
+      usingFields: photoMethod2,
+      typeGet: typeof photoMethod1,
+      typeFields: typeof photoMethod2,
+    });
+
+    // Log the artist photo data with more detail
     const rawPhotos = record.get("Artist Photo");
-    console.log("Raw Artist Photo data:", rawPhotos);
+    console.log("Raw Artist Photo data:", {
+      value: rawPhotos,
+      type: typeof rawPhotos,
+      fieldExists: record.fields.hasOwnProperty("Artist Photo"),
+      allFields: Object.keys(record.fields),
+    });
 
     let artist_photo: StoredAttachment[] = [];
 
