@@ -51,14 +51,18 @@ export async function syncArtworkToSupabase() {
     console.log("Starting sync process...");
     const table = getArtworkTable();
 
-    // Get all records that are marked for production, have a Record_ID, and haven't been synced
+    // Get all records that are marked for production and have a Record_ID
     const records = await table
       .select({
         filterByFormula: `
           AND(
             {ADD TO PRODUCTION} = 1,
             NOT({Record_ID} = ''),
-            NOT({Synced} = 1)
+            OR(
+              {Synced} = '',
+              {Synced} = 0,
+              IS_BEFORE({Last Modified}, NOW())
+            )
           )
         `,
       })
