@@ -55,11 +55,10 @@ export async function syncArtworkToSupabase() {
     console.log("Starting sync process...");
     const table = getArtworkTable();
 
-    // Get 5 most recently modified records
+    // Get 5 records without sorting
     const records = await table
       .select({
         maxRecords: 5,
-        sort: [{ field: "Last Modified", direction: "desc" }],
       })
       .firstPage();
 
