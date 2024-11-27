@@ -1,5 +1,5 @@
 import { getArtistsTable } from "./airtable";
-import { supabase } from "./supabase";
+import { supabaseAdmin } from "./supabase";
 
 export async function syncAirtableToSupabase() {
   try {
@@ -46,7 +46,7 @@ export async function syncAirtableToSupabase() {
       name: artist.artist_name,
     });
 
-    const { data, error } = await supabase.from("artists").upsert(artist, {
+    const { data, error } = await supabaseAdmin.from("artists").upsert(artist, {
       onConflict: "id",
     });
 

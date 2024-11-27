@@ -1,5 +1,5 @@
 import { getArtworkTable } from "./airtable";
-import { supabase } from "./supabase";
+import { supabaseAdmin } from "./supabase";
 import {
   Artwork,
   AirtableAttachment,
@@ -23,7 +23,7 @@ async function uploadArtworkImageToSupabase(
   const response = await fetch(attachment.url);
   const blob = await response.blob();
 
-  const { error: uploadError } = await supabase.storage
+  const { error: uploadError } = await supabaseAdmin.storage
     .from("artwork_images")
     .upload(storagePath, blob, {
       contentType: attachment.type,
@@ -37,7 +37,7 @@ async function uploadArtworkImageToSupabase(
 
   const {
     data: { publicUrl },
-  } = supabase.storage.from("artwork_images").getPublicUrl(storagePath);
+  } = supabaseAdmin.storage.from("artwork_images").getPublicUrl(storagePath);
 
   return {
     url: publicUrl,
@@ -65,7 +65,7 @@ export async function syncArtworkToSupabase() {
 
     // Get all existing artwork from Supabase for comparison
     console.log("Fetching existing artwork from Supabase...");
-    const { data: existingArtwork, error: fetchError } = await supabase
+    const { data: existingArtwork, error: fetchError } = await supabaseAdmin
       .from("artwork")
       .select("id");
 
@@ -136,7 +136,7 @@ export async function syncArtworkToSupabase() {
         console.log("Processing artwork:", artwork);
         airtableIds.add(record.id);
 
-        const { error: upsertError } = await supabase
+        const { error: upsertError } = await supabaseAdmin
           .from("artwork")
           .upsert(artwork, { onConflict: "id" });
 
@@ -158,7 +158,7 @@ export async function syncArtworkToSupabase() {
     );
     if (idsToUnpublish.length > 0) {
       console.log(`Unpublishing ${idsToUnpublish.length} obsolete records...`);
-      const { error: unpublishError } = await supabase
+      const { error: unpublishError } = await supabaseAdmin
         .from("artwork")
         .update({ live_in_production: false })
         .in("id", idsToUnpublish);
