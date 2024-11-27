@@ -51,10 +51,16 @@ export async function syncArtworkToSupabase() {
     console.log("Starting sync process...");
     const table = getArtworkTable();
 
-    // Get all records that are marked for production and have a Record_ID
+    // Get all records that are marked for production, have a Record_ID, and haven't been synced
     const records = await table
       .select({
-        filterByFormula: "AND({ADD TO PRODUCTION} = 1, NOT({Record_ID} = ''))",
+        filterByFormula: `
+          AND(
+            {ADD TO PRODUCTION} = 1,
+            NOT({Record_ID} = ''),
+            NOT({Synced} = 1)
+          )
+        `,
       })
       .all();
 
@@ -107,6 +113,16 @@ export async function syncArtworkToSupabase() {
           });
 
         if (upsertError) throw upsertError;
+
+        // Mark record as synced in Airtable
+        await table.update([
+          {
+            id: record.id,
+            fields: {
+              Synced: true,
+            },
+          },
+        ]);
 
         processedCount++;
         console.log(`Successfully processed: ${artwork.title}`);

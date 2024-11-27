@@ -59,21 +59,29 @@ export async function POST(request: Request) {
     // Get the table
     const table = getArtworkTable();
 
-    // Get record that's marked for production and has a Record_ID
+    // Get records that are marked for production, have a Record_ID, and haven't been synced
     const records = await table
       .select({
-        filterByFormula: "AND({ADD TO PRODUCTION} = 1, NOT({Record_ID} = ''))",
+        filterByFormula: `
+          AND(
+            {ADD TO PRODUCTION} = 1,
+            NOT({Record_ID} = ''),
+            NOT({Synced} = 1)
+          )
+        `,
         maxRecords: 1,
       })
       .firstPage();
 
     if (records.length === 0) {
-      console.log("No records found with Record_ID");
-      return NextResponse.json({ message: "No records to process" });
+      console.log("No new records to sync");
+      return NextResponse.json({ message: "No new records to process" });
     }
 
     const record = records[0];
-    console.log(`Processing record with Record_ID: ${record.get("Record_ID")}`);
+    console.log(
+      `Processing new record with Record_ID: ${record.get("Record_ID")}`,
+    );
 
     // Process images
     const rawAttachments = record.get("Artwork images");
@@ -114,6 +122,16 @@ export async function POST(request: Request) {
     if (upsertError) throw upsertError;
 
     console.log(`Successfully processed: ${artwork.title}`);
+
+    // After successful upsert to Supabase, mark the record as synced in Airtable
+    await table.update([
+      {
+        id: record.id,
+        fields: {
+          Synced: true,
+        },
+      },
+    ]);
 
     return NextResponse.json({
       message: "Artwork sync completed",
