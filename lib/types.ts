@@ -52,18 +52,17 @@ export interface StoredAttachment {
 
 export interface Artwork {
   id: string;
-  artist_id: string;
-  first_name: string;
-  last_name: string;
   title: string | null;
+  artwork_images: StoredAttachment[];
   medium: string | null;
+  year: number | null;
   width: string | null;
   height: string | null;
-  year: number | null;
   live_in_production: boolean;
-  artwork_images: StoredAttachment[];
-  created_at?: string;
-  updated_at?: string;
+  artist_name: string | null;
+  type: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ArtistTable {

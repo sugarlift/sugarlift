@@ -28,5 +28,5 @@ export const getArtistsTable = () => {
 };
 
 export const getArtworkTable = () => {
-  return base.table("tblj8MEqwAWKPnxmd");
+  return base.table("tblvOgj4fNqw6BLfh");
 };

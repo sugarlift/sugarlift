@@ -24,7 +24,7 @@ async function uploadArtworkImageToSupabase(
   const blob = await response.blob();
 
   const { error: uploadError } = await supabaseAdmin.storage
-    .from("artwork_images")
+    .from("attachments_artwork")
     .upload(storagePath, blob, {
       contentType: attachment.type,
       upsert: true,
@@ -37,7 +37,9 @@ async function uploadArtworkImageToSupabase(
 
   const {
     data: { publicUrl },
-  } = supabaseAdmin.storage.from("artwork_images").getPublicUrl(storagePath);
+  } = supabaseAdmin.storage
+    .from("attachments_artwork")
+    .getPublicUrl(storagePath);
 
   return {
     url: publicUrl,
@@ -81,9 +83,7 @@ export async function syncArtworkToSupabase() {
     console.log("Starting record sync...");
     for (const record of records) {
       try {
-        console.log("Record structure:", record._rawJson);
-
-        const rawAttachments = record.get("artwork_images");
+        const rawAttachments = record.get("Artwork Images");
         let artwork_images: StoredAttachment[] = [];
 
         if (rawAttachments && Array.isArray(rawAttachments)) {
@@ -101,32 +101,24 @@ export async function syncArtworkToSupabase() {
           artwork_images = await Promise.all(
             airtableAttachments.map((attachment) =>
               uploadArtworkImageToSupabase(attachment, {
-                title: record.get("title") as string,
+                title: record.get("TITLE") as string,
               }),
             ),
           );
         }
 
-        // Debug log the raw artist_id value
-        const debugArtistId = record.get("artist_id");
-        console.log("Raw artist_id from Airtable:", {
-          value: debugArtistId,
-          type: typeof debugArtistId,
-        });
-
         const artwork: Artwork = {
           id: record.id,
-          artist_id: record.get("artist_id") as string, // Direct approach
-          first_name: record.get("first_name") as string,
-          last_name: record.get("last_name") as string,
-          title: (record.get("title") as string) || null,
-          medium: (record.get("medium") as string) || null,
-          width: (record.get("width") as string) || null,
-          height: (record.get("height") as string) || null,
-          year: record.get("year") ? Number(record.get("year")) : null,
-          live_in_production:
-            (record.get("live_in_production") as boolean) || false,
+          title: (record.get("TITLE") as string) || null,
           artwork_images,
+          medium: (record.get("Medium") as string) || null,
+          year: record.get("Year") ? Number(record.get("Year")) : null,
+          width: (record.get("Width (e.)") as string) || null,
+          height: (record.get("Height (e.)") as string) || null,
+          live_in_production:
+            (record.get("ADD TO PRODUCTION") as boolean) || false,
+          artist_name: (record.get("Artist") as string) || null,
+          type: (record.get("Type") as string) || null,
           created_at:
             (record.get("created_at") as string) || new Date().toISOString(),
           updated_at:
