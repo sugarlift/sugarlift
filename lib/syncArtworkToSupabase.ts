@@ -84,7 +84,7 @@ export async function syncArtworkToSupabase(
     const records = await table
       .select({
         maxRecords: batchSize,
-        filterByFormula: `AND(NOT({ID} = ""), NOT({Title} = ""))`, // Ensure we have valid records
+        filterByFormula: `AND(NOT({Artwork ID} = ""), NOT({Title} = ""))`,
       })
       .firstPage();
 
@@ -180,7 +180,7 @@ export async function syncArtworkToSupabase(
     const remainingRecords = await table
       .select({
         maxRecords: 1,
-        filterByFormula: `AND(NOT({ID} = ""), NOT({Title} = ""))`,
+        filterByFormula: `AND(NOT({Artwork ID} = ""), NOT({Title} = ""))`,
       })
       .firstPage();
 
