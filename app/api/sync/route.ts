@@ -1,7 +1,7 @@
 import { syncAirtableToSupabase } from "@/lib/syncAirtableToSupabase";
 import { syncArtworkToSupabase } from "@/lib/syncArtworkToSupabase";
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     await syncAirtableToSupabase();
     await syncArtworkToSupabase();
