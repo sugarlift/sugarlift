@@ -1,5 +1,47 @@
 import { getArtistsTable } from "./airtable";
 import { supabaseAdmin } from "./supabase";
+import { AirtableAttachment, StoredAttachment } from "./types";
+
+async function uploadArtistPhotoToSupabase(
+  attachment: AirtableAttachment,
+  artistName: string,
+): Promise<StoredAttachment> {
+  const folderName = artistName.toLowerCase().replace(/[^a-zA-Z0-9.-]/g, "-");
+  const cleanFilename = attachment.filename
+    .replace(/[^a-zA-Z0-9.-]/g, "-")
+    .toLowerCase();
+  const storagePath = `${folderName}/${cleanFilename}`;
+
+  // Upload the new file
+  const response = await fetch(attachment.url);
+  const blob = await response.blob();
+
+  const { error: uploadError } = await supabaseAdmin.storage
+    .from("attachment_artists")
+    .upload(storagePath, blob, {
+      contentType: attachment.type,
+      upsert: true,
+    });
+
+  if (uploadError) {
+    console.error("Error uploading artist photo:", uploadError);
+    throw uploadError;
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabaseAdmin.storage
+    .from("attachment_artists")
+    .getPublicUrl(storagePath);
+
+  return {
+    url: publicUrl,
+    width: attachment.width,
+    height: attachment.height,
+    filename: attachment.filename,
+    type: attachment.type,
+  };
+}
 
 export async function syncAirtableToSupabase() {
   try {
@@ -26,7 +68,33 @@ export async function syncAirtableToSupabase() {
       name: record.get("Artist Name"),
     });
 
-    // Create a basic artist record without photos first
+    // Log the artist photo data
+    const rawPhotos = record.get("Artist Photo");
+    console.log("Raw Artist Photo data:", rawPhotos);
+
+    let artist_photo: StoredAttachment[] = [];
+
+    if (rawPhotos && Array.isArray(rawPhotos)) {
+      const airtableAttachments = rawPhotos.map((att: AirtableAttachment) => ({
+        id: att.id,
+        width: att.width,
+        height: att.height,
+        url: att.url,
+        filename: att.filename,
+        type: att.type,
+      }));
+
+      artist_photo = await Promise.all(
+        airtableAttachments.map((attachment) =>
+          uploadArtistPhotoToSupabase(
+            attachment,
+            record.get("Artist Name") as string,
+          ),
+        ),
+      );
+    }
+
+    // Create artist record with photos
     const artist = {
       id: record.id,
       artist_name: (record.get("Artist Name") as string) || "Unknown Artist",
@@ -38,12 +106,13 @@ export async function syncAirtableToSupabase() {
       ig_handle: (record.get("IG Handle") as string) || null,
       website: (record.get("Website") as string) || null,
       live_in_production: Boolean(record.get("Add to Website")),
-      artist_photo: [], // Start with empty array
+      artist_photo, // Now includes the uploaded photos
     };
 
     console.log("Attempting to upsert artist:", {
       id: artist.id,
       name: artist.artist_name,
+      photoCount: artist_photo.length,
     });
 
     const { data, error } = await supabaseAdmin.from("artists").upsert(artist, {
