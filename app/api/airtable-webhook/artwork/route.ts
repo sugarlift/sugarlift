@@ -56,41 +56,25 @@ export async function POST(request: Request) {
       JSON.stringify(payload, null, 2),
     );
 
-    // Get the record ID from the webhook payload
-    let recordId;
-
-    // Handle payload.payloads array structure
-    if (payload.payloads && Array.isArray(payload.payloads)) {
-      const latestPayload = payload.payloads[0]; // Get the most recent payload
-
-      if (latestPayload.changedTablesById) {
-        const tableIds = Object.keys(latestPayload.changedTablesById);
-        if (tableIds.length > 0) {
-          const tableChanges = latestPayload.changedTablesById[tableIds[0]];
-          if (tableChanges.changedRecordsById) {
-            // Get the first changed record ID
-            recordId = Object.keys(tableChanges.changedRecordsById)[0];
-          }
-        }
-      }
-    }
-
-    console.log("Extracted recordId:", recordId);
-
-    if (!recordId) {
-      console.log("No record ID provided, running full sync");
-      // If no record ID, fall back to full sync
-      const { syncArtworkToSupabase } = await import(
-        "@/lib/syncArtworkToSupabase"
-      );
-      return NextResponse.json(await syncArtworkToSupabase());
-    }
-
-    console.log(`Processing record: ${recordId}`);
-
-    // Get the specific record from Airtable
+    // Get the table
     const table = getArtworkTable();
-    const record = await table.find(recordId);
+
+    // Get all records that are marked for production and have a Record_ID
+    const records = await table
+      .select({
+        filterByFormula: "AND({ADD TO PRODUCTION} = 1, NOT({Record_ID} = ''))",
+        maxRecords: 1, // Only get the most recent record
+      })
+      .firstPage();
+
+    if (records.length === 0) {
+      console.log("No records found with Record_ID");
+      return NextResponse.json({ message: "No records to process" });
+    }
+
+    const record = records[0];
+    const recordId = record.get("Record_ID") as string;
+    console.log(`Processing record: ${recordId}`);
 
     // Check if record should be in production
     const isProduction = record.get("ADD TO PRODUCTION");
