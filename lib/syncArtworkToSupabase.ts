@@ -83,7 +83,7 @@ export async function syncArtworkToSupabase() {
     console.log("Starting record sync...");
     for (const record of records) {
       try {
-        const rawAttachments = record.get("Artwork Images");
+        const rawAttachments = record.get("Artwork images");
         let artwork_images: StoredAttachment[] = [];
 
         if (rawAttachments && Array.isArray(rawAttachments)) {
