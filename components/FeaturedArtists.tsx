@@ -13,6 +13,8 @@ export function FeaturedArtists({ artist }: FeaturedArtistsProps) {
 
   const artistSlug = artist.artist_name
     .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-zA-Z0-9]/g, "-");
 
   return (
