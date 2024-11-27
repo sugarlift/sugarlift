@@ -53,7 +53,7 @@ async function uploadArtworkImageToSupabase(
 
 export async function syncArtworkToSupabase(
   batchSize: number = 5,
-  offset?: string,
+  offset?: number,
 ) {
   // Get or create sync status
   const { data: statusData } = await supabaseAdmin
@@ -63,7 +63,8 @@ export async function syncArtworkToSupabase(
     .single();
 
   // Use the provided offset or the one from status
-  const startOffset = offset ?? statusData?.offset;
+  const startOffset =
+    offset ?? (statusData?.offset ? parseInt(statusData.offset, 10) : 0);
 
   if (statusData?.in_progress) {
     console.log("Sync already in progress, skipping...");
@@ -79,14 +80,13 @@ export async function syncArtworkToSupabase(
       type: "artwork",
       in_progress: true,
       last_synced_at: new Date().toISOString(),
-      offset: startOffset,
+      offset: startOffset.toString(),
     });
 
-    // Get records with pagination using Airtable's offset token
+    // Get records using maxRecords instead of offset/pageSize
     const records = await table
       .select({
-        pageSize: batchSize,
-        offset: startOffset, // Pass the offset token directly
+        maxRecords: batchSize,
       })
       .firstPage();
 
@@ -167,15 +167,15 @@ export async function syncArtworkToSupabase(
       await supabaseAdmin.from("sync_errors").insert(errors);
     }
 
-    // Update sync status with Airtable's offset
+    // Update sync status
+    const nextOffset =
+      records.length === batchSize ? startOffset + records.length : null;
+
     await supabaseAdmin.from("sync_status").upsert({
       type: "artwork",
       in_progress: false,
       last_synced_at: new Date().toISOString(),
-      offset:
-        records.length === batchSize
-          ? records[records.length - 1]._rawJson.offset
-          : null,
+      offset: nextOffset?.toString() ?? null,
       error: errors.length > 0 ? JSON.stringify(errors) : null,
     });
 
@@ -183,10 +183,7 @@ export async function syncArtworkToSupabase(
       success: true,
       processedCount,
       hasMore: records.length === batchSize,
-      nextOffset:
-        records.length === batchSize
-          ? records[records.length - 1]._rawJson.offset
-          : null,
+      nextOffset,
       errors: errors.length > 0 ? errors : null,
     };
   } catch (error) {
