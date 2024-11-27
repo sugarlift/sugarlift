@@ -1,6 +1,11 @@
 import { getArtworkTable } from "./airtable";
 import { supabaseAdmin } from "./supabase";
-import { Artwork, AirtableAttachment, StoredAttachment } from "./types";
+import {
+  Artwork,
+  AirtableAttachment,
+  StoredAttachment,
+  SyncError,
+} from "./types";
 
 async function uploadArtworkImageToSupabase(
   attachment: AirtableAttachment,

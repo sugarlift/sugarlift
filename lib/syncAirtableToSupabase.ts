@@ -1,7 +1,6 @@
 import { getArtistsTable } from "./airtable";
 import { supabaseAdmin } from "./supabase";
 import { AirtableAttachment, StoredAttachment } from "./types";
-import { FieldSet, Record } from "airtable";
 
 async function uploadArtistPhotoToSupabase(
   attachment: AirtableAttachment,
@@ -44,21 +43,16 @@ async function uploadArtistPhotoToSupabase(
   };
 }
 
-export async function syncAirtableToSupabase(batchNumber = 1) {
+export async function syncAirtableToSupabase() {
   try {
-    console.log(`Starting sync process for batch ${batchNumber}...`);
+    console.log("Starting sync process...");
     const table = getArtistsTable();
 
-    const BATCH_SIZE = 5;
-    let currentBatch = 1;
-    let recordsToProcess: Record<FieldSet>[] = [];
-
-    // Get records for this batch
-    console.log(`Fetching records from Airtable for batch ${batchNumber}`);
-
-    await table
+    // Get the 5 most recently modified records
+    console.log("Fetching records from Airtable");
+    const records = await table
       .select({
-        pageSize: BATCH_SIZE,
+        maxRecords: 5,
         sort: [{ field: "Last Modified", direction: "desc" }],
         fields: [
           "Artist Name",
@@ -73,27 +67,17 @@ export async function syncAirtableToSupabase(batchNumber = 1) {
           "Add to Website",
         ],
       })
-      .eachPage((records, fetchNextPage) => {
-        if (currentBatch === batchNumber) {
-          recordsToProcess = [...records];
-          return;
-        }
-        currentBatch++;
-        fetchNextPage();
-      });
+      .firstPage();
 
-    // Check if there might be more records
-    const hasMore = recordsToProcess.length === BATCH_SIZE;
-
-    if (recordsToProcess.length === 0) {
-      console.log("No records found to sync in this batch");
-      return { success: true, processedCount: 0, hasMore: false };
+    if (records.length === 0) {
+      console.log("No records found to sync");
+      return { success: true, processedCount: 0 };
     }
 
     let processedCount = 0;
 
     // Process each record
-    for (const record of recordsToProcess) {
+    for (const record of records) {
       try {
         // More detailed logging
         console.log("Record details:", {
@@ -189,14 +173,13 @@ export async function syncAirtableToSupabase(batchNumber = 1) {
         processedCount++;
       } catch (error) {
         console.error(`Error processing artist ${record.id}:`, error);
+        // Continue with next record instead of failing entire batch
       }
     }
 
     return {
       success: true,
       processedCount,
-      hasMore,
-      batchNumber,
     };
   } catch (error) {
     console.error("Sync failed:", error);
