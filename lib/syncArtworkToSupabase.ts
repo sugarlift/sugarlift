@@ -62,7 +62,7 @@ export async function syncArtworkToSupabase(
     .eq("type", "artwork")
     .single();
 
-  // Get already synced records
+  // Get already synced records by id
   const { data: syncedRecords } = await supabaseAdmin
     .from("artwork")
     .select("id");
@@ -84,11 +84,11 @@ export async function syncArtworkToSupabase(
     const records = await table
       .select({
         maxRecords: batchSize,
-        filterByFormula: `AND(NOT({Artwork ID} = ""), NOT({Title} = ""))`,
+        filterByFormula: `NOT({Title} = "")`,
       })
       .firstPage();
 
-    // Filter out already synced records
+    // Filter out already synced records using record.id
     const newRecords = records.filter((record) => !syncedIds.has(record.id));
 
     console.log(`Found ${newRecords.length} new records to sync`);
@@ -104,7 +104,6 @@ export async function syncArtworkToSupabase(
           const artwork_images: StoredAttachment[] = [];
 
           if (rawAttachments && Array.isArray(rawAttachments)) {
-            // Process images sequentially to avoid overwhelming the system
             for (const att of rawAttachments) {
               const attachment = await uploadArtworkImageToSupabase(att, {
                 title: record.get("Title") as string,
@@ -131,9 +130,10 @@ export async function syncArtworkToSupabase(
               (record.get("updated_at") as string) || new Date().toISOString(),
           };
 
+          // Upsert using id as the primary key
           const { error: upsertError } = await supabaseAdmin
             .from("artwork")
-            .upsert(artwork, { onConflict: "id" });
+            .upsert(artwork);
 
           if (upsertError) throw upsertError;
           processedCount++;
@@ -180,7 +180,7 @@ export async function syncArtworkToSupabase(
     const remainingRecords = await table
       .select({
         maxRecords: 1,
-        filterByFormula: `AND(NOT({Artwork ID} = ""), NOT({Title} = ""))`,
+        filterByFormula: `NOT({Title} = "")`,
       })
       .firstPage();
 
