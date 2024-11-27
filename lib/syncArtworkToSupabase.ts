@@ -53,7 +53,7 @@ async function uploadArtworkImageToSupabase(
 
 export async function syncArtworkToSupabase(
   batchSize: number = 5,
-  offset?: number,
+  offset?: string,
 ) {
   // Get or create sync status
   const { data: statusData } = await supabaseAdmin
@@ -62,9 +62,8 @@ export async function syncArtworkToSupabase(
     .eq("type", "artwork")
     .single();
 
-  // If there's a stored offset in status, parse it to number
-  const startOffset =
-    offset ?? (statusData?.offset ? parseInt(statusData.offset, 10) : 0);
+  // Use the provided offset or the one from status
+  const startOffset = offset ?? statusData?.offset;
 
   if (statusData?.in_progress) {
     console.log("Sync already in progress, skipping...");
@@ -80,14 +79,14 @@ export async function syncArtworkToSupabase(
       type: "artwork",
       in_progress: true,
       last_synced_at: new Date().toISOString(),
-      offset: startOffset.toString(),
+      offset: startOffset,
     });
 
-    // Get records with pagination using numeric offset
+    // Get records with pagination using Airtable's offset token
     const records = await table
       .select({
         pageSize: batchSize,
-        offset: startOffset, // Always passing a number
+        offset: startOffset, // Pass the offset token directly
       })
       .firstPage();
 
@@ -168,15 +167,15 @@ export async function syncArtworkToSupabase(
       await supabaseAdmin.from("sync_errors").insert(errors);
     }
 
-    // Update sync status
-    const nextOffset =
-      records.length === batchSize ? startOffset + records.length : null;
-
+    // Update sync status with Airtable's offset
     await supabaseAdmin.from("sync_status").upsert({
       type: "artwork",
       in_progress: false,
       last_synced_at: new Date().toISOString(),
-      offset: nextOffset?.toString() ?? null,
+      offset:
+        records.length === batchSize
+          ? records[records.length - 1]._rawJson.offset
+          : null,
       error: errors.length > 0 ? JSON.stringify(errors) : null,
     });
 
@@ -184,7 +183,10 @@ export async function syncArtworkToSupabase(
       success: true,
       processedCount,
       hasMore: records.length === batchSize,
-      nextOffset, // Return the numeric offset
+      nextOffset:
+        records.length === batchSize
+          ? records[records.length - 1]._rawJson.offset
+          : null,
       errors: errors.length > 0 ? errors : null,
     };
   } catch (error) {

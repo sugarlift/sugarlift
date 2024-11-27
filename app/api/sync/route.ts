@@ -4,10 +4,9 @@ import { syncArtworkToSupabase } from "@/lib/syncArtworkToSupabase";
 export async function POST(request: Request) {
   try {
     const { offset } = await request.json();
-    const numericOffset = offset != null ? parseInt(offset, 10) : undefined;
-    const result = await syncArtworkToSupabase(5, numericOffset);
+    const result = await syncArtworkToSupabase(5, offset);
 
-    if (result.hasMore && result.nextOffset != null) {
+    if (result.hasMore && result.nextOffset) {
       await fetch("/api/sync", {
         method: "POST",
         body: JSON.stringify({ offset: result.nextOffset }),
