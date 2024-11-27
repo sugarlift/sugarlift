@@ -59,30 +59,28 @@ export async function POST(request: Request) {
     // Get the table
     const table = getArtworkTable();
 
-    // Get all records that are marked for production and have a Record_ID
-    const records = await table
-      .select({
-        filterByFormula: "AND({ADD TO PRODUCTION} = 1, NOT({Record_ID} = ''))",
-        maxRecords: 1, // Only get the most recent record
-      })
-      .firstPage();
+    // Extract the record ID from the webhook payload
+    const webhookRecordId = payload?.result?.recordId;
+    console.log("Webhook record ID:", webhookRecordId);
 
-    if (records.length === 0) {
-      console.log("No records found with Record_ID");
-      return NextResponse.json({ message: "No records to process" });
+    if (!webhookRecordId) {
+      console.log("No webhook record ID found");
+      return NextResponse.json({ message: "No record ID in webhook" });
     }
 
-    const record = records[0];
-    const recordId = record.get("Record_ID") as string;
-    console.log(`Processing record: ${recordId}`);
+    // Get the specific record that was updated
+    const record = await table.find(webhookRecordId);
+    console.log(`Found record: ${record.id}`);
 
     // Check if record should be in production
     const isProduction = record.get("ADD TO PRODUCTION");
     if (!isProduction) {
-      console.log(`Record ${recordId} is not marked for production, skipping`);
+      console.log(
+        `Record ${webhookRecordId} is not marked for production, skipping`,
+      );
       return NextResponse.json({
         message: "Record skipped - not marked for production",
-        recordId,
+        recordId: webhookRecordId,
       });
     }
 
@@ -130,7 +128,7 @@ export async function POST(request: Request) {
       result: {
         success: true,
         processedCount: 1,
-        recordId,
+        recordId: webhookRecordId,
         title: artwork.title,
       },
     });
