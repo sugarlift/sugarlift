@@ -32,7 +32,7 @@ async function getArtistBySlug(slug: string): Promise<Artist | null> {
       .from("artwork")
       .select("*")
       .eq("live_in_production", true)
-      .ilike("artist_id", `%${artist.id}%`);
+      .eq("artist_name", artist.artist_name);
 
     if (artworkError) {
       console.error("Error fetching artwork:", artworkError);
