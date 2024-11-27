@@ -94,7 +94,7 @@ export default async function ExhibitionPage({ params }: { params: Params }) {
         </div>
       </section>
       <section
-        className="prose mx-auto max-w-[716px]"
+        className="prose"
         dangerouslySetInnerHTML={{ __html: exhibition.content }}
       />
 

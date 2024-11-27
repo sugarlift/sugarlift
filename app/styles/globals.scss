@@ -8,6 +8,35 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .prose {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    max-width: calc(716px + 4rem);
+
+    @include bp.breakpoint(md) {
+      max-width: calc(716px + 6rem);
+      padding-left: 3rem;
+      padding-right: 3rem;
+    }
+
+    h3 {
+      font-size: 1.3125rem;
+      letter-spacing: -0.0375rem;
+      line-height: 1.5rem;
+      font-weight: normal;
+
+      @include bp.breakpoint(lg) {
+        font-size: 2rem;
+        letter-spacing: -0.0625rem;
+        line-height: 2.5rem;
+        margin-bottom: 2rem;
+      }
+    }
+  }
+
   .container {
     margin-left: auto;
     margin-right: auto;

@@ -121,11 +121,28 @@ export default async function ArtistPage({ params }: { params: Params }) {
               </p>
             )}
           </div>
-          <div className="prose col-start-2 col-end-4 max-w-none">
+          <div className="col-start-2 col-end-4">
             <p className="mb-6 inline-block border-b border-zinc-950 pb-6 text-lg text-zinc-950">
               Biography
             </p>
-            <p className="prose">{artist.artist_bio}</p>
+            <div className="prose !p-0 lg:!p-0">
+              {artist.artist_bio && (
+                <>
+                  <h3>
+                    {artist.artist_bio
+                      .split(/(?<=[.!?])\s+/)
+                      .slice(0, 2)
+                      .join(" ")}
+                  </h3>
+                  <p>
+                    {artist.artist_bio
+                      .split(/(?<=[.!?])\s+/)
+                      .slice(2)
+                      .join(" ")}
+                  </p>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </section>

@@ -24,6 +24,9 @@ interface ProjectFrontmatter {
   architect: string;
   year: string;
   description: string;
+  services: string[];
+  photography: string;
+  scope: string;
 }
 
 interface ProcessedProjectFrontmatter

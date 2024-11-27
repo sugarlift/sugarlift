@@ -1,11 +1,22 @@
 ---
 title: "450 Washington"
-artists: ["adam-sultan"]
-location: "New York, Related Companies"
-category: "Workplace"
 client: "Related Companies"
+location: "New York"
+artists: ["adam-sultan"]
 architect: "M&MD"
+photography: "Colin Miller"
+category: "Workplace"
 year: "2023"
+scope: "Lobby painting"
+services:
+  [
+    "Art Curation",
+    "Artwork Acquisition",
+    "International Shipping",
+    "Storage",
+    "Delivery",
+    "White Glove Installation",
+  ]
 galleryImages:
   [
     "/images/450-washington/sugarlift_art_consulting_450_washington_1_dcc604ee0a.jpg",
@@ -22,7 +33,6 @@ galleryImages:
     "/images/450-washington/sugarlift_art_consulting_450_washington_12_ae3b640bdd.jpg",
     "/images/450-washington/sugarlift_art_consulting_450_washington_c54218539a.jpg",
   ]
-description: "A luxury residential building in Tribeca featuring contemporary artwork integrated with architectural design."
 ---
 
 ### 50 Washington is a prestigious waterfront residence renowned for its intricate furnishings, extensive amenities, and a unique collection of artworks.
