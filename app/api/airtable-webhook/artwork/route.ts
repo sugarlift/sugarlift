@@ -51,10 +51,32 @@ export async function POST(request: Request) {
     }
 
     const payload = await request.json();
-    console.log("Received artwork webhook payload:", payload);
+    console.log(
+      "Received artwork webhook payload:",
+      JSON.stringify(payload, null, 2),
+    );
 
     // Get the record ID from the webhook payload
-    const recordId = payload.changeSet?.[0]?.recordId || payload.recordId;
+    let recordId;
+
+    // Handle payload.payloads array structure
+    if (payload.payloads && Array.isArray(payload.payloads)) {
+      const latestPayload = payload.payloads[0]; // Get the most recent payload
+
+      if (latestPayload.changedTablesById) {
+        const tableIds = Object.keys(latestPayload.changedTablesById);
+        if (tableIds.length > 0) {
+          const tableChanges = latestPayload.changedTablesById[tableIds[0]];
+          if (tableChanges.changedRecordsById) {
+            // Get the first changed record ID
+            recordId = Object.keys(tableChanges.changedRecordsById)[0];
+          }
+        }
+      }
+    }
+
+    console.log("Extracted recordId:", recordId);
+
     if (!recordId) {
       console.log("No record ID provided, running full sync");
       // If no record ID, fall back to full sync
