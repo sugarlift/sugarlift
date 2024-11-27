@@ -62,14 +62,12 @@ export async function syncArtworkToSupabase(
     .eq("type", "artwork")
     .single();
 
-  // Use the provided offset or the one from status
-  const startOffset =
-    offset ?? (statusData?.offset ? parseInt(statusData.offset, 10) : 0);
+  // Get already synced records
+  const { data: syncedRecords } = await supabaseAdmin
+    .from("artwork")
+    .select("id");
 
-  if (statusData?.in_progress) {
-    console.log("Sync already in progress, skipping...");
-    return { success: false, message: "Sync already in progress" };
-  }
+  const syncedIds = new Set(syncedRecords?.map((record) => record.id) || []);
 
   try {
     console.log("Starting sync process...");
@@ -80,24 +78,27 @@ export async function syncArtworkToSupabase(
       type: "artwork",
       in_progress: true,
       last_synced_at: new Date().toISOString(),
-      offset: startOffset.toString(),
     });
 
-    // Get records using maxRecords instead of offset/pageSize
+    // Get records that haven't been synced yet
     const records = await table
       .select({
         maxRecords: batchSize,
+        filterByFormula: `AND(NOT({ID} = ""), NOT({Title} = ""))`, // Ensure we have valid records
       })
       .firstPage();
 
-    console.log(`Found ${records.length} records to sync`);
+    // Filter out already synced records
+    const newRecords = records.filter((record) => !syncedIds.has(record.id));
+
+    console.log(`Found ${newRecords.length} new records to sync`);
 
     let processedCount = 0;
     const errors: SyncError[] = [];
 
     // Process records in parallel with controlled concurrency
     await Promise.all(
-      records.map(async (record) => {
+      newRecords.map(async (record) => {
         try {
           const rawAttachments = record.get("Artwork images");
           const artwork_images: StoredAttachment[] = [];
@@ -168,22 +169,28 @@ export async function syncArtworkToSupabase(
     }
 
     // Update sync status
-    const nextOffset =
-      records.length === batchSize ? startOffset + records.length : null;
-
     await supabaseAdmin.from("sync_status").upsert({
       type: "artwork",
       in_progress: false,
       last_synced_at: new Date().toISOString(),
-      offset: nextOffset?.toString() ?? null,
       error: errors.length > 0 ? JSON.stringify(errors) : null,
     });
+
+    // Check if there are more records to process
+    const remainingRecords = await table
+      .select({
+        maxRecords: 1,
+        filterByFormula: `AND(NOT({ID} = ""), NOT({Title} = ""))`,
+      })
+      .firstPage();
+
+    const hasMore =
+      remainingRecords.length > 0 && !syncedIds.has(remainingRecords[0].id);
 
     return {
       success: true,
       processedCount,
-      hasMore: records.length === batchSize,
-      nextOffset,
+      hasMore,
       errors: errors.length > 0 ? errors : null,
     };
   } catch (error) {
