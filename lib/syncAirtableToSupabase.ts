@@ -43,16 +43,20 @@ async function uploadArtistPhotoToSupabase(
   };
 }
 
-export async function syncAirtableToSupabase() {
+export async function syncAirtableToSupabase(batchNumber = 1) {
   try {
-    console.log("Starting sync process...");
+    console.log(`Starting sync process for batch ${batchNumber}...`);
     const table = getArtistsTable();
 
-    // Get the 5 most recently modified records
-    console.log("Fetching records from Airtable");
+    const BATCH_SIZE = 5;
+    const offset = (batchNumber - 1) * BATCH_SIZE;
+
+    // Get records for this batch
+    console.log(`Fetching records from Airtable (offset: ${offset})`);
     const records = await table
       .select({
-        maxRecords: 5,
+        maxRecords: BATCH_SIZE,
+        offset, // Skip previous batches
         sort: [{ field: "Last Modified", direction: "desc" }],
         fields: [
           "Artist Name",
@@ -69,9 +73,12 @@ export async function syncAirtableToSupabase() {
       })
       .firstPage();
 
+    // Check if there might be more records
+    const hasMore = records.length === BATCH_SIZE;
+
     if (records.length === 0) {
-      console.log("No records found to sync");
-      return { success: true, processedCount: 0 };
+      console.log("No records found to sync in this batch");
+      return { success: true, processedCount: 0, hasMore: false };
     }
 
     let processedCount = 0;
@@ -180,6 +187,8 @@ export async function syncAirtableToSupabase() {
     return {
       success: true,
       processedCount,
+      hasMore,
+      batchNumber,
     };
   } catch (error) {
     console.error("Sync failed:", error);

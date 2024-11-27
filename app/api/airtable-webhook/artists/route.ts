@@ -1,20 +1,36 @@
 import { NextResponse } from "next/server";
 import { syncAirtableToSupabase } from "@/lib/syncAirtableToSupabase";
 
-export const maxDuration = 30; // 30 seconds max runtime
+export const maxDuration = 30;
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     console.log("Starting sync...");
-    const result = await syncAirtableToSupabase();
+
+    // Get the batch number from the request, default to 1
+    const data = await request.json().catch(() => ({}));
+    const batchNumber = data.batchNumber || 1;
+    console.log(`Processing batch ${batchNumber}`);
+
+    const result = await syncAirtableToSupabase(batchNumber);
+
+    if (result.hasMore) {
+      // Trigger next batch via fetch
+      console.log(`Triggering batch ${batchNumber + 1}`);
+      fetch("/api/airtable-webhook/artists", {
+        method: "POST",
+        body: JSON.stringify({ batchNumber: batchNumber + 1 }),
+        headers: { "Content-Type": "application/json" },
+      }).catch(console.error);
+    }
 
     return NextResponse.json({
       success: true,
       result,
+      batch: batchNumber,
     });
   } catch (error) {
     console.error("Sync failed:", error);
-
     return NextResponse.json(
       {
         success: false,
