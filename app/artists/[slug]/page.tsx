@@ -10,43 +10,45 @@ import { ArtistCard } from "@/components/ArtistCard";
 import { incrementViewCount } from "./actions";
 
 async function getArtistBySlug(slug: string): Promise<Artist | null> {
-  const artistName = slug
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+  const { data: artists, error: artistError } = await supabase
+    .from("artists")
+    .select("*")
+    .eq("live_in_production", true);
 
-  try {
-    const { data: artist, error: artistError } = await supabase
-      .from("artists")
-      .select("*")
-      .eq("live_in_production", true)
-      .eq("artist_name", artistName)
-      .single();
-
-    if (artistError || !artist) {
-      console.error("Error fetching artist:", artistError);
-      return null;
-    }
-
-    const { data: artwork, error: artworkError } = await supabase
-      .from("artwork")
-      .select("*")
-      .eq("live_in_production", true)
-      .eq("artist_name", artist.artist_name);
-
-    if (artworkError) {
-      console.error("Error fetching artwork:", artworkError);
-      return null;
-    }
-
-    return {
-      ...artist,
-      artwork: artwork || [],
-    };
-  } catch (error) {
-    console.error("Error in getArtistBySlug:", error);
+  if (artistError || !artists) {
+    console.error("Error fetching artists:", artistError);
     return null;
   }
+
+  const artist = artists.find((artist) => {
+    const normalizedName = artist.artist_name
+      .toLowerCase()
+      .normalize("NFD") // Decompose characters with diacritics
+      .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+      .replace(/[^a-zA-Z0-9]/g, "-"); // Replace non-alphanumeric with hyphens
+
+    return normalizedName === slug;
+  });
+
+  if (!artist) {
+    return null;
+  }
+
+  const { data: artwork, error: artworkError } = await supabase
+    .from("artwork")
+    .select("*")
+    .eq("live_in_production", true)
+    .eq("artist_name", artist.artist_name);
+
+  if (artworkError) {
+    console.error("Error fetching artwork:", artworkError);
+    return null;
+  }
+
+  return {
+    ...artist,
+    artwork: artwork || [],
+  };
 }
 
 type Params = Promise<{ slug: string }>;
@@ -202,7 +204,11 @@ export async function generateStaticParams() {
   if (!artists) return [];
 
   return artists.map((artist) => ({
-    slug: artist.artist_name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "-"),
+    slug: artist.artist_name
+      .toLowerCase()
+      .normalize("NFD") // Decompose characters with diacritics
+      .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+      .replace(/[^a-zA-Z0-9]/g, "-"), // Replace non-alphanumeric with hyphens
   }));
 }
 
