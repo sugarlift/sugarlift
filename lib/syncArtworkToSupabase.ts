@@ -48,17 +48,33 @@ async function uploadArtworkImageToSupabase(
 
 export async function syncArtworkToSupabase() {
   try {
-    console.log("Starting sync process...");
+    console.log("Starting artwork sync process...");
     const table = getArtworkTable();
 
-    // Get all records that are marked for production
+    // Get existing records from Supabase to compare timestamps
+    const { data: existingArtworks, error: fetchError } = await supabaseAdmin
+      .from("artwork")
+      .select("id, updated_at")
+      .eq("live_in_production", true);
+
+    if (fetchError) throw fetchError;
+
+    // Create a map of existing artworks with their last update time
+    const existingArtworksMap = new Map(
+      existingArtworks?.map((artwork) => [
+        artwork.id,
+        new Date(artwork.updated_at),
+      ]) || [],
+    );
+
+    // Get all records that are marked for production from Airtable
     const records = await table
       .select({
         filterByFormula: "{ADD TO PRODUCTION} = 1",
       })
-      .all(); // Get all records instead of pagination
+      .all();
 
-    console.log(`Found ${records.length} records to sync`);
+    console.log(`Found ${records.length} artwork records to process`);
 
     let processedCount = 0;
     const errors: SyncError[] = [];
@@ -66,7 +82,17 @@ export async function syncArtworkToSupabase() {
     // Process each record
     for (const record of records) {
       try {
-        console.log(`Processing: ${record.id} - ${record.get("Title")}`);
+        const recordId = record.id;
+        const lastModified = new Date(record.get("Last Modified") as string);
+
+        // Skip if record exists and hasn't been modified since last sync
+        const existingLastUpdate = existingArtworksMap.get(recordId);
+        if (existingLastUpdate && lastModified <= existingLastUpdate) {
+          console.log(`Skipping unchanged artwork: ${recordId}`);
+          continue;
+        }
+
+        console.log(`Processing artwork: ${recordId} - ${record.get("Title")}`);
 
         // Process images
         const rawAttachments = record.get("Artwork images");
@@ -94,7 +120,7 @@ export async function syncArtworkToSupabase() {
           artist_name: (record.get("Artist") as string) || null,
           type: (record.get("Type") as string) || null,
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          updated_at: lastModified.toISOString(), // Use Airtable's last modified time
         };
 
         // Upsert to Supabase
@@ -105,7 +131,7 @@ export async function syncArtworkToSupabase() {
         if (upsertError) throw upsertError;
 
         processedCount++;
-        console.log(`Successfully processed: ${artwork.title}`);
+        console.log(`Successfully processed artwork: ${artwork.title}`);
       } catch (error) {
         console.error(`Error processing artwork ${record.id}:`, error);
         errors.push({
@@ -123,7 +149,7 @@ export async function syncArtworkToSupabase() {
       errors: errors.length > 0 ? errors : null,
     };
   } catch (error) {
-    console.error("Sync error:", error);
+    console.error("Artwork sync error:", error);
     throw error;
   }
 }
