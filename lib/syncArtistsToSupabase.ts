@@ -51,14 +51,30 @@ export async function syncArtistsToSupabase() {
     console.log("Starting artist sync process...");
     const table = getArtistsTable();
 
-    // Get all records that are marked for production
+    // Get existing records from Supabase to compare timestamps
+    const { data: existingArtists, error: fetchError } = await supabaseAdmin
+      .from("artists")
+      .select("id, updated_at")
+      .eq("live_in_production", true);
+
+    if (fetchError) throw fetchError;
+
+    // Create a map of existing artists with their last update time
+    const existingArtistsMap = new Map(
+      existingArtists?.map((artist) => [
+        artist.id,
+        new Date(artist.updated_at),
+      ]) || [],
+    );
+
+    // Get all records that are marked for production from Airtable
     const records = await table
       .select({
         filterByFormula: "{Add to Website} = 1",
       })
       .all();
 
-    console.log(`Found ${records.length} artist records to sync`);
+    console.log(`Found ${records.length} artist records to process`);
 
     let processedCount = 0;
     const errors: SyncError[] = [];
@@ -66,8 +82,18 @@ export async function syncArtistsToSupabase() {
     // Process each record
     for (const record of records) {
       try {
+        const recordId = record.id;
+        const lastModified = new Date(record.get("Last Modified") as string);
+
+        // Skip if record exists and hasn't been modified since last sync
+        const existingLastUpdate = existingArtistsMap.get(recordId);
+        if (existingLastUpdate && lastModified <= existingLastUpdate) {
+          console.log(`Skipping unchanged record: ${recordId}`);
+          continue;
+        }
+
         console.log(
-          `Processing artist: ${record.id} - ${record.get("Artist Name")}`,
+          `Processing artist: ${recordId} - ${record.get("Artist Name")}`,
         );
 
         // Process photos
@@ -98,7 +124,7 @@ export async function syncArtistsToSupabase() {
           live_in_production: true,
           artist_photo,
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          updated_at: lastModified.toISOString(), // Use Airtable's last modified time
         };
 
         // Upsert to Supabase
