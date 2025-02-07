@@ -45,60 +45,52 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Get all projects
-  const projects = await getAllProjects();
-  const projectRoutes = projects.map((project) => ({
-    url: `${baseUrl}/projects/${project.slug}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly" as const,
-    priority: 0.8,
-  }));
-
-  // Get all artists from Supabase with proper typing
-  const { data: artists, error } = (await supabase
-    .from("artists")
-    .select("artist_name")
-    .eq("live_in_production", true)) as {
-    data: ArtistRow[] | null;
-    error: PostgrestError | null;
-  };
-
-  if (error) {
-    console.error("Error fetching artists:", error);
-  }
-
-  const artistRoutes = (artists || []).map((artist: ArtistRow) => {
-    const slug = generateSlug(artist.artist_name);
-    console.log("Processing artist:", artist.artist_name, "with slug:", slug);
-    return {
-      url: `${baseUrl}/artists/${slug}`,
+  try {
+    // Get all projects
+    const projects = await getAllProjects().catch(() => []);
+    const projectRoutes = projects.map((project) => ({
+      url: `${baseUrl}/projects/${project.slug}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.8,
+    }));
+
+    // Get all artists from Supabase with proper typing
+    const { data: artists, error } = (await supabase
+      .from("artists")
+      .select("artist_name")
+      .eq("live_in_production", true)) as {
+      data: ArtistRow[] | null;
+      error: PostgrestError | null;
     };
-  });
 
-  // Get all exhibitions from markdown files
-  const exhibitions = await getAllExhibitions();
-  const exhibitionRoutes = exhibitions.map((exhibition) => ({
-    url: `${baseUrl}/exhibitions/${exhibition.slug}`,
-    lastModified: new Date(exhibition.frontmatter.startDate),
-    changeFrequency: "weekly" as const,
-    priority: 0.8,
-  }));
+    if (error) {
+      console.error("Error fetching artists:", error);
+    }
 
-  const allRoutes = [
-    ...routes,
-    ...projectRoutes,
-    ...artistRoutes,
-    ...exhibitionRoutes,
-  ];
-  console.log(
-    "Total routes:",
-    allRoutes.length,
-    "Artist routes:",
-    artistRoutes.length,
-  );
+    const artistRoutes = (artists || []).map((artist: ArtistRow) => {
+      const slug = generateSlug(artist.artist_name);
+      return {
+        url: `${baseUrl}/artists/${slug}`,
+        lastModified: new Date(),
+        changeFrequency: "weekly" as const,
+        priority: 0.8,
+      };
+    });
 
-  return allRoutes;
+    // Get all exhibitions from markdown files
+    const exhibitions = await getAllExhibitions().catch(() => []);
+    const exhibitionRoutes = exhibitions.map((exhibition) => ({
+      url: `${baseUrl}/exhibitions/${exhibition.slug}`,
+      lastModified: new Date(exhibition.frontmatter.startDate),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    }));
+
+    return [...routes, ...projectRoutes, ...artistRoutes, ...exhibitionRoutes];
+  } catch (error) {
+    console.error("Error generating sitemap:", error);
+    // Return only static routes if there's an error
+    return routes;
+  }
 }

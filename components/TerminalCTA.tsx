@@ -2,7 +2,7 @@ import { QuickLink } from "@/components/Link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
-export function TerminalCTA() {
+export function ConsultationCTA() {
   return (
     <div className="border-t py-10 md:py-[4vw]">
       <div className="container text-center">

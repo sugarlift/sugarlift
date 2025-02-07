@@ -1,6 +1,6 @@
 "use client";
 
-import { TerminalCTA } from "@/components/TerminalCTA";
+import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { Artist } from "@/lib/types";
 import { ArtistCard } from "@/components/ArtistCard";
 import { useState, useEffect, useRef } from "react";
@@ -175,7 +175,7 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Featured artists"
+                placeholder="Artists"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-transparent pl-4 text-[1.3125rem] font-normal tracking-[-0.0375rem] placeholder:text-zinc-700 hover:text-zinc-500 focus:outline-none lg:text-[2rem] lg:tracking-[-0.0625rem]"
@@ -221,7 +221,7 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
           </div>
         </div>
       </section>
-      <TerminalCTA />
+      <ConsultationCTA />
     </>
   );
 }

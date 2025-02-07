@@ -54,10 +54,10 @@ export function ConsultationCTA() {
         <div className="text-center">
           <Button asChild className="group">
             <QuickLink
-              href="/contact"
+              href="/about"
               className="inline-flex items-center rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800"
             >
-              Schedule a Consultation
+              Learn more about Sugarlift
               <ArrowRight
                 className="-me-1 ms-2 mt-0.5 transition-transform group-hover:translate-x-0.5"
                 size={16}

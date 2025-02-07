@@ -11,10 +11,10 @@ import { motion, AnimatePresence } from "framer-motion";
 const navigation = [
   { name: "Artists", href: "/artists" },
   { name: "Exhibitions", href: "/exhibitions" },
-  { name: "Art consulting", href: "/art-consulting" },
+  { name: "Clients", href: "/clients" },
 ];
 
-const CTA = [{ name: "Contact", href: "/contact" }];
+const CTA = [{ name: "About", href: "/about" }];
 
 const linkStyles =
   "text-zinc-700 py-8 text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] transition hover:text-zinc-950";

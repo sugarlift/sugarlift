@@ -92,7 +92,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className={headingStyle}>Art consulting</h3>
+            <h3 className={headingStyle}>Clients</h3>
             <ul>
               <li>
                 <QuickLink href="#" className={linkStyle}>

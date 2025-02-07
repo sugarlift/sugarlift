@@ -5,7 +5,7 @@ import { Metadata } from "next";
 import Image from "next/image";
 import { Instagram, Globe } from "lucide-react";
 import Link from "next/link";
-import { TerminalCTA } from "@/components/TerminalCTA";
+import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { ArtistCard } from "@/components/ArtistCard";
 import { incrementViewCount } from "./actions";
 
@@ -190,7 +190,7 @@ export default async function ArtistPage({ params }: { params: Params }) {
           </div>
         )}
       </section>
-      <TerminalCTA />
+      <ConsultationCTA />
     </>
   );
 }

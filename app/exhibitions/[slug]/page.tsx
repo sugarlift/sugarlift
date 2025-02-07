@@ -7,7 +7,7 @@ import {
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { TerminalCTA } from "@/components/TerminalCTA";
+import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { ArtistCard } from "@/components/ArtistCard";
 
 type Params = Promise<{ slug: string }>;
@@ -107,7 +107,7 @@ export default async function ExhibitionPage({ params }: { params: Params }) {
           </div>
         </section>
       )}
-      <TerminalCTA />
+      <ConsultationCTA />
     </>
   );
 }

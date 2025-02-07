@@ -27,11 +27,6 @@ type FormData = {
   name: string;
   email: string;
   message: string;
-  topic: string;
-  firm?: string;
-  role?: string;
-  artistName?: string;
-  budget?: string;
   botcheck: string;
 };
 
@@ -43,8 +38,6 @@ export default function Contact() {
     register,
     handleSubmit,
     reset,
-    watch,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     mode: "onTouched",
@@ -52,8 +45,6 @@ export default function Contact() {
 
   const [message, setMessage] = useState<string>("");
   const [showError, setShowError] = useState(false);
-
-  const selectedTopic = watch("topic");
 
   const apiKey =
     process.env.PUBLIC_ACCESS_KEY || "b4aef617-d7d5-49c6-9978-634aa6ab9500";
@@ -74,19 +65,6 @@ export default function Contact() {
       setMessage(msg);
     },
   });
-
-  useEffect(() => {
-    const topic = searchParams.get("topic");
-    const artistName = searchParams.get("artistName");
-
-    if (topic) {
-      setValue("topic", topic);
-    }
-
-    if (artistName) {
-      setValue("artistName", artistName);
-    }
-  }, [searchParams, setValue]);
 
   useEffect(() => {
     // Check if we're on the contact page and there's a hash
@@ -114,91 +92,6 @@ export default function Contact() {
           style={{ display: "none" }}
           {...register("botcheck")}
         ></input>
-
-        <div className="mb-5">
-          <select
-            className={getInputClassName(!!errors.topic, true)}
-            {...register("topic", { required: "Please select a topic" })}
-          >
-            <option value="">Select a topic...</option>
-            <option value="general">General inquiry</option>
-            <option value="consultation">Scheduling a consultation</option>
-            <option value="artist">Artist inquiry</option>
-            <option value="custom">Custom artwork inquiry</option>
-          </select>
-          {errors.topic && (
-            <div className="mt-1 text-red-600">
-              <small>{errors.topic.message?.toString()}</small>
-            </div>
-          )}
-        </div>
-
-        {selectedTopic === "consultation" && (
-          <>
-            <div className="mb-5">
-              <input
-                type="text"
-                placeholder="Firm"
-                className={getInputClassName(!!errors.firm)}
-                {...register("firm", { required: "Firm name is required" })}
-              />
-              {errors.firm && (
-                <div className="mt-1 text-red-600">
-                  <small>{errors.firm.message?.toString()}</small>
-                </div>
-              )}
-            </div>
-            <div className="mb-5">
-              <input
-                type="text"
-                placeholder="Role"
-                className={getInputClassName(!!errors.role)}
-                {...register("role", { required: "Role is required" })}
-              />
-              {errors.role && (
-                <div className="mt-1 text-red-600">
-                  <small>{errors.role.message?.toString()}</small>
-                </div>
-              )}
-            </div>
-          </>
-        )}
-
-        {(selectedTopic === "artist" || selectedTopic === "custom") && (
-          <div className="mb-5">
-            <input
-              type="text"
-              placeholder="Artist Name"
-              className={getInputClassName(!!errors.artistName)}
-              {...register("artistName", {
-                required: "Artist name is required",
-              })}
-            />
-            {errors.artistName && (
-              <div className="mt-1 text-red-600">
-                <small>{errors.artistName.message?.toString()}</small>
-              </div>
-            )}
-          </div>
-        )}
-
-        {selectedTopic === "custom" && (
-          <div className="mb-5">
-            <input
-              type="text"
-              placeholder="Budget"
-              className={getInputClassName(!!errors.budget)}
-              {...register("budget", { required: "Budget is required" })}
-            />
-            {errors.budget && (
-              <div className="mt-1 text-red-600">
-                <small>{errors.budget.message?.toString()}</small>
-              </div>
-            )}
-          </div>
-        )}
-
-        <h3 className="mb-5 mt-8">Contact details</h3>
 
         <div className="mb-5">
           <input

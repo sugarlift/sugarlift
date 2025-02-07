@@ -1,6 +1,6 @@
 // app/exhibitions/page.tsx
 
-import { TerminalCTA } from "@/components/TerminalCTA";
+import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { getAllExhibitions } from "../lib/markdownExhibitions";
 import { ExhibitionCard } from "@/components/ExhibitionCard";
 import { QuickLink } from "@/components/Link";
@@ -35,7 +35,7 @@ export default async function ExhibitionsPage() {
           <h1>
             {currentExhibitions.length > 0
               ? "Current exhibitions"
-              : "Featured exhibitions"}
+              : "Exhibitions"}
           </h1>
         </div>
         {currentExhibitions.length > 0 ? (
@@ -76,7 +76,7 @@ export default async function ExhibitionsPage() {
           ))}
         </div>
       </section>
-      <TerminalCTA />
+      <ConsultationCTA />
     </>
   );
 }

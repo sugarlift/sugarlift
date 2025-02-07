@@ -6,7 +6,10 @@ export const COMPANY_METADATA = {
 
 export const FEATURED_EXHIBITIONS = [
   "celia-lees-love-language",
-  "celia-lees-love-language-2",
+  "sascha-missfeldt-kleinkariert",
+  "jimi-gleason-liquid-color",
+  "kenny-nguyen-chạm-mapping-identity",
+  "maja-dlugolecki-loves-souvenir",
 ] as const;
 
 export const FEATURED_PROJECTS = [
