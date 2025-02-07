@@ -8,7 +8,7 @@ export const FEATURED_EXHIBITIONS = [
   "celia-lees-love-language",
   "sascha-missfeldt-kleinkariert",
   "jimi-gleason-liquid-color",
-  "kenny-nguyen-chạm-mapping-identity",
+  "kenny-nguyen-cham-mapping-identity",
   "maja-dlugolecki-loves-souvenir",
 ] as const;
 
