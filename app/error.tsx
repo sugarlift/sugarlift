@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { RotateCw } from "lucide-react";
+import { RotateCw, ArrowRight } from "lucide-react";
 import { QuickLink } from "@/components/Link";
 import { useEffect } from "react";
 
