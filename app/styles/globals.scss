@@ -25,14 +25,25 @@
     h3 {
       font-size: 1.3125rem;
       letter-spacing: -0.0375rem;
-      line-height: 1.5rem;
-      font-weight: normal;
+      line-height: 1.75rem;
+      font-weight: 500;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
 
       @include bp.breakpoint(lg) {
         font-size: 2rem;
         letter-spacing: -0.0625rem;
         line-height: 2.5rem;
         margin-bottom: 2rem;
+        font-weight: 400;
+      }
+    }
+
+    p {
+      line-height: 1.5rem;
+
+      @include bp.breakpoint(lg) {
+        line-height: 2rem;
       }
     }
   }
@@ -54,12 +65,14 @@
   .big-title {
     font-size: 1.3125rem;
     letter-spacing: -0.0375rem;
-    line-height: 1.5rem;
+    line-height: 1.75rem;
+    font-weight: 500;
 
     @include bp.breakpoint(lg) {
       font-size: 2.5rem;
       line-height: 3rem;
       letter-spacing: -0.083125rem;
+      font-weight: 400;
     }
   }
 
@@ -75,6 +88,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 120px;
 }
 
 body {
@@ -84,6 +98,7 @@ body {
 
 section {
   padding-bottom: 36px;
+
   @include bp.breakpoint(lg) {
     padding-bottom: 4vw;
   }
@@ -110,11 +125,12 @@ h2 {
   font-size: 1.3125rem;
   letter-spacing: -0.0375rem;
   line-height: 1.5rem;
-
+  font-weight: 500;
   @include bp.breakpoint(lg) {
     font-size: 2rem;
     letter-spacing: -0.0625rem;
     line-height: 2.5rem;
+    font-weight: 400;
   }
 }
 

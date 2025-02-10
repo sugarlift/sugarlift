@@ -1,3 +1,4 @@
+import { COMPANY_METADATA } from "@/app/lib/constants";
 import { QuickLink } from "@/components/Link";
 import Logo from "@/components/Logo";
 
@@ -11,8 +12,11 @@ const Footer = () => {
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-7">
           {/* Logo and Description */}
           <div className="col-span-2 mt-1">
-            <Logo />
-            <p className="mb-8 mt-4 max-w-48 text-sm leading-6 tracking-tight text-zinc-700">
+            <QuickLink href="/" className="block transition hover:opacity-50">
+              <span className="sr-only">{COMPANY_METADATA.name}</span>
+              <Logo />
+            </QuickLink>
+            <p className="mb-0 mt-4 max-w-none text-sm leading-6 tracking-tight text-zinc-700 md:mb-8 md:max-w-48">
               Mission-driven art gallery founded in 2014
             </p>
             <QuickLink
@@ -30,12 +34,7 @@ const Footer = () => {
             <h3 className={headingStyle}>Artists</h3>
             <ul>
               <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Featured
-                </QuickLink>
-              </li>
-              <li>
-                <QuickLink href="#" className={linkStyle}>
+                <QuickLink href="/artists" className={linkStyle}>
                   Directory
                 </QuickLink>
               </li>
@@ -43,49 +42,16 @@ const Footer = () => {
             <h3 className={`${headingStyle} mt-8`}>Exhibitions</h3>
             <ul>
               <li>
-                <QuickLink href="#" className={linkStyle}>
-                  On view
+                <QuickLink href="/exhibitions" className={linkStyle}>
+                  Featured exhibitions
                 </QuickLink>
               </li>
               <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Past
-                </QuickLink>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className={headingStyle}>Projects</h3>
-            <ul>
-              <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Collectors
-                </QuickLink>
-              </li>
-              <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Multi-Family
-                </QuickLink>
-              </li>
-              <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Office
-                </QuickLink>
-              </li>
-              <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Hospitality
-                </QuickLink>
-              </li>
-              <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Healthcare
-                </QuickLink>
-              </li>
-              <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Affordable
+                <QuickLink
+                  href="/exhibitions#past-exhibitions"
+                  className={linkStyle}
+                >
+                  Past exhibitions
                 </QuickLink>
               </li>
             </ul>
@@ -95,28 +61,23 @@ const Footer = () => {
             <h3 className={headingStyle}>Clients</h3>
             <ul>
               <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Overview
+                <QuickLink href="/clients" className={linkStyle}>
+                  Featured clients
                 </QuickLink>
               </li>
               <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Process
+                <QuickLink href="/clients#Commercial" className={linkStyle}>
+                  Commercial
                 </QuickLink>
               </li>
               <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Testimonials
+                <QuickLink href="/clients#Residential" className={linkStyle}>
+                  Residential
                 </QuickLink>
               </li>
               <li>
-                <QuickLink href="#" className={linkStyle}>
-                  For designers
-                </QuickLink>
-              </li>
-              <li>
-                <QuickLink href="#" className={linkStyle}>
-                  For developers
+                <QuickLink href="/clients#Hospitality" className={linkStyle}>
+                  Hospitality
                 </QuickLink>
               </li>
             </ul>
@@ -126,23 +87,23 @@ const Footer = () => {
             <h3 className={headingStyle}>Sugarlift</h3>
             <ul>
               <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Mission
-                </QuickLink>
-              </li>
-              <li>
-                <QuickLink href="#" className={linkStyle}>
+                <QuickLink href="/about" className={linkStyle}>
                   About
                 </QuickLink>
               </li>
               <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Awards
+                <QuickLink href="/about#mission" className={linkStyle}>
+                  Mission
                 </QuickLink>
               </li>
               <li>
-                <QuickLink href="#" className={linkStyle}>
-                  Team
+                <QuickLink href="/about#faq" className={linkStyle}>
+                  FAQ
+                </QuickLink>
+              </li>
+              <li>
+                <QuickLink href="/about#contact" className={linkStyle}>
+                  Contact
                 </QuickLink>
               </li>
             </ul>

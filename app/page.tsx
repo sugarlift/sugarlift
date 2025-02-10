@@ -3,8 +3,6 @@ import { FeaturedProjects } from "@/components/FeaturedProjects";
 import { FeaturedArtists } from "@/components/FeaturedArtists";
 import { Slider } from "@/components/Slider";
 import { ConsultationCTA } from "@/components/ConsultationCTA";
-import { QuickLink } from "@/components/Link";
-import { ArrowRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { FEATURED_EXHIBITIONS, FEATURED_PROJECTS } from "@/app/lib/constants";
 import { SectionHeader } from "@/components/SectionHeader";

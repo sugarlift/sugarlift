@@ -76,13 +76,13 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
     switch (viewMode) {
       case "grid":
         return (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-4">
             {sortedByViews.map((artist) => (
               <QuickLink
                 href={`/artists/${generateSlug(artist.artist_name)}`}
                 key={artist.id}
               >
-                <div className="relative mb-4 aspect-[3/5] overflow-hidden">
+                <div className="relative mb-2 aspect-[3/5] overflow-hidden md:mb-4">
                   {artist.artist_photo && artist.artist_photo[0] && (
                     <Image
                       src={artist.artist_photo[0].url}
@@ -163,13 +163,13 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
   return (
     <>
       <section className="mb-[-4vw]">
-        <div className="container mb-12">
+        <div className="container mb-4 md:mb-12">
           <div className="flex items-center justify-between">
             <div className="relative flex items-center">
               <Search
                 strokeWidth={1.75}
-                size={24}
-                className="cursor-arrow text-zinc-500"
+                size={20}
+                className="cursor-arrow text-zinc-500 lg:h-6 lg:w-6"
                 onClick={handleSearchClick}
               />
               <input
@@ -178,32 +178,32 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
                 placeholder="Artists"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent pl-4 text-[1.3125rem] font-normal tracking-[-0.0375rem] placeholder:text-zinc-700 hover:text-zinc-500 focus:outline-none lg:text-[2rem] lg:tracking-[-0.0625rem]"
+                className="w-full bg-transparent pl-2 text-[1.3125rem] font-normal tracking-[-0.0375rem] placeholder:text-zinc-700 hover:text-zinc-500 focus:outline-none md:pl-4 lg:text-[2rem] lg:tracking-[-0.0625rem]"
               />
             </div>
-            <div className="flex text-[1.3125rem] tracking-[-0.0375rem] lg:text-[2rem] lg:tracking-[-0.0625rem]">
+            <div className="flex space-x-4 text-[1.3125rem] tracking-[-0.0375rem] md:space-x-6 lg:text-[2rem] lg:tracking-[-0.0625rem]">
               <button
                 onClick={() => setViewMode("list")}
-                className={`${viewMode === "list" ? "text-zinc-950" : "text-zinc-300"} hover:text-zinc- px-6 hover:text-zinc-950`}
+                className={`${viewMode === "list" ? "text-zinc-950" : "text-zinc-300"} hover:text-zinc-950`}
               >
                 List
               </button>
               <button
                 onClick={() => setViewMode("grid")}
-                className={`${viewMode === "grid" ? "text-zinc-950" : "text-zinc-300"} px-6 hover:text-zinc-950`}
+                className={`${viewMode === "grid" ? "text-zinc-950" : "text-zinc-300"} hover:text-zinc-950`}
               >
                 Grid
               </button>
               <button
                 onClick={() => setViewMode("directory")}
-                className={`${viewMode === "directory" ? "text-zinc-950" : "text-zinc-300"} px-6 pr-0 hover:text-zinc-950`}
+                className={`${viewMode === "directory" ? "text-zinc-950" : "text-zinc-300"} hover:text-zinc-950`}
               >
                 Directory
               </button>
             </div>
           </div>
         </div>
-        <div className="bg-white py-24">
+        <div className="bg-white pb-16 pt-8 md:py-24">
           <div className="container">
             {filteredArtists.length > 0 ? (
               <div className={`space-y-${viewMode === "list" ? "36" : "0"}`}>

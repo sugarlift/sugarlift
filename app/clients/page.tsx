@@ -35,7 +35,7 @@ export default async function ProjectsPage() {
   return (
     <>
       <section className="container">
-        <SectionHeader title="Clients" pageTitle={true} />
+        <SectionHeader title="Featured clients" pageTitle={true} />
         <div className="relative w-full">
           <Slider slidesPerView={1}>
             {featuredProjects.map((project) => (
@@ -46,10 +46,10 @@ export default async function ProjectsPage() {
       </section>
 
       {Object.entries(projectsByCategory).map(([category, projects]) => (
-        <section key={category} className="container">
+        <section key={category} className="container" id={category}>
           <SectionHeader title={category} />
           <div className="relative w-full">
-            <Slider slidesPerView={2}>
+            <Slider slidesPerView={{ mobile: 1, tablet: 2, desktop: 2 }}>
               {projects.map((project) => (
                 <FeaturedProjects key={project} projects={[project]} />
               ))}

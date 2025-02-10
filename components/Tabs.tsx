@@ -11,7 +11,7 @@ const Tab = forwardRef<HTMLLIElement, TabProps>(
     return (
       <li ref={ref} className="relative flex-shrink-0" onClick={onClick}>
         <button
-          className={`h-full w-full cursor-pointer text-balance border-none bg-transparent px-6 py-6 text-left text-lg tracking-tight transition first:pl-0 last:pr-0 ${
+          className={`h-full w-full cursor-pointer text-balance border-none bg-transparent px-6 py-4 text-left text-base tracking-tight transition first:pl-0 last:pr-0 md:py-6 md:text-lg ${
             isFocused ? "text-[#141414]" : "text-zinc-500 hover:text-zinc-950"
           }`}
         >
@@ -63,7 +63,7 @@ const Tabs: React.FC<TabsProps> = ({
 
   return (
     <div
-      className={`relative mb-12 border-b border-[#F1F1F0] ${className || ""}`}
+      className={`relative mb-4 border-b border-[#F1F1F0] md:mb-12 ${className || ""}`}
     >
       <ul className="no-scrollbar relative flex gap-12 overflow-x-auto">
         {React.Children.map(children, (child, i) => {

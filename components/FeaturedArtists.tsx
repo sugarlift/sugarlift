@@ -19,18 +19,20 @@ export function FeaturedArtists({ artist }: FeaturedArtistsProps) {
 
   return (
     <Link href={`/artists/${artistSlug}`} className="block">
-      <div className="relative aspect-[2/3] w-full overflow-hidden">
-        {artist.artist_photo && artist.artist_photo.length > 0 && (
-          <Image
-            src={artist.artist_photo[0].url}
-            alt={artist.artist_name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-        )}
+      <div className="group">
+        <div className="relative aspect-[2/3] w-full overflow-hidden">
+          {artist.artist_photo && artist.artist_photo.length > 0 && (
+            <Image
+              src={artist.artist_photo[0].url}
+              alt={artist.artist_name}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          )}
+        </div>
+        <h3 className="p-3 pl-0 md:p-4 md:pl-0">{artist.artist_name}</h3>
       </div>
-      <h3 className="p-3 pl-0 md:p-4 md:pl-0">{artist.artist_name}</h3>
     </Link>
   );
 }

@@ -158,11 +158,13 @@ const FAQSection = ({
   return (
     <div className="border-b border-zinc-200 last:border-b-0">
       <button
-        className="flex w-full items-center justify-between py-4 text-left"
+        className="flex w-full items-center justify-between py-4 text-left transition hover:opacity-50"
         onClick={onToggle}
       >
-        <h3>{title}</h3>
-        <span className="ml-4 text-lg">{isExpanded ? "−" : "+"}</span>
+        <h3 className="text-base md:text-lg">{title}</h3>
+        <span className="ml-4 text-base md:text-lg">
+          {isExpanded ? "−" : "+"}
+        </span>
       </button>
       <AnimatePresence>
         {isExpanded && (
@@ -173,7 +175,7 @@ const FAQSection = ({
             transition={{ duration: 0.2, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="space-y-8 pb-12 pl-8">
+            <div className="space-y-8 pb-12 pl-4 md:pl-8">
               {items.map((item, index) => (
                 <div key={index} className="space-y-2">
                   <h4 className="font-medium">{item.question}</h4>
@@ -394,16 +396,17 @@ export function FAQ({ className = "" }: { className?: string }) {
 
   return (
     <section
-      className={`container grid grid-cols-1 gap-8 md:grid-cols-2 ${className}`}
+      id="faq"
+      className={`container mt-8 grid grid-cols-1 gap-8 md:mt-0 md:grid-cols-2 ${className}`}
     >
       <div>
-        <h2 className="mb-10">Frequently asked questions</h2>
+        <h2 className="mb-4 md:mb-10">Frequently asked questions</h2>
         <div className="max-w-[45ch]">
           <p className="text-base">
             Our goal is to provide you with all the information you need to make
             informed decisions about your art projects.
           </p>
-          <p className="mt-8 text-base">
+          <p className="mb-8 mt-4 text-base md:mb-0 md:mt-8">
             If you have any additional queries, please don't hesitate to reach
             out to us at{" "}
             <a href="mailto:hello@sugarlift.com">hello@sugarlift.com</a>.
@@ -414,7 +417,7 @@ export function FAQ({ className = "" }: { className?: string }) {
         <Tabs
           focusedIdx={focusedIdx}
           onChange={setFocusedIdx}
-          className="[&_ul]:flex-col [&_ul]:gap-4 md:[&_ul]:flex-row md:[&_ul]:gap-12"
+          className="[&_ul]:flex-row [&_ul]:gap-4 md:[&_ul]:gap-12"
         >
           {categories.map((category) => (
             <Tab key={category} title={category} />

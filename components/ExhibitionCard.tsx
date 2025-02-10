@@ -28,22 +28,24 @@ export const ExhibitionCard = ({
 
   return (
     <LinkComponent href={`/exhibitions/${exhibition.slug}`}>
-      <div className="relative aspect-video w-full">
-        <Image
-          src={coverImage}
-          alt={`Cover image for ${title}`}
-          fill
-          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-          className="object-cover"
-          loading={priority ? "eager" : "lazy"}
-          priority={priority}
-        />
-      </div>
-      <div className="p-3 pl-0 md:p-4 md:pl-0">
-        <h3 className="text-zinc-700">{title}</h3>
-        <p className="text-sm tracking-tight text-zinc-500 md:mt-0.5">
-          {formattedStartDate} - {formattedEndDate}, {city}
-        </p>
+      <div className="group">
+        <div className="relative aspect-video w-full overflow-hidden">
+          <Image
+            src={coverImage}
+            alt={`Cover image for ${title}`}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            loading={priority ? "eager" : "lazy"}
+            priority={priority}
+          />
+        </div>
+        <div className="p-3 pl-0 md:p-4 md:pl-0">
+          <h3 className="text-zinc-700">{title}</h3>
+          <p className="text-sm tracking-tight text-zinc-500 md:mt-0.5">
+            {formattedStartDate} - {formattedEndDate}, {city}
+          </p>
+        </div>
       </div>
     </LinkComponent>
   );

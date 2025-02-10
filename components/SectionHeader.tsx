@@ -14,7 +14,7 @@ export function SectionHeader({
   href,
   link = false,
   pageTitle = false,
-  className = "mb-5 md:mb-[1.33vw]",
+  className = "mb-4 md:mb-[1.33vw]",
 }: SectionHeaderProps) {
   const HeadingTag = pageTitle ? "h1" : "h2";
 
@@ -23,7 +23,7 @@ export function SectionHeader({
       <div className={className}>
         <QuickLink
           href={href}
-          className="group flex items-center text-zinc-700 transition hover:text-zinc-950"
+          className="group flex items-center text-zinc-800 transition hover:text-zinc-950"
         >
           <HeadingTag>{title}</HeadingTag>
           <ArrowRight

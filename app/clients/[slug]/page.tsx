@@ -48,8 +48,8 @@ export default async function ProjectPage({
   return (
     <>
       <section className="container">
-        <div className="mb-16">
-          <h1 className="mb-4">{project.frontmatter.title}</h1>
+        <div className="mb-5 md:mb-16">
+          <h1 className="mb-1 md:mb-4">{project.frontmatter.title}</h1>
           <p className="text-zinc-500">
             For {project.frontmatter.developer} in{" "}
             {project.frontmatter.location}

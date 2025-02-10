@@ -36,7 +36,7 @@ export default async function ExhibitionsPage() {
           title={
             currentExhibitions.length > 0
               ? "Current exhibitions"
-              : "Exhibitions"
+              : "Featured exhibitions"
           }
           pageTitle={true}
         />
@@ -64,7 +64,7 @@ export default async function ExhibitionsPage() {
         )}
       </section>
 
-      <section className="container">
+      <section className="container" id="past-exhibitions">
         <SectionHeader title="Past exhibitions" />
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {pastExhibitions.map((exhibition) => (

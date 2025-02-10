@@ -26,25 +26,25 @@ const PARTNER_LOGOS = [
 
 export function ConsultationCTA() {
   return (
-    <section className="border-t py-24">
+    <section className="border-t pb-16 pt-12 md:py-24">
       <div className="container">
-        <div className="mb-16 text-center">
-          <h2 className="mx-auto max-w-3xl text-2xl md:text-3xl">
+        <div className="mb-8 text-center md:mb-16">
+          <h2 className="mx-auto max-w-2xl text-2xl md:text-3xl">
             We are proud to partner with some of the leading design firms and
             brands in the industry.
           </h2>
         </div>
 
-        <div className="mb-16 grid grid-cols-3 items-center gap-6 lg:grid-cols-9">
+        <div className="mb-12 grid grid-cols-3 items-center gap-6 md:mb-16 lg:grid-cols-9">
           {PARTNER_LOGOS.map((logo) => (
             <div
               key={logo.name}
-              className="flex items-center justify-center px-4"
+              className="flex items-center justify-center p-4"
             >
               <Image
                 src={logo.src}
                 alt={`${logo.name} logo`}
-                className="h-auto max-h-14 w-full opacity-80 transition-opacity hover:opacity-100"
+                className="h-auto max-h-10 w-full opacity-80 transition-opacity hover:opacity-100 md:max-h-14"
                 style={{ objectFit: "contain" }}
               />
             </div>

@@ -33,20 +33,6 @@ const containerVariants = {
   },
 };
 
-// Add separate CTA container variants with a longer delay
-const ctaContainerVariants = {
-  hidden: {
-    opacity: 0,
-  },
-  visible: {
-    opacity: 1,
-    transition: {
-      delayChildren: 0.4, // Longer delay to start after navigation items
-      staggerChildren: 0.05,
-    },
-  },
-};
-
 // Add item animation variants
 const itemVariants = {
   hidden: {

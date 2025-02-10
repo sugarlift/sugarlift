@@ -33,7 +33,7 @@ export default async function Home() {
           </p>
           <Button asChild className="group">
             <QuickLink
-              href="/contact#inquiry-form"
+              href="/about#contact"
               className="inline-flex items-center rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800"
             >
               Fill an inquiry
@@ -71,7 +71,10 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="container grid grid-cols-1 gap-8 md:grid-cols-2">
+      <section
+        className="container grid grid-cols-1 gap-8 md:grid-cols-2"
+        id="contact"
+      >
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div>
             <h3 className="mb-4">Get in touch</h3>
