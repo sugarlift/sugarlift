@@ -78,7 +78,7 @@ const buttonVariants = {
       duration: 0.3,
       ease: "easeOut",
       // Add delay based on the number of logos plus some extra spacing
-      delay: PARTNER_LOGOS.length * 0.05 + 0.3,
+      delay: 0.5,
     },
   },
 };

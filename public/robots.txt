@@ -1,0 +1,15 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+
+# Host
+Host: https://sugarlift.com
+
+# Sitemaps
+Sitemap: https://sugarlift.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1 
