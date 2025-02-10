@@ -17,7 +17,7 @@ export default async function Home() {
   return (
     <>
       <section className="container">
-        <div className="mb-[1.33vw]">
+        <div>
           <h1 className="big-title mb-6 max-w-[940px] text-balance">
             Sugarlift is a mission-driven art gallery founded in 2014 with a
             dedication to fostering a more sustainable and inspiring art world,

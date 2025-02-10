@@ -39,9 +39,9 @@ export const ExhibitionCard = ({
           priority={priority}
         />
       </div>
-      <div className="p-4 pl-0">
+      <div className="p-3 pl-0 md:p-4 md:pl-0">
         <h3 className="text-zinc-700">{title}</h3>
-        <p className="mt-0.5 text-sm tracking-tight text-zinc-500">
+        <p className="text-sm tracking-tight text-zinc-500 md:mt-0.5">
           {formattedStartDate} - {formattedEndDate}, {city}
         </p>
       </div>

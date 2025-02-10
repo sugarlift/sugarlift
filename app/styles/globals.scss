@@ -83,9 +83,16 @@ body {
 }
 
 section {
-  padding-bottom: 4vw;
+  padding-bottom: 36px;
+  @include bp.breakpoint(lg) {
+    padding-bottom: 4vw;
+  }
+
   &:first-of-type {
-    padding-top: 4vw;
+    padding-top: 36px;
+    @include bp.breakpoint(lg) {
+      padding-top: 4vw;
+    }
   }
 }
 
@@ -112,7 +119,7 @@ h2 {
 }
 
 h3 {
-  font-size: 1rem;
+  font-size: 0.938rem;
   letter-spacing: -0.025rem;
   line-height: 1.5rem;
   font-weight: 500;

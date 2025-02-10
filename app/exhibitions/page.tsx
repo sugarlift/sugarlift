@@ -7,6 +7,7 @@ import { QuickLink } from "@/components/Link";
 import { FEATURED_EXHIBITIONS } from "@/app/lib/constants";
 import { Slider } from "@/components/Slider";
 import { FeaturedExhibitions } from "@/components/FeaturedExhibitions";
+import { SectionHeader } from "@/components/SectionHeader";
 
 async function getFeaturedExhibitionsData() {
   const exhibitions = await getAllExhibitions();
@@ -31,13 +32,14 @@ export default async function ExhibitionsPage() {
   return (
     <>
       <section className="container">
-        <div className="mb-[1.33vw]">
-          <h1>
-            {currentExhibitions.length > 0
+        <SectionHeader
+          title={
+            currentExhibitions.length > 0
               ? "Current exhibitions"
-              : "Exhibitions"}
-          </h1>
-        </div>
+              : "Exhibitions"
+          }
+          pageTitle={true}
+        />
         {currentExhibitions.length > 0 ? (
           <div className="mb-12 grid gap-8">
             {currentExhibitions.map((exhibition) => (
@@ -63,9 +65,7 @@ export default async function ExhibitionsPage() {
       </section>
 
       <section className="container">
-        <div className="mb-[1.33vw]">
-          <h2>Past exhibitions</h2>
-        </div>
+        <SectionHeader title="Past exhibitions" />
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {pastExhibitions.map((exhibition) => (
             <ExhibitionCard

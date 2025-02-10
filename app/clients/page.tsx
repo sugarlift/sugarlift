@@ -5,6 +5,7 @@ import { FeaturedProjects } from "@/components/FeaturedProjects";
 import { Slider } from "@/components/Slider";
 import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { FEATURED_PROJECTS } from "@/app/lib/constants";
+import { SectionHeader } from "@/components/SectionHeader";
 
 async function getFeaturedData() {
   const allProjects = await getAllProjects();
@@ -34,9 +35,7 @@ export default async function ProjectsPage() {
   return (
     <>
       <section className="container">
-        <div className="mb-[1.33vw]">
-          <h1>Clients</h1>
-        </div>
+        <SectionHeader title="Clients" pageTitle={true} />
         <div className="relative w-full">
           <Slider slidesPerView={1}>
             {featuredProjects.map((project) => (
@@ -48,9 +47,7 @@ export default async function ProjectsPage() {
 
       {Object.entries(projectsByCategory).map(([category, projects]) => (
         <section key={category} className="container">
-          <div className="mb-[1.33vw]">
-            <h2>{category}</h2>
-          </div>
+          <SectionHeader title={category} />
           <div className="relative w-full">
             <Slider slidesPerView={2}>
               {projects.map((project) => (

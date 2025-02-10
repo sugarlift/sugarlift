@@ -37,7 +37,7 @@ export default async function Home() {
   return (
     <>
       <section className="container">
-        <div className="mb-[1.33vw]">
+        <div>
           <h1 className="big-title mb-6 max-w-[790px] text-balance">
             Sugarlift helps real estate developers and design firms create
             high-quality art programs for their most important properties.
@@ -66,7 +66,7 @@ export default async function Home() {
       </section>
 
       <section className="container">
-        <div className="mb-[1.33vw]">
+        <div>
           <QuickLink
             href="/art-consulting/projects"
             className="group flex items-center text-zinc-700 transition hover:text-zinc-950"
@@ -100,7 +100,7 @@ export default async function Home() {
       </section>
 
       <section className="container">
-        <div className="mb-[1.33vw]">
+        <div>
           <QuickLink
             href="/artists"
             className="group flex items-center text-zinc-700 transition hover:text-zinc-950"

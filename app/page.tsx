@@ -7,6 +7,7 @@ import { QuickLink } from "@/components/Link";
 import { ArrowRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { FEATURED_EXHIBITIONS, FEATURED_PROJECTS } from "@/app/lib/constants";
+import { SectionHeader } from "@/components/SectionHeader";
 
 // Mark the page as static
 export const dynamic = "force-static";
@@ -36,19 +37,12 @@ export default async function Home() {
   return (
     <>
       <section className="container">
-        <div className="mb-[1.33vw]">
-          <QuickLink
-            href="/exhibitions"
-            className="group flex items-center text-zinc-700 transition hover:text-zinc-950"
-          >
-            <h1>Exhibitions</h1>
-            <ArrowRight
-              className="-me-1 ms-1 mt-0.5 h-4 transition-transform group-hover:translate-x-1 lg:ms-2 lg:mt-1 lg:h-10"
-              strokeWidth={1.75}
-              aria-hidden="true"
-            />
-          </QuickLink>
-        </div>
+        <SectionHeader
+          title="Exhibitions"
+          href="/exhibitions"
+          link={true}
+          pageTitle={true}
+        />
         <div className="relative w-full">
           <Slider slidesPerView={1}>
             {exhibitions.map((exhibition) => (
@@ -62,19 +56,7 @@ export default async function Home() {
       </section>
 
       <section className="container">
-        <div className="mb-[1.33vw]">
-          <QuickLink
-            href="/artists"
-            className="group flex items-center text-zinc-700 transition hover:text-zinc-950"
-          >
-            <h2>Artists</h2>
-            <ArrowRight
-              className="-me-1 ms-1 mt-0.5 h-4 transition-transform group-hover:translate-x-1 lg:ms-2 lg:mt-1 lg:h-10"
-              strokeWidth={1.75}
-              aria-hidden="true"
-            />
-          </QuickLink>
-        </div>
+        <SectionHeader title="Artists" href="/artists" link={true} />
         <div className="relative w-full">
           <Slider slidesPerView={{ mobile: 2, tablet: 3, desktop: 4 }}>
             {artists.map((artist) => (
@@ -85,19 +67,7 @@ export default async function Home() {
       </section>
 
       <section className="container">
-        <div className="mb-[1.33vw]">
-          <QuickLink
-            href="/clients"
-            className="group flex items-center text-zinc-700 transition hover:text-zinc-950"
-          >
-            <h2>Clients</h2>
-            <ArrowRight
-              className="-me-1 ms-1 mt-0.5 h-4 transition-transform group-hover:translate-x-1 lg:ms-2 lg:mt-1 lg:h-10"
-              strokeWidth={1.75}
-              aria-hidden="true"
-            />
-          </QuickLink>
-        </div>
+        <SectionHeader title="Clients" href="/clients" link={true} />
         <div className="relative w-full">
           <Slider slidesPerView={{ mobile: 1, tablet: 2, desktop: 2 }}>
             {projects.map((project) => (

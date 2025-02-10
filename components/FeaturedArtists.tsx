@@ -30,7 +30,7 @@ export function FeaturedArtists({ artist }: FeaturedArtistsProps) {
           />
         )}
       </div>
-      <h3 className="p-4 pl-0 text-zinc-700">{artist.artist_name}</h3>
+      <h3 className="p-3 pl-0 md:p-4 md:pl-0">{artist.artist_name}</h3>
     </Link>
   );
 }

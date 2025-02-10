@@ -16,13 +16,59 @@ const navigation = [
 
 const CTA = [{ name: "About", href: "/about" }];
 
+// Combine navigation items for mobile
+const mobileNavItems = [...navigation, ...CTA];
+
+// Update container animation variants
+const containerVariants = {
+  hidden: {
+    opacity: 0,
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      delayChildren: 0.2,
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+// Add separate CTA container variants with a longer delay
+const ctaContainerVariants = {
+  hidden: {
+    opacity: 0,
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      delayChildren: 0.4, // Longer delay to start after navigation items
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+// Add item animation variants
+const itemVariants = {
+  hidden: {
+    opacity: 0,
+    y: 20,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.3,
+      ease: "easeOut",
+    },
+  },
+};
+
 const linkStyles =
   "text-zinc-700 py-8 text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] transition hover:text-zinc-950";
 const linkStylesActive =
   "shadow-[inset_0_-1px_white,_0_1px_black] transition animate fade-in";
-const mobileLinkStyles =
-  "block text-[0.8125rem] font-medium uppercase tracking-[0.09375rem] text-zinc-700";
-const mobileLinkStylesActive = "";
+const mobileLinkStyles = "block text-3xl tracking-tight text-zinc-700 pb-1";
+const mobileLinkStylesActive = "underline-offset-4 ";
 
 export default function Example() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -172,41 +218,30 @@ export default function Example() {
                 transition={{ duration: 0.2, delay: 0.2, ease: "easeInOut" }}
                 className="mt-6 flow-root"
               >
-                <div className="-my-6 divide-y divide-gray-500/10">
-                  <div className="space-y-2 py-6">
-                    {navigation.map((item) => {
+                <div>
+                  <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="space-y-2 py-2"
+                  >
+                    {mobileNavItems.map((item) => {
                       const active = isActive(item.href, pathname);
                       return (
-                        <QuickLink
-                          key={item.name}
-                          href={item.href}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={`${mobileLinkStyles} ${
-                            active ? mobileLinkStylesActive : ""
-                          }`}
-                        >
-                          {item.name}
-                        </QuickLink>
+                        <motion.div key={item.name} variants={itemVariants}>
+                          <QuickLink
+                            href={item.href}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={`${mobileLinkStyles} ${
+                              active ? mobileLinkStylesActive : ""
+                            }`}
+                          >
+                            {item.name}
+                          </QuickLink>
+                        </motion.div>
                       );
                     })}
-                  </div>
-                  <div className="py-6">
-                    {CTA.map((item) => {
-                      const active = isActive(item.href, pathname);
-                      return (
-                        <QuickLink
-                          key={item.name}
-                          href={item.href}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={`${mobileLinkStyles} ${
-                            active ? mobileLinkStylesActive : ""
-                          }`}
-                        >
-                          {item.name}
-                        </QuickLink>
-                      );
-                    })}
-                  </div>
+                  </motion.div>
                 </div>
               </motion.div>
               <motion.div
