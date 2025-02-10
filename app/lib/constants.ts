@@ -14,6 +14,8 @@ export const FEATURED_EXHIBITIONS = [
 
 export const FEATURED_PROJECTS = [
   "450-washington",
-  "450-washington-2",
-  "450-washington-3",
+  "the-coterie",
+  "1901-n-flagler-sales-office",
+  "hanover-house",
+  "the-set",
 ] as const;

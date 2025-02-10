@@ -5,7 +5,6 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ConsultationCTA } from "@/components/ConsultationCTA";
-import { ArtistCard } from "@/components/ArtistCard";
 
 export async function generateStaticParams() {
   const projects = await getAllProjects();
@@ -28,15 +27,9 @@ export async function generateMetadata({
     };
   }
 
-  const artistNames = project.frontmatter.artistsData
-    ? project.frontmatter.artistsData
-        .map((artist) => artist.artist_name)
-        .join(", ")
-    : project.frontmatter.artists.join(", ");
-
   return {
-    title: `${project.frontmatter.title} by ${artistNames}`,
-    description: `Project by ${artistNames}`,
+    title: `${project.frontmatter.title} by Sugarlift`,
+    description: `Project for ${project.frontmatter.developer} by Sugarlift`,
   };
 }
 
@@ -58,7 +51,8 @@ export default async function ProjectPage({
         <div className="mb-16">
           <h1 className="mb-4">{project.frontmatter.title}</h1>
           <p className="text-zinc-500">
-            For {project.frontmatter.client} in {project.frontmatter.location}
+            For {project.frontmatter.developer} in{" "}
+            {project.frontmatter.location}
           </p>
           <p className="text-zinc-500">
             Completed in {project.frontmatter.year}
@@ -88,17 +82,33 @@ export default async function ProjectPage({
 
       <section className="prose">
         <div dangerouslySetInnerHTML={{ __html: project.content }} />
-        <div className="mt-16 grid max-w-[370px] grid-cols-2 font-medium">
+        <div className="mt-16 grid max-w-[450px] grid-cols-2 font-medium">
           <div>Completed</div>
           <div>{project.frontmatter.year}</div>
-          <div>Client</div>
-          <div>{project.frontmatter.client}</div>
+          <div>Type</div>
+          <div>{project.frontmatter.category}</div>
+          <div>Address</div>
+          <div>
+            <ul className="m-0 p-0">
+              <li className="m-0 list-none p-0">
+                {project.frontmatter.address}
+              </li>
+              <li className="m-0 list-none p-0">
+                {project.frontmatter.location}
+              </li>
+            </ul>
+          </div>
+
+          <div className="mt-4">Developer</div>
+          <div className="mt-4">{project.frontmatter.developer}</div>
           <div>Architect</div>
           <div>{project.frontmatter.architect}</div>
-          <div>Scope</div>
-          <div>{project.frontmatter.scope}</div>
+          <div>Interior Design</div>
+          <div>{project.frontmatter.interior}</div>
           <div>Photography</div>
           <div>{project.frontmatter.photography}</div>
+          <div>Art Partner</div>
+          <div>{project.frontmatter.artPartner}</div>
 
           <div className="mt-4">Services</div>
           <div className="mt-4">
@@ -115,15 +125,6 @@ export default async function ProjectPage({
 
       <section className="prose"></section>
 
-      {project.frontmatter.artistsData && (
-        <section className="container">
-          <div className="space-y-36">
-            {project.frontmatter.artistsData.map((artist, index) => (
-              <ArtistCard key={index} artist={artist} />
-            ))}
-          </div>
-        </section>
-      )}
       <ConsultationCTA />
     </>
   );

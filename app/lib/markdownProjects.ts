@@ -7,33 +7,31 @@ import { remark } from "remark";
 import html from "remark-html";
 import { StaticImageData } from "next/image";
 import { projectImages as importedProjectImages } from "@/content/projects/images";
-import { supabase } from "@/lib/supabase";
-import { Artist } from "@/lib/types";
 
 const projectImages: Record<string, StaticImageData> = importedProjectImages;
 
 interface ProjectFrontmatter {
   title: string;
-  artists: string[];
   startDate: string;
   endDate: string;
   location: string;
   galleryImages: string[];
   category: string;
-  client: string;
+  developer: string;
   architect: string;
   year: string;
   description: string;
   services: string[];
   photography: string;
-  scope: string;
+  interior: string;
+  address: string;
+  artPartner: string;
 }
 
 interface ProcessedProjectFrontmatter
   extends Omit<ProjectFrontmatter, "galleryImages"> {
   coverImage: StaticImageData;
   galleryImages: StaticImageData[];
-  artistsData?: Artist[];
 }
 
 export interface Project {
@@ -45,32 +43,6 @@ export interface Project {
 }
 
 const projectsDirectory = path.join(process.cwd(), "content", "projects");
-
-async function getArtistBySlug(slug: string): Promise<Artist | undefined> {
-  const artistName = slug
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-
-  try {
-    const { data: artist, error: artistError } = await supabase
-      .from("artists")
-      .select("*")
-      .eq("live_in_production", true)
-      .eq("artist_name", artistName)
-      .single();
-
-    if (artistError || !artist) {
-      console.error("Error fetching artist:", artistError);
-      return undefined;
-    }
-
-    return artist;
-  } catch (error) {
-    console.error("Error in getArtistBySlug:", error);
-    return undefined;
-  }
-}
 
 export async function getProjectData(slug: string): Promise<Project | null> {
   try {
@@ -99,11 +71,6 @@ export async function getProjectData(slug: string): Promise<Project | null> {
       return image;
     });
 
-    // Fetch multiple artists' data
-    const artistsData = await Promise.all(
-      frontmatter.artists.map((artistSlug) => getArtistBySlug(artistSlug)),
-    );
-
     return {
       slug,
       title: frontmatter.title,
@@ -112,9 +79,6 @@ export async function getProjectData(slug: string): Promise<Project | null> {
         ...frontmatter,
         coverImage: galleryImages[0],
         galleryImages,
-        artistsData: artistsData.filter(
-          (artist): artist is Artist => artist !== undefined,
-        ),
       },
       content: contentHtml,
     };

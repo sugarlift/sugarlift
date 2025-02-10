@@ -14,9 +14,6 @@ export async function FeaturedProjects({ projects }: FeaturedProjectsProps) {
       ...project,
       frontmatter: {
         ...project.frontmatter,
-        displayName: project.frontmatter.artistsData?.[0]
-          ? project.frontmatter.artistsData[0].artist_name
-          : project.frontmatter.artists?.[0],
       },
     }));
 
