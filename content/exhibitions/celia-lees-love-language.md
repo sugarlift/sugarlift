@@ -1,5 +1,5 @@
 ---
-title: "LOVE LANGUAGE"
+title: "Celia Lees: LOVE LANGUAGE"
 artists: ["celia-lees"]
 startDate: "2024-02-28"
 endDate: "2024-03-28"

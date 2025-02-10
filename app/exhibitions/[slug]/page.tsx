@@ -33,15 +33,9 @@ export async function generateMetadata({
     };
   }
 
-  const artistNames = exhibition.frontmatter.artistsData
-    ? exhibition.frontmatter.artistsData
-        .map((artist) => artist.artist_name)
-        .join(", ")
-    : exhibition.frontmatter.artists.join(", ");
-
   return {
-    title: `${exhibition.frontmatter.title} by ${artistNames}`,
-    description: `Exhibition by ${artistNames}`,
+    title: exhibition.frontmatter.title,
+    description: `Exhibition at Sugarlift Gallery`,
   };
 }
 
@@ -53,19 +47,11 @@ export default async function ExhibitionPage({ params }: { params: Params }) {
     notFound();
   }
 
-  const artistNames = exhibition.frontmatter.artistsData
-    ? exhibition.frontmatter.artistsData
-        .map((artist) => artist.artist_name)
-        .join(", ")
-    : exhibition.frontmatter.artists.join(", ");
-
   return (
     <>
       <section className="container">
         <div className="mb-16">
-          <h1 className="mb-4">
-            {artistNames}: {exhibition.frontmatter.title}
-          </h1>
+          <h1 className="mb-4">{exhibition.frontmatter.title}</h1>
           <p className="text-zinc-500">{exhibition.frontmatter.location}</p>
           <p className="text-zinc-500">
             {exhibition.frontmatter.formattedStartDate} -{" "}

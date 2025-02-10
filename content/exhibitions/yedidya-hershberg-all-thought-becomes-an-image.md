@@ -1,5 +1,5 @@
 ---
-title: "All Thought Becomes an Image"
+title: "Yedidya Hershberg: All Thought Becomes an Image"
 artists: ["yedidya-hershberg"]
 startDate: "2022-06-23"
 endDate: "2022-08-27"

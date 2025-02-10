@@ -1,5 +1,5 @@
 ---
-title: "Liquid Color"
+title: "Jimi Gleason: LIQUID COLOR"
 artists: ["jimi-gleason"]
 startDate: "2024-02-28"
 endDate: "2024-03-28"

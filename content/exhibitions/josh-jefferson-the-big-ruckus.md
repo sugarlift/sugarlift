@@ -1,5 +1,5 @@
 ---
-title: "The Big Ruckus"
+title: "Josh Jefferson: THE BIG RUCKUS"
 artists: ["josh-jefferson"]
 startDate: "2023-03-30"
 endDate: "2023-05-06"

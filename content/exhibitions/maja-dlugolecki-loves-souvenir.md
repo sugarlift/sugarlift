@@ -1,5 +1,5 @@
 ---
-title: "Love's Souvenir"
+title: "Maja Dlugolecki: LOVE'S SOUVENIR"
 artists: ["maja-dlugolecki"]
 startDate: "2023-05-11"
 endDate: "2023-06-17"

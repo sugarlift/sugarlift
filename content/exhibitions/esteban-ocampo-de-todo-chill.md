@@ -1,6 +1,6 @@
 ---
-title: "DE TODO & CHILL"
-artists: ["esteban-ocampo-giraldo"]
+title: "Esteban Ocampo: DE TODO CHILL"
+artists: ["esteban-ocampo"]
 startDate: "2022-09-08"
 endDate: "2022-10-22"
 location: "507 West 27th Street, New York, NY 10"

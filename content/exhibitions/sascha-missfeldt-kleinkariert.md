@@ -1,5 +1,5 @@
 ---
-title: "kleinkariert"
+title: "Sascha Missfeldt: KLEINKARIERT"
 artists: ["sascha-missfeldt"]
 startDate: "2024-07-11"
 endDate: "2024-07-31"

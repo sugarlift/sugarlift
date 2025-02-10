@@ -1,5 +1,5 @@
 ---
-title: "Cham: Mapping Identity"
+title: "Kenny Nguyen: CHAM: MAPPING IDENTITY"
 artists: ["kenny-nguyen"]
 startDate: "2023-12-01"
 endDate: "2024-01-31"

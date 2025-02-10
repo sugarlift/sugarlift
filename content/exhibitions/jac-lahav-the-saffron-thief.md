@@ -1,5 +1,5 @@
 ---
-title: "The Saffron Thief"
+title: "Jac Lahav: THE SAFFRON THIEF"
 artists: ["jac-lahav"]
 startDate: "2023-01-12"
 endDate: "2023-02-11"

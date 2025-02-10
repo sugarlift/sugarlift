@@ -1,5 +1,5 @@
 ---
-title: "Recent Paintings"
+title: "Zoey Frank: Recent Paintings"
 artists: ["zoey-frank"]
 startDate: "2022-10-27"
 endDate: "2023-01-07"
