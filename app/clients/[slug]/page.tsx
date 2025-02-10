@@ -83,43 +83,90 @@ export default async function ProjectPage({
       <section className="prose">
         <div dangerouslySetInnerHTML={{ __html: project.content }} />
         <div className="mt-16 grid max-w-[450px] grid-cols-2 font-medium">
-          <div>Completed</div>
-          <div>{project.frontmatter.year}</div>
-          <div>Type</div>
-          <div>{project.frontmatter.category}</div>
-          <div>Address</div>
-          <div>
-            <ul className="m-0 p-0">
-              <li className="m-0 list-none p-0">
-                {project.frontmatter.address}
-              </li>
-              <li className="m-0 list-none p-0">
-                {project.frontmatter.location}
-              </li>
-            </ul>
-          </div>
+          {project.frontmatter.year && (
+            <>
+              <div>Completed</div>
+              <div>{project.frontmatter.year}</div>
+            </>
+          )}
 
-          <div className="mt-4">Developer</div>
-          <div className="mt-4">{project.frontmatter.developer}</div>
-          <div>Architect</div>
-          <div>{project.frontmatter.architect}</div>
-          <div>Interior Design</div>
-          <div>{project.frontmatter.interior}</div>
-          <div>Photography</div>
-          <div>{project.frontmatter.photography}</div>
-          <div>Art Partner</div>
-          <div>{project.frontmatter.artPartner}</div>
+          {project.frontmatter.category && (
+            <>
+              <div>Type</div>
+              <div>{project.frontmatter.category}</div>
+            </>
+          )}
 
-          <div className="mt-4">Services</div>
-          <div className="mt-4">
-            <ul className="m-0 p-0">
-              {project.frontmatter.services.map((service) => (
-                <li className="m-0 list-none p-0" key={service}>
-                  {service}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {(project.frontmatter.address || project.frontmatter.location) && (
+            <>
+              <div>Address</div>
+              <div>
+                <ul className="m-0 p-0">
+                  {project.frontmatter.address && (
+                    <li className="m-0 list-none p-0">
+                      {project.frontmatter.address}
+                    </li>
+                  )}
+                  {project.frontmatter.location && (
+                    <li className="m-0 list-none p-0">
+                      {project.frontmatter.location}
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </>
+          )}
+
+          {project.frontmatter.developer && (
+            <>
+              <div className="mt-4">Developer</div>
+              <div className="mt-4">{project.frontmatter.developer}</div>
+            </>
+          )}
+
+          {project.frontmatter.architect && (
+            <>
+              <div>Architect</div>
+              <div>{project.frontmatter.architect}</div>
+            </>
+          )}
+
+          {project.frontmatter.interior && (
+            <>
+              <div>Interior Design</div>
+              <div>{project.frontmatter.interior}</div>
+            </>
+          )}
+
+          {project.frontmatter.photography && (
+            <>
+              <div>Photography</div>
+              <div>{project.frontmatter.photography}</div>
+            </>
+          )}
+
+          {project.frontmatter.artPartner && (
+            <>
+              <div>Art Partner</div>
+              <div>{project.frontmatter.artPartner}</div>
+            </>
+          )}
+
+          {project.frontmatter.services &&
+            project.frontmatter.services.length > 0 && (
+              <>
+                <div className="mt-4">Services</div>
+                <div className="mt-4">
+                  <ul className="m-0 p-0">
+                    {project.frontmatter.services.map((service) => (
+                      <li className="m-0 list-none p-0" key={service}>
+                        {service}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
         </div>
       </section>
 
