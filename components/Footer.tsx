@@ -12,10 +12,10 @@ const Footer = () => {
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-7">
           {/* Logo and Description */}
           <div className="col-span-2 mt-1">
-            <QuickLink href="/" className="block transition hover:opacity-50">
+            <div className="block">
               <span className="sr-only">{COMPANY_METADATA.name}</span>
               <Logo />
-            </QuickLink>
+            </div>
             <p className="mb-0 mt-4 max-w-none text-sm leading-6 tracking-tight text-zinc-700 md:mb-8 md:max-w-48">
               Mission-driven art gallery founded in 2014
             </p>

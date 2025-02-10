@@ -44,8 +44,8 @@ export function ConsultationCTA() {
               <Image
                 src={logo.src}
                 alt={`${logo.name} logo`}
-                className="h-auto max-h-10 w-full opacity-80 transition-opacity hover:opacity-100 md:max-h-14"
-                style={{ objectFit: "contain" }}
+                className="h-auto max-h-10 w-auto opacity-80 transition-opacity hover:opacity-100 md:max-h-14"
+                style={{ objectFit: "contain", maxWidth: "100%" }}
               />
             </div>
           ))}

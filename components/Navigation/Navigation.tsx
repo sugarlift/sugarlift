@@ -37,7 +37,7 @@ const containerVariants = {
 const itemVariants = {
   hidden: {
     opacity: 0,
-    y: 20,
+    y: -20,
   },
   visible: {
     opacity: 1,
@@ -103,7 +103,7 @@ export default function Example() {
         <div className="flex">
           <QuickLink
             href="/"
-            className="px-8 py-6 transition hover:opacity-50 md:p-8 md:px-12"
+            className="px-8 py-6 transition md:p-8 md:px-12 md:hover:opacity-50"
             onClick={() => setMobileMenuOpen(false)}
           >
             <span className="sr-only">{COMPANY_METADATA.name}</span>

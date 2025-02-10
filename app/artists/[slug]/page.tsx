@@ -72,6 +72,9 @@ export async function generateMetadata({
     description:
       artist.artist_bio?.slice(0, 160) ||
       `Profile of artist ${artist.artist_name}`,
+    alternates: {
+      canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/artists/${slug}`,
+    },
   };
 }
 
