@@ -5,7 +5,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ConsultationCTA } from "@/components/ConsultationCTA";
-
+import { COMPANY_METADATA } from "@/app/lib/constants";
 export async function generateStaticParams() {
   const projects = await getAllProjects();
   return projects.map((project) => ({
@@ -28,8 +28,8 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${project.frontmatter.title} by Sugarlift`,
-    description: `Project for ${project.frontmatter.developer} by Sugarlift`,
+    title: `${project.frontmatter.title} | ${COMPANY_METADATA.name}`,
+    description: `Art consultation project for ${project.frontmatter.developer} by ${COMPANY_METADATA.name}`,
   };
 }
 

@@ -7,8 +7,16 @@ import ContactForm from "@/components/ContactForm";
 import Image from "next/image";
 import GalleryImage from "@/app/images/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_1_2321f22bdb.jpg";
 import TeamImage from "@/app/images/Sugarlift_Team_Zoey_web_3770655c98.jpg";
+import { Metadata } from "next";
+import { COMPANY_METADATA } from "@/app/lib/constants";
 // Mark the page as static
 export const dynamic = "force-static";
+
+export const metadata: Metadata = {
+  title: `${COMPANY_METADATA.name} | About`,
+  description:
+    "Sugarlift is a contemporary art gallery based in New York, an industry-leading art consulting service, and a global artist community representing today's best and brightest contemporary artists.",
+};
 
 // If you need to revalidate the page periodically (optional)
 export const revalidate = 3600; // revalidate every hour

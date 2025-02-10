@@ -9,15 +9,17 @@ const Footer = () => {
   return (
     <footer className="mt-auto w-full border-t">
       <div className="container py-10 md:py-[4vw]">
-        <div className="grid grid-cols-2 gap-8 lg:grid-cols-7">
+        <div className="grid grid-cols-2 gap-8 lg:grid-cols-8">
           {/* Logo and Description */}
-          <div className="col-span-2 mt-1">
+          <div className="col-span-3 mt-1">
             <div className="block">
               <span className="sr-only">{COMPANY_METADATA.name}</span>
               <Logo />
             </div>
-            <p className="mb-0 mt-4 max-w-none text-sm leading-6 tracking-tight text-zinc-700 md:mb-8 md:max-w-48">
-              Mission-driven art gallery founded in 2014
+            <p className="mb-4 mt-4 max-w-none text-sm leading-6 tracking-tight text-zinc-700 md:mb-8 md:max-w-[45ch]">
+              A contemporary art gallery based in New York, an industry-leading
+              art consulting service, and a global artist community representing
+              today's best and brightest contemporary artists.
             </p>
             <QuickLink
               href="https://instagram.com/sugarlift"
@@ -25,7 +27,7 @@ const Footer = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              @sugarlift
+              Follow @sugarlift on Instagram
             </QuickLink>
           </div>
 
@@ -39,7 +41,7 @@ const Footer = () => {
                 </QuickLink>
               </li>
             </ul>
-            <h3 className={`${headingStyle} mt-8`}>Exhibitions</h3>
+            <h3 className={`${headingStyle} mt-6`}>Exhibitions</h3>
             <ul>
               <li>
                 <QuickLink href="/exhibitions" className={linkStyle}>
@@ -111,19 +113,19 @@ const Footer = () => {
 
           {/* Gallery Info */}
           <div>
-            <h3 className={headingStyle}>Gallery</h3>
+            <h3 className={`${headingStyle} mb-2`}>Gallery</h3>
             <div>
               <div className="flex justify-between">
-                <p className="text-sm text-zinc-700">Tue - Fri</p>
-                <p className="text-sm text-zinc-700">10AM – 6PM</p>
+                <p className="mb-1 text-sm text-zinc-700">Tue - Fri</p>
+                <p className="mb-1 text-sm text-zinc-700">10AM – 6PM</p>
               </div>
               <div className="flex justify-between">
-                <p className="text-sm text-zinc-700">Sat</p>
-                <p className="text-sm text-zinc-700">12PM – 6PM</p>
+                <p className="mb-1 text-sm text-zinc-700">Sat</p>
+                <p className="mb-1 text-sm text-zinc-700">12PM – 6PM</p>
               </div>
               <div className="flex justify-between">
-                <p className="text-sm text-zinc-700">Sun - Mon</p>
-                <p className="text-sm text-zinc-700">Closed</p>
+                <p className="mb-1 text-sm text-zinc-700">Sun - Mon</p>
+                <p className="mb-1 text-sm text-zinc-700">Closed</p>
               </div>
 
               <QuickLink

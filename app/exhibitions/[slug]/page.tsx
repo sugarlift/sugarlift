@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { ArtistCard } from "@/components/ArtistCard";
+import { COMPANY_METADATA } from "@/app/lib/constants";
 
 type Params = Promise<{ slug: string }>;
 
@@ -34,7 +35,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: exhibition.frontmatter.title,
+    title: `${exhibition.frontmatter.title} | ${COMPANY_METADATA.name}`,
     description: `Exhibition at Sugarlift Gallery`,
   };
 }

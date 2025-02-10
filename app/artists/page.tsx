@@ -3,8 +3,16 @@
 import { ArtistsClient } from "./client";
 import { supabase } from "@/lib/supabase";
 import { Artist } from "@/lib/types";
+import { COMPANY_METADATA } from "@/app/lib/constants";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: `${COMPANY_METADATA.name} | Artists`,
+  description:
+    "Sugarlift is a contemporary art gallery based in New York, an industry-leading art consulting service, and a global artist community representing today's best and brightest contemporary artists.",
+};
 
 async function getArtists(): Promise<Artist[]> {
   const { data, error } = await supabase

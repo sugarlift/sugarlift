@@ -6,6 +6,14 @@ import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { supabase } from "@/lib/supabase";
 import { FEATURED_EXHIBITIONS, FEATURED_PROJECTS } from "@/app/lib/constants";
 import { SectionHeader } from "@/components/SectionHeader";
+import { Metadata } from "next";
+import { COMPANY_METADATA } from "@/app/lib/constants";
+
+export const metadata: Metadata = {
+  title: `${COMPANY_METADATA.name} | Welcome`,
+  description:
+    "Sugarlift is a contemporary art gallery based in New York, an industry-leading art consulting service, and a global artist community representing today's best and brightest contemporary artists.",
+};
 
 // Mark the page as static
 export const dynamic = "force-static";

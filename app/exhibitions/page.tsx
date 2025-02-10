@@ -8,6 +8,14 @@ import { FEATURED_EXHIBITIONS } from "@/app/lib/constants";
 import { Slider } from "@/components/Slider";
 import { FeaturedExhibitions } from "@/components/FeaturedExhibitions";
 import { SectionHeader } from "@/components/SectionHeader";
+import { Metadata } from "next";
+import { COMPANY_METADATA } from "@/app/lib/constants";
+
+export const metadata: Metadata = {
+  title: `${COMPANY_METADATA.name} | Exhibitions`,
+  description:
+    "Sugarlift is a contemporary art gallery based in New York, an industry-leading art consulting service, and a global artist community representing today's best and brightest contemporary artists.",
+};
 
 async function getFeaturedExhibitionsData() {
   const exhibitions = await getAllExhibitions();

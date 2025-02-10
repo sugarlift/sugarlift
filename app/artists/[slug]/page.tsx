@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { ArtistCard } from "@/components/ArtistCard";
 import { incrementViewCount } from "./actions";
+import { COMPANY_METADATA } from "@/app/lib/constants";
 
 async function getArtistBySlug(slug: string): Promise<Artist | null> {
   const { data: artists, error: artistError } = await supabase
@@ -68,12 +69,12 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${artist.artist_name} | Artist Profile`,
+    title: `${artist.artist_name} | ${COMPANY_METADATA.name} Artist`,
     description:
       artist.artist_bio?.slice(0, 160) ||
       `Profile of artist ${artist.artist_name}`,
     alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/artists/${slug}`,
+      canonical: `${COMPANY_METADATA.url}/artists/${slug}`,
     },
   };
 }
