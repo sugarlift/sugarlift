@@ -87,72 +87,67 @@ export function ConsultationCTA() {
   return (
     <section className="border-t pb-16 pt-12 md:py-24">
       <div className="container">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key="header"
-            variants={itemVariants}
-            initial="hidden"
-            whileInView="visible"
-            exit="exit"
-            viewport={{ once: true }}
-            className="mb-8 text-center md:mb-16"
-          >
-            <h2 className="mx-auto max-w-2xl text-2xl md:text-3xl">
-              We are proud to partner with some of the leading design firms and
-              brands in the industry.
-            </h2>
-          </motion.div>
+        <motion.div
+          key="header"
+          variants={itemVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="mb-8 text-center md:mb-16"
+        >
+          <h2 className="mx-auto max-w-2xl text-2xl md:text-3xl">
+            We are proud to partner with some of the leading design firms and
+            brands in the industry.
+          </h2>
+        </motion.div>
 
-          <motion.div
-            key="logos-container"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            exit="exit"
-            viewport={{ once: true }}
-            className="mb-12 grid grid-cols-3 items-center gap-6 md:mb-16 lg:grid-cols-9"
-          >
-            {PARTNER_LOGOS.map((logo) => (
-              <motion.div
-                key={logo.name}
-                variants={itemVariants}
-                className="flex items-center justify-center p-4"
-              >
-                <Image
-                  src={logo.src}
-                  alt={`${logo.name} logo`}
-                  className="h-auto max-h-10 w-auto opacity-80 transition-opacity hover:opacity-100 md:max-h-14"
-                  style={{ objectFit: "contain", maxWidth: "100%" }}
-                />
-              </motion.div>
-            ))}
-          </motion.div>
+        <motion.div
+          key="logos-container"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="mb-12 grid grid-cols-3 items-center gap-6 md:mb-16 lg:grid-cols-9"
+        >
+          {PARTNER_LOGOS.map((logo) => (
+            <motion.div
+              key={logo.name}
+              variants={itemVariants}
+              className="flex items-center justify-center p-4"
+            >
+              <Image
+                src={logo.src}
+                alt={`${logo.name} logo`}
+                className="h-auto max-h-10 w-auto opacity-80 transition-opacity hover:opacity-100 md:max-h-14"
+                style={{ objectFit: "contain", maxWidth: "100%" }}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
 
-          <motion.div
-            key="cta-button"
-            variants={buttonVariants} // Use the new button variants
-            initial="hidden"
-            whileInView="visible"
-            exit="exit"
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            <Button asChild className="group">
-              <QuickLink
-                href="/about"
-                className="inline-flex items-center rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800"
-              >
-                Learn more about Sugarlift
-                <ArrowRight
-                  className="-me-1 ms-2 mt-0.5 transition-transform group-hover:translate-x-0.5"
-                  size={16}
-                  strokeWidth={2}
-                  aria-hidden="true"
-                />
-              </QuickLink>
-            </Button>
-          </motion.div>
-        </AnimatePresence>
+        <motion.div
+          key="cta-button"
+          variants={buttonVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <Button asChild className="group">
+            <QuickLink
+              href="/about"
+              className="inline-flex items-center rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800"
+            >
+              Learn more about Sugarlift
+              <ArrowRight
+                className="-me-1 ms-2 mt-0.5 transition-transform group-hover:translate-x-0.5"
+                size={16}
+                strokeWidth={2}
+                aria-hidden="true"
+              />
+            </QuickLink>
+          </Button>
+        </motion.div>
       </div>
     </section>
   );
