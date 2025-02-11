@@ -16,10 +16,8 @@ const Footer = () => {
               <span className="sr-only">{COMPANY_METADATA.name}</span>
               <Logo />
             </div>
-            <p className="mb-4 mt-4 max-w-none text-sm leading-6 tracking-tight text-zinc-700 md:mb-8 md:max-w-[45ch]">
-              A contemporary art gallery based in New York, an industry-leading
-              art consulting service, and a global artist community representing
-              today's best and brightest contemporary artists.
+            <p className="mt-4 max-w-none text-sm leading-6 tracking-tight text-zinc-700 md:mb-8 md:max-w-[45ch]">
+              Sugarlift is a contemporary art gallery based in New York City.
             </p>
             <QuickLink
               href="https://instagram.com/sugarlift"

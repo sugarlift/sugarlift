@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { HelpCircle } from "lucide-react";
 
 interface SyncPanelProps {
   title: string;
@@ -147,6 +148,21 @@ export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
               <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"></div>
             </label>
             <span className="text-sm font-medium text-gray-900">Bulk Mode</span>
+            <div className="group relative">
+              <HelpCircle
+                size={16}
+                className="text-gray-400 hover:text-gray-600"
+              />
+              <div className="absolute bottom-full left-1/2 mb-2 hidden w-[300px] -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-sm text-white group-hover:block">
+                <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                <div className="max-w-xs">
+                  Bulk mode processes records in batches with concurrent
+                  operations, significantly speeding up large syncs. Regular
+                  mode processes one record at a time, which is safer but
+                  slower.
+                </div>
+              </div>
+            </div>
           </div>
 
           {isBulkMode && (
