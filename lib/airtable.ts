@@ -16,7 +16,7 @@ const AIRTABLE_PERSONAL_ACCESS_TOKEN =
 // Configure Airtable with a lower rate limit
 const airtable = new Airtable({
   apiKey: AIRTABLE_PERSONAL_ACCESS_TOKEN,
-  requestTimeout: 25000, // 25 seconds timeout
+  requestTimeout: 120000, // 120 seconds timeout
   endpointUrl: "https://api.airtable.com",
 });
 
