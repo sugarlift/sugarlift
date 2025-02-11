@@ -46,9 +46,34 @@ async function uploadArtistPhotoToSupabase(
   };
 }
 
-export async function syncArtistsToSupabase() {
+export interface SyncProgress {
+  current: number;
+  total: number;
+}
+
+export interface SyncOptions {
+  mode?: "full" | "incremental";
+  batchSize?: number;
+  concurrency?: number;
+  onProgress?: (progress: SyncProgress) => void;
+}
+
+export interface SyncResult {
+  processedCount: number;
+}
+
+export async function syncArtistsToSupabase(
+  options: SyncOptions = {},
+): Promise<SyncResult> {
   try {
-    console.log("Starting artist sync process...");
+    const {
+      mode = "full",
+      batchSize = 10,
+      concurrency = 3,
+      onProgress,
+    } = options;
+
+    console.log(`Starting artist sync process in ${mode} mode...`);
     const table = getArtistsTable();
 
     // Get existing records from Supabase to compare timestamps
@@ -79,78 +104,101 @@ export async function syncArtistsToSupabase() {
     let processedCount = 0;
     const errors: SyncError[] = [];
 
-    // Process each record
-    for (const record of records) {
-      try {
-        const recordId = record.id;
-        const lastModified = new Date(record.get("Last Modified") as string);
+    // Process records in batches
+    for (let i = 0; i < records.length; i += batchSize) {
+      const batch = records.slice(i, i + batchSize);
 
-        // Skip if record exists and hasn't been modified since last sync
-        const existingLastUpdate = existingArtistsMap.get(recordId);
-        if (existingLastUpdate && lastModified <= existingLastUpdate) {
-          console.log(`Skipping unchanged record: ${recordId}`);
-          continue;
-        }
+      // Process batch with concurrency limit
+      await Promise.all(
+        batch
+          .map(async (record) => {
+            try {
+              const recordId = record.id;
+              const lastModified = new Date(
+                record.get("Last Modified") as string,
+              );
 
-        console.log(
-          `Processing artist: ${recordId} - ${record.get("Artist Name")}`,
-        );
+              // Skip if in incremental mode and record hasn't changed
+              const existingLastUpdate = existingArtistsMap.get(recordId);
+              if (
+                mode === "incremental" &&
+                existingLastUpdate &&
+                lastModified <= existingLastUpdate
+              ) {
+                console.log(`Skipping unchanged record: ${recordId}`);
+                return;
+              }
 
-        // Process photos
-        const rawPhotos = record.get("Artist Photo");
-        const artist_photo: StoredAttachment[] = [];
+              console.log(
+                `Processing artist: ${recordId} - ${record.get("Artist Name")}`,
+              );
 
-        if (Array.isArray(rawPhotos)) {
-          for (const att of rawPhotos) {
-            const attachment = await uploadArtistPhotoToSupabase(att, {
-              artist_name: record.get("Artist Name") as string,
-            });
-            artist_photo.push(attachment);
-          }
-        }
+              // Process photos
+              const rawPhotos = record.get("Artist Photo");
+              const artist_photo: StoredAttachment[] = [];
 
-        // Create artist object
-        const artist: Artist = {
-          id: record.id,
-          artist_name:
-            (record.get("Artist Name") as string) || "Unknown Artist",
-          artist_bio: (record.get("Artist Bio") as string) || null,
-          born: (record.get("Born") as string) || null,
-          city: (record.get("City") as string) || null,
-          state: (record.get("State (USA)") as string) || null,
-          country: (record.get("Country") as string) || null,
-          ig_handle: (record.get("IG Handle") as string) || null,
-          website: (record.get("Website") as string) || null,
-          live_in_production: true,
-          artist_photo,
-          created_at: new Date().toISOString(),
-          updated_at: lastModified.toISOString(), // Use Airtable's last modified time
-        };
+              if (Array.isArray(rawPhotos)) {
+                for (const att of rawPhotos) {
+                  const attachment = await uploadArtistPhotoToSupabase(att, {
+                    artist_name: record.get("Artist Name") as string,
+                  });
+                  artist_photo.push(attachment);
+                }
+              }
 
-        // Upsert to Supabase
-        const { error: upsertError } = await supabaseAdmin
-          .from("artists")
-          .upsert(artist);
+              // Create artist object
+              const artist: Artist = {
+                id: record.id,
+                artist_name:
+                  (record.get("Artist Name") as string) || "Unknown Artist",
+                artist_bio: (record.get("Artist Bio") as string) || null,
+                born: (record.get("Born") as string) || null,
+                city: (record.get("City") as string) || null,
+                state: (record.get("State (USA)") as string) || null,
+                country: (record.get("Country") as string) || null,
+                ig_handle: (record.get("IG Handle") as string) || null,
+                website: (record.get("Website") as string) || null,
+                live_in_production: true,
+                artist_photo,
+                created_at: new Date().toISOString(),
+                updated_at: lastModified.toISOString(), // Use Airtable's last modified time
+              };
 
-        if (upsertError) throw upsertError;
+              // Upsert to Supabase
+              const { error: upsertError } = await supabaseAdmin
+                .from("artists")
+                .upsert(artist);
 
-        processedCount++;
-        console.log(`Successfully processed artist: ${artist.artist_name}`);
-      } catch (error) {
-        console.error(`Error processing artist ${record.id}:`, error);
-        errors.push({
-          record_id: record.id,
-          error: error instanceof Error ? error.message : "Unknown error",
-          timestamp: new Date().toISOString(),
-        });
-      }
+              if (upsertError) throw upsertError;
+
+              processedCount++;
+
+              // Report progress if callback provided
+              if (onProgress) {
+                onProgress({
+                  current: processedCount,
+                  total: records.length,
+                });
+              }
+
+              console.log(
+                `Successfully processed artist: ${artist.artist_name}`,
+              );
+            } catch (error) {
+              console.error(`Error processing artist ${record.id}:`, error);
+              errors.push({
+                record_id: record.id,
+                error: error instanceof Error ? error.message : "Unknown error",
+                timestamp: new Date().toISOString(),
+              });
+            }
+          })
+          .slice(0, concurrency), // Limit concurrent operations
+      );
     }
 
     return {
-      success: true,
       processedCount,
-      total: records.length,
-      errors: errors.length > 0 ? errors : null,
     };
   } catch (error) {
     console.error("Artist sync error:", error);

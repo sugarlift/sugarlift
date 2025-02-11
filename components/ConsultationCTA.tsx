@@ -4,7 +4,7 @@ import Image from "next/image";
 import { QuickLink } from "@/components/Link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import AvrokoLogo from "@/components/LogoCarousel/AVRO.png";
 import RafflesLogo from "@/components/LogoCarousel/Raffles.png";
 import RottetLogo from "@/components/LogoCarousel/RottetStudio.png";
