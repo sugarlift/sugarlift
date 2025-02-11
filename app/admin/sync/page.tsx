@@ -16,6 +16,11 @@ export default function AdminSyncPage() {
           description="Sync artwork data from Airtable to Supabase"
           endpoint="/api/sync/artwork"
         />
+        <SyncPanel
+          title="Artist Sync"
+          description="Sync artist data from Airtable to Supabase"
+          endpoint="/api/sync/artists"
+        />
       </div>
     </div>
   );

@@ -8,13 +8,19 @@ import Logger from "@/lib/logger";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { mode, batchSize, concurrency } = body;
+    const {
+      mode = "bulk",
+      batchSize = 50,
+      concurrency = 3,
+    } = await request.json();
+
+    Logger.debug("Starting artist sync", { mode, batchSize, concurrency });
 
     const result = await syncArtistsToSupabase({
       mode,
       batchSize,
       concurrency,
+      skipExistingCheck: mode === "bulk",
       onProgress: (progress: SyncProgress) => {
         progressEmitter.emitProgress({
           type: "artists",
@@ -31,9 +37,10 @@ export async function POST(request: Request) {
       status: "complete",
     });
 
+    Logger.info("Artist sync completed", { result });
     return NextResponse.json(result);
   } catch (error) {
-    Logger.error("Artist sync error:", error);
+    Logger.error("Artist sync failed", error);
     progressEmitter.emitProgress({
       type: "artists",
       current: 0,
@@ -41,9 +48,6 @@ export async function POST(request: Request) {
       status: "error",
       message: error instanceof Error ? error.message : "Unknown error",
     });
-    return NextResponse.json(
-      { error: "Failed to sync artists" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Sync failed" }, { status: 500 });
   }
 }

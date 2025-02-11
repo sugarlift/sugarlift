@@ -1,11 +1,15 @@
 import { getArtistsTable } from "./airtable";
 import { supabaseAdmin } from "./supabase";
-import {
-  Artist,
-  AirtableAttachment,
-  StoredAttachment,
-  SyncError,
-} from "./types";
+import { Artist, AirtableAttachment, StoredAttachment } from "./types";
+import pLimit from "p-limit";
+import Logger from "@/lib/logger";
+import { PostgrestError } from "@supabase/supabase-js";
+
+interface SyncError {
+  message: string;
+  details: string;
+  error: Error | PostgrestError;
+}
 
 async function uploadArtistPhotoToSupabase(
   attachment: AirtableAttachment,
@@ -46,162 +50,186 @@ async function uploadArtistPhotoToSupabase(
   };
 }
 
-export interface SyncProgress {
+export type SyncProgress = {
   current: number;
   total: number;
-}
+};
 
-export interface SyncOptions {
-  mode?: "full" | "incremental";
+type SyncOptions = {
+  mode?: "bulk" | "incremental";
   batchSize?: number;
   concurrency?: number;
+  skipExistingCheck?: boolean;
   onProgress?: (progress: SyncProgress) => void;
-}
+};
 
 export interface SyncResult {
   processedCount: number;
+  totalRecords: number;
 }
 
-export async function syncArtistsToSupabase(
-  options: SyncOptions = {},
-): Promise<SyncResult> {
+export async function syncArtistsToSupabase({
+  mode = "bulk",
+  batchSize = 50,
+  concurrency = 3,
+  skipExistingCheck = false,
+  onProgress,
+}: SyncOptions): Promise<SyncResult> {
+  const artistsTable = getArtistsTable();
+  let processedCount = 0;
+  let totalRecords = 0;
+  const errors: SyncError[] = [];
+
   try {
-    const {
-      mode = "full",
-      batchSize = 10,
-      concurrency = 3,
-      onProgress,
-    } = options;
+    // Get existing artists from Supabase if needed
+    let existingArtists: Set<string> = new Set();
+    if (!skipExistingCheck) {
+      const { data: existing } = await supabaseAdmin
+        .from("artists")
+        .select("id");
+      existingArtists = new Set(existing?.map((a) => a.id) || []);
+    }
 
-    console.log(`Starting artist sync process in ${mode} mode...`);
-    const table = getArtistsTable();
+    // Fetch records from Airtable
+    const records = await artistsTable.select().all();
+    totalRecords = records.length;
 
-    // Get existing records from Supabase to compare timestamps
-    const { data: existingArtists, error: fetchError } = await supabaseAdmin
-      .from("artists")
-      .select("id, updated_at")
-      .eq("live_in_production", true);
+    // Process in batches with concurrency limit
+    const limit = pLimit(concurrency);
+    const batches = [];
 
-    if (fetchError) throw fetchError;
-
-    // Create a map of existing artists with their last update time
-    const existingArtistsMap = new Map(
-      existingArtists?.map((artist) => [
-        artist.id,
-        new Date(artist.updated_at),
-      ]) || [],
-    );
-
-    // Get all records that are marked for production from Airtable
-    const records = await table
-      .select({
-        filterByFormula: "{Add to Website} = 1",
-      })
-      .all();
-
-    console.log(`Found ${records.length} artist records to process`);
-
-    let processedCount = 0;
-    const errors: SyncError[] = [];
-
-    // Process records in batches
     for (let i = 0; i < records.length; i += batchSize) {
       const batch = records.slice(i, i + batchSize);
+      batches.push(batch);
+    }
 
-      // Process batch with concurrency limit
-      await Promise.all(
-        batch
-          .map(async (record) => {
-            try {
-              const recordId = record.id;
-              const lastModified = new Date(
-                record.get("Last Modified") as string,
-              );
+    await Promise.all(
+      batches.map((batch) =>
+        limit(async () => {
+          try {
+            const artistData = await Promise.all(
+              batch
+                .map(async (record) => {
+                  const name = record.get("Artist Name");
+                  // Skip records without required fields
+                  if (!name) {
+                    Logger.warn(
+                      `Skipping record ${record.id} - missing artist name`,
+                    );
+                    return null;
+                  }
 
-              // Skip if in incremental mode and record hasn't changed
-              const existingLastUpdate = existingArtistsMap.get(recordId);
-              if (
-                mode === "incremental" &&
-                existingLastUpdate &&
-                lastModified <= existingLastUpdate
-              ) {
-                console.log(`Skipping unchanged record: ${recordId}`);
-                return;
-              }
+                  // Handle photo uploads
+                  let artistPhotos: StoredAttachment[] = [];
+                  const photos = record.get(
+                    "Artist Photo",
+                  ) as unknown as AirtableAttachment[];
+                  if (photos && photos.length > 0) {
+                    try {
+                      artistPhotos = await Promise.all(
+                        photos.map((photo) =>
+                          uploadArtistPhotoToSupabase(photo, {
+                            artist_name: name as string,
+                          }),
+                        ),
+                      );
+                    } catch (error) {
+                      Logger.error(
+                        `Failed to upload photos for artist ${name}:`,
+                        error,
+                      );
+                    }
+                  }
 
-              console.log(
-                `Processing artist: ${recordId} - ${record.get("Artist Name")}`,
-              );
+                  return {
+                    id: record.id,
+                    artist_name: name as string,
+                    city: record.get("City") as string,
+                    state: record.get("State (USA)") as string,
+                    country: record.get("Country") as string,
+                    born: record.get("Born") as string,
+                    artist_bio: record.get("Artist Bio") as string,
+                    artist_photo: artistPhotos,
+                    website: record.get("Website") as string,
+                    ig_handle: record.get("IG Handle") as string,
+                    view_count: (record.get("View Count") as number) || 0,
+                    live_in_production: record.get("Add to Website") as boolean,
+                  };
+                })
+                .filter(
+                  (artist): artist is NonNullable<typeof artist> =>
+                    artist !== null,
+                ),
+            );
 
-              // Process photos
-              const rawPhotos = record.get("Artist Photo");
-              const artist_photo: StoredAttachment[] = [];
+            const validArtistData = artistData.filter(
+              (artist): artist is NonNullable<typeof artist> => artist !== null,
+            );
 
-              if (Array.isArray(rawPhotos)) {
-                for (const att of rawPhotos) {
-                  const attachment = await uploadArtistPhotoToSupabase(att, {
-                    artist_name: record.get("Artist Name") as string,
-                  });
-                  artist_photo.push(attachment);
+            if (validArtistData.length === 0) {
+              return; // Skip empty batches
+            }
+
+            if (mode === "incremental") {
+              // Only insert/update records that don't exist or have changed
+              for (const artist of validArtistData) {
+                if (!existingArtists.has(artist.id)) {
+                  const { error } = await supabaseAdmin
+                    .from("artists")
+                    .upsert([artist]);
+                  if (error) {
+                    errors.push({
+                      message: error.message,
+                      details: `Failed to upsert artist: ${artist.artist_name}`,
+                      error: error as PostgrestError,
+                    });
+                  }
                 }
               }
-
-              // Create artist object
-              const artist: Artist = {
-                id: record.id,
-                artist_name:
-                  (record.get("Artist Name") as string) || "Unknown Artist",
-                artist_bio: (record.get("Artist Bio") as string) || null,
-                born: (record.get("Born") as string) || null,
-                city: (record.get("City") as string) || null,
-                state: (record.get("State (USA)") as string) || null,
-                country: (record.get("Country") as string) || null,
-                ig_handle: (record.get("IG Handle") as string) || null,
-                website: (record.get("Website") as string) || null,
-                live_in_production: true,
-                artist_photo,
-                created_at: new Date().toISOString(),
-                updated_at: lastModified.toISOString(), // Use Airtable's last modified time
-              };
-
-              // Upsert to Supabase
-              const { error: upsertError } = await supabaseAdmin
+            } else {
+              // Bulk mode: Upsert all records
+              const { error } = await supabaseAdmin
                 .from("artists")
-                .upsert(artist);
-
-              if (upsertError) throw upsertError;
-
-              processedCount++;
-
-              // Report progress if callback provided
-              if (onProgress) {
-                onProgress({
-                  current: processedCount,
-                  total: records.length,
+                .upsert(validArtistData);
+              if (error) {
+                errors.push({
+                  message: error.message,
+                  details: `Failed to upsert batch of ${validArtistData.length} artists`,
+                  error: error as PostgrestError,
                 });
               }
-
-              console.log(
-                `Successfully processed artist: ${artist.artist_name}`,
-              );
-            } catch (error) {
-              console.error(`Error processing artist ${record.id}:`, error);
-              errors.push({
-                record_id: record.id,
-                error: error instanceof Error ? error.message : "Unknown error",
-                timestamp: new Date().toISOString(),
-              });
             }
-          })
-          .slice(0, concurrency), // Limit concurrent operations
+
+            processedCount += validArtistData.length;
+            onProgress?.({ current: processedCount, total: totalRecords });
+          } catch (error) {
+            errors.push({
+              message: error instanceof Error ? error.message : "Unknown error",
+              details: "Failed to process batch",
+              error: error as Error,
+            });
+          }
+        }),
+      ),
+    );
+
+    if (errors.length > 0) {
+      throw new Error(
+        `Sync completed with ${errors.length} errors: ${errors
+          .map((e: SyncError) => e.message)
+          .join(", ")}`,
       );
     }
 
-    return {
+    Logger.info("Artist sync completed", {
       processedCount,
-    };
+      totalRecords,
+      mode,
+    });
+
+    return { processedCount, totalRecords };
   } catch (error) {
-    console.error("Artist sync error:", error);
+    Logger.error("Error syncing artists:", error);
     throw error;
   }
 }
