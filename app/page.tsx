@@ -41,46 +41,48 @@ export default async function Home() {
 
   return (
     <>
-      <section className="container">
-        <SectionHeader
-          title="Exhibitions"
-          href="/exhibitions"
-          link={true}
-          pageTitle={true}
-        />
-        <div className="relative w-full">
-          <Slider slidesPerView={1}>
-            {exhibitions.map((exhibition) => (
-              <FeaturedExhibitions
-                key={exhibition}
-                exhibitions={[exhibition]}
-              />
-            ))}
-          </Slider>
-        </div>
-      </section>
+      <div className="overflow-x-hidden">
+        <section className="container">
+          <SectionHeader
+            title="Exhibitions"
+            href="/exhibitions"
+            link={true}
+            pageTitle={true}
+          />
+          <div className="relative w-full">
+            <Slider slidesPerView={1}>
+              {exhibitions.map((exhibition) => (
+                <FeaturedExhibitions
+                  key={exhibition}
+                  exhibitions={[exhibition]}
+                />
+              ))}
+            </Slider>
+          </div>
+        </section>
 
-      <section className="container">
-        <SectionHeader title="Artists" href="/artists" link={true} />
-        <div className="relative w-full">
-          <Slider slidesPerView={{ mobile: 2, tablet: 3, desktop: 4 }}>
-            {artists.map((artist) => (
-              <FeaturedArtists key={artist.id} artist={artist} />
-            ))}
-          </Slider>
-        </div>
-      </section>
+        <section className="container">
+          <SectionHeader title="Artists" href="/artists" link={true} />
+          <div className="relative w-full">
+            <Slider slidesPerView={{ mobile: 2, tablet: 3, desktop: 4 }}>
+              {artists.map((artist) => (
+                <FeaturedArtists key={artist.id} artist={artist} />
+              ))}
+            </Slider>
+          </div>
+        </section>
 
-      <section className="container">
-        <SectionHeader title="Clients" href="/clients" link={true} />
-        <div className="relative w-full">
-          <Slider slidesPerView={{ mobile: 1, tablet: 2, desktop: 2 }}>
-            {projects.map((project) => (
-              <FeaturedProjects key={project} projects={[project]} />
-            ))}
-          </Slider>
-        </div>
-      </section>
+        <section className="container">
+          <SectionHeader title="Clients" href="/clients" link={true} />
+          <div className="relative w-full">
+            <Slider slidesPerView={{ mobile: 1, tablet: 2, desktop: 2 }}>
+              {projects.map((project) => (
+                <FeaturedProjects key={project} projects={[project]} />
+              ))}
+            </Slider>
+          </div>
+        </section>
+      </div>
     </>
   );
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import { Artist } from "@/lib/types";
 import { QuickLink } from "@/components/Link";
 import { Slider } from "@/components/Slider";
@@ -5,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface ArtistCardProps {
   artist: Artist;
@@ -17,6 +20,36 @@ export function ArtistCard({
   disableLink = false,
   showInquiryButton = false,
 }: ArtistCardProps) {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    // Simple delay to ensure DOM is updated
+    if (artist.artwork) {
+      setTimeout(() => setIsReady(true), 100);
+    }
+  }, [artist.artwork]);
+
+  // Create slides array only when ready
+  const slides = isReady
+    ? [
+        // First slide - Artist photo
+        {
+          url: artist.artist_photo[0].url,
+          alt: artist.artist_name,
+          id: "artist-photo",
+        },
+        // First 4 artwork slides
+        ...(artist.artwork ?? [])
+          .slice(0, 2)
+          .filter((artwork) => artwork.artwork_images?.[0])
+          .map((artwork) => ({
+            url: artwork.artwork_images[0].url,
+            alt: `${artist.artist_name} - ${artwork.title || "Artwork"}`,
+            id: artwork.id,
+          })),
+      ]
+    : [];
+
   const ArtistInfo = () => (
     <>
       <h2>{artist.artist_name}</h2>
@@ -73,17 +106,18 @@ export function ArtistCard({
       </div>
       <div className="col-span-3">
         {artist.artist_photo && artist.artist_photo.length > 0 ? (
-          <Slider slidesPerView={3}>
-            {artist.artist_photo.map((attachment, index) => (
-              <div key={index} className="relative aspect-[2/3] w-full">
+          <Slider slidesPerView={3} key={isReady ? "ready" : "loading"}>
+            {slides.map((slide) => (
+              <div key={slide.id} className="relative aspect-[2/3] w-full">
                 {disableLink ? (
                   <Image
-                    src={attachment.url}
-                    alt={`${artist.artist_name} - Work ${index + 1}`}
+                    src={slide.url}
+                    alt={slide.alt}
                     fill
                     loading="eager"
                     className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+                    quality={80}
                   />
                 ) : (
                   <Link
@@ -91,12 +125,13 @@ export function ArtistCard({
                     className="text-xl transition-colors hover:text-gray-600"
                   >
                     <Image
-                      src={attachment.url}
-                      alt={`${artist.artist_name} - Work ${index + 1}`}
+                      src={slide.url}
+                      alt={slide.alt}
                       fill
                       loading="eager"
                       className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+                      quality={80}
                     />
                   </Link>
                 )}

@@ -154,7 +154,7 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
 
   return (
     <>
-      <section className="mb-[-4vw]">
+      <section className="mb-[-4vw] overflow-x-hidden">
         <div className="container mb-4 md:mb-12">
           <div className="flex items-center justify-between">
             <div className="relative flex items-center">

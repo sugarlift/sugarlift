@@ -15,19 +15,39 @@ export const metadata: Metadata = {
 };
 
 async function getArtists(): Promise<Artist[]> {
-  const { data, error } = await supabase
+  // First get all artists
+  const { data: artists, error: artistError } = await supabase
     .from("artists")
     .select("*")
     .eq("live_in_production", true)
     .order("view_count", { ascending: false })
     .order("artist_name", { ascending: true });
 
-  if (error) {
-    console.error("Error fetching artists:", error);
+  if (artistError) {
+    console.error("Error fetching artists:", artistError);
     return [];
   }
 
-  return data || [];
+  // Then get artwork for all artists
+  const { data: artworks, error: artworkError } = await supabase
+    .from("artwork")
+    .select("*")
+    .eq("live_in_production", true)
+    .in("artist_name", artists?.map((artist) => artist.artist_name) || []);
+
+  if (artworkError) {
+    console.error("Error fetching artworks:", artworkError);
+    return artists || [];
+  }
+
+  // Combine artists with their artwork
+  return (artists || []).map((artist) => ({
+    ...artist,
+    artwork:
+      artworks?.filter(
+        (artwork) => artwork.artist_name === artist.artist_name,
+      ) || [],
+  }));
 }
 
 export default async function ArtistsPage() {

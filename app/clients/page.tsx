@@ -42,34 +42,36 @@ export default async function ProjectsPage() {
 
   return (
     <>
-      <section className="container">
-        <SectionHeader title="Featured clients" pageTitle={true} />
-        <div className="relative w-full">
-          <Slider slidesPerView={1}>
-            {featuredProjects.map((project) => (
-              <FeaturedProjects key={project} projects={[project]} />
-            ))}
-          </Slider>
-        </div>
-      </section>
-
-      {Object.entries(projectsByCategory).map(([category, projects]) => (
-        <section key={category} className="container" id={category}>
-          <SectionHeader title={category} />
+      <div className="overflow-x-hidden">
+        <section className="container">
+          <SectionHeader title="Featured clients" pageTitle={true} />
           <div className="relative w-full">
-            <Slider slidesPerView={{ mobile: 1, tablet: 2, desktop: 2 }}>
-              {projects.map((project) => (
+            <Slider slidesPerView={1}>
+              {featuredProjects.map((project) => (
                 <FeaturedProjects key={project} projects={[project]} />
               ))}
             </Slider>
           </div>
         </section>
-      ))}
 
-      <div className="border-t border-zinc-200">
-        <FAQ />
+        {Object.entries(projectsByCategory).map(([category, projects]) => (
+          <section key={category} className="container" id={category}>
+            <SectionHeader title={category} />
+            <div className="relative w-full">
+              <Slider slidesPerView={{ mobile: 1, tablet: 2, desktop: 2 }}>
+                {projects.map((project) => (
+                  <FeaturedProjects key={project} projects={[project]} />
+                ))}
+              </Slider>
+            </div>
+          </section>
+        ))}
+
+        <div className="border-t border-zinc-200">
+          <FAQ />
+        </div>
+        <ConsultationCTA />
       </div>
-      <ConsultationCTA />
     </>
   );
 }

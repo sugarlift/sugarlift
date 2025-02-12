@@ -26,7 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} flex flex-col antialiased`}>
         <Navigation />
-        <main className="flex-grow overflow-x-hidden">{children}</main>
+        <main className="flex-grow">{children}</main>
         <Footer />
       </body>
     </html>

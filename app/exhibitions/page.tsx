@@ -38,18 +38,44 @@ export default async function ExhibitionsPage() {
 
   return (
     <>
-      <section className="container">
-        <SectionHeader
-          title={
-            currentExhibitions.length > 0
-              ? "Current exhibitions"
-              : "Featured exhibitions"
-          }
-          pageTitle={true}
-        />
-        {currentExhibitions.length > 0 ? (
-          <div className="mb-12 grid gap-8">
-            {currentExhibitions.map((exhibition) => (
+      <div className="overflow-x-hidden">
+        <section className="container">
+          <SectionHeader
+            title={
+              currentExhibitions.length > 0
+                ? "Current exhibitions"
+                : "Featured exhibitions"
+            }
+            pageTitle={true}
+          />
+          {currentExhibitions.length > 0 ? (
+            <div className="mb-12 grid gap-8">
+              {currentExhibitions.map((exhibition) => (
+                <ExhibitionCard
+                  key={exhibition.slug}
+                  exhibition={exhibition}
+                  LinkComponent={QuickLink}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="relative w-full">
+              <Slider slidesPerView={1}>
+                {featuredExhibitions.map((exhibition) => (
+                  <FeaturedExhibitions
+                    key={exhibition.slug}
+                    exhibitions={[exhibition.slug]}
+                  />
+                ))}
+              </Slider>
+            </div>
+          )}
+        </section>
+
+        <section className="container" id="past-exhibitions">
+          <SectionHeader title="Past exhibitions" />
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            {pastExhibitions.map((exhibition) => (
               <ExhibitionCard
                 key={exhibition.slug}
                 exhibition={exhibition}
@@ -57,32 +83,8 @@ export default async function ExhibitionsPage() {
               />
             ))}
           </div>
-        ) : (
-          <div className="relative w-full">
-            <Slider slidesPerView={1}>
-              {featuredExhibitions.map((exhibition) => (
-                <FeaturedExhibitions
-                  key={exhibition.slug}
-                  exhibitions={[exhibition.slug]}
-                />
-              ))}
-            </Slider>
-          </div>
-        )}
-      </section>
-
-      <section className="container" id="past-exhibitions">
-        <SectionHeader title="Past exhibitions" />
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          {pastExhibitions.map((exhibition) => (
-            <ExhibitionCard
-              key={exhibition.slug}
-              exhibition={exhibition}
-              LinkComponent={QuickLink}
-            />
-          ))}
-        </div>
-      </section>
+        </section>
+      </div>
     </>
   );
 }
