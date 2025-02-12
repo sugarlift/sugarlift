@@ -14,9 +14,9 @@ export const FEATURED_EXHIBITIONS = [
 ] as const;
 
 export const FEATURED_PROJECTS = [
-  "450-washington",
-  "the-coterie",
-  "1901-n-flagler-sales-office",
-  "hanover-house",
+  "60-columbus-circle",
   "the-set",
+  "ocean-club",
+  "50-hudson-yards",
+  "200-amsterdam",
 ] as const;
