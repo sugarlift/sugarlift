@@ -21,6 +21,7 @@ services:
   ]
 galleryImages:
   [
+    "/images/hanover-house/Sugarlift_Hanover_House_Art_Program_Installation_Photos_Colin Miller_39.jpg",
     "/images/hanover-house/Sugarlift_Hanover_House_Art_Program_Installation_Photos_Colin Miller_25.jpg",
     "/images/hanover-house/Sugarlift_Hanover_House_Art_Program_Installation_Photos_Colin Miller_26.jpg",
     "/images/hanover-house/Sugarlift_Hanover_House_Art_Program_Installation_Photos_Colin Miller_27.jpg",
@@ -33,7 +34,6 @@ galleryImages:
     "/images/hanover-house/Sugarlift_Hanover_House_Art_Program_Installation_Photos_Colin Miller_36.jpg",
     "/images/hanover-house/Sugarlift_Hanover_House_Art_Program_Installation_Photos_Colin Miller_37.jpg",
     "/images/hanover-house/Sugarlift_Hanover_House_Art_Program_Installation_Photos_Colin Miller_38.jpg",
-    "/images/hanover-house/Sugarlift_Hanover_House_Art_Program_Installation_Photos_Colin Miller_39.jpg",
     "/images/hanover-house/Sugarlift_Hanover_House_Art_Program_Installation_Photos_Colin Miller_40.jpg",
     "/images/hanover-house/Sugarlift_Hanover_House_Art_Program_Installation_Photos_Colin Miller_41.jpg",
     "/images/hanover-house/Sugarlift_Hanover_House_Art_Program_Installation_Photos_Colin Miller_42.jpg",

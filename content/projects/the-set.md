@@ -21,6 +21,7 @@ services:
   ]
 galleryImages:
   [
+    "/images/the-set/Sugarlift_Install_The_Set_36_Web.jpg",
     "/images/the-set/Sugarlift_Install_The_Set_1_Web.jpg",
     "/images/the-set/Sugarlift_Install_The_Set_3_Web.jpg",
     "/images/the-set/Sugarlift_Install_The_Set_4_Web.jpg",
@@ -55,7 +56,6 @@ galleryImages:
     "/images/the-set/Sugarlift_Install_The_Set_33_Web.jpg",
     "/images/the-set/Sugarlift_Install_The_Set_34_Web.jpg",
     "/images/the-set/Sugarlift_Install_The_Set_35_Web.jpg",
-    "/images/the-set/Sugarlift_Install_The_Set_36_Web.jpg",
     "/images/the-set/Sugarlift_Install_The_Set_37_Web.jpg",
     "/images/the-set/Sugarlift_Install_The_Set_38_Web.jpg",
   ]

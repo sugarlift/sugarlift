@@ -20,13 +20,13 @@ services:
   ]
 galleryImages:
   [
+    "/images/greywind/Sugarlift_Greywind_7.jpg",
     "/images/greywind/Sugarlift_Greywind_1.jpg",
     "/images/greywind/Sugarlift_Greywind_2.jpg",
     "/images/greywind/Sugarlift_Greywind_3.jpg",
     "/images/greywind/Sugarlift_Greywind_4.jpg",
     "/images/greywind/Sugarlift_Greywind_5.jpg",
     "/images/greywind/Sugarlift_Greywind_6.jpg",
-    "/images/greywind/Sugarlift_Greywind_7.jpg",
     "/images/greywind/Sugarlift_Greywind_8.jpg",
     "/images/greywind/Sugarlift_Greywind_11.jpg",
     "/images/greywind/Sugarlift_Greywind_12.jpg",

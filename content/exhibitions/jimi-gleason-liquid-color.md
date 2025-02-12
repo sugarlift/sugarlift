@@ -7,8 +7,8 @@ location: "507 West 27th Street, New York, NY 10"
 city: "New York"
 galleryImages:
   [
-    "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_1.jpg",
     "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_2.jpg",
+    "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_1.jpg",
     "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_3.jpg",
     "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_4.jpg",
     "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_5.jpg",

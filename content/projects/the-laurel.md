@@ -22,8 +22,8 @@ services:
   ]
 galleryImages:
   [
-    "/images/the-laurel/Sugarlift_The_Laurel_575_Rosemary_1.jpg",
     "/images/the-laurel/Sugarlift_The_Laurel_575_Rosemary_2.jpg",
+    "/images/the-laurel/Sugarlift_The_Laurel_575_Rosemary_1.jpg",
     "/images/the-laurel/Sugarlift_The_Laurel_575_Rosemary_3.jpg",
     "/images/the-laurel/Sugarlift_The_Laurel_575_Rosemary_4.jpg",
     "/images/the-laurel/Sugarlift_The_Laurel_575_Rosemary_5.jpg",

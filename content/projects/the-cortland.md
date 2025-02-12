@@ -20,6 +20,7 @@ services:
   ]
 galleryImages:
   [
+    "/images/the-cortland/Sugarlift_Install_The Cortland_8_Web.jpg",
     "/images/the-cortland/Sugarlift_Install_The Cortland_1_Web.jpg",
     "/images/the-cortland/Sugarlift_Install_The Cortland_2_Web.jpg",
     "/images/the-cortland/Sugarlift_Install_The Cortland_3_Web.jpg",

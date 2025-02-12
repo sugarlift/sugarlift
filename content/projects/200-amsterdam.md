@@ -21,6 +21,7 @@ services:
   ]
 galleryImages:
   [
+    "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_13_Web.jpg",
     "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_1_Web.jpg",
     "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_2_Web.jpg",
     "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_3_Web.jpg",

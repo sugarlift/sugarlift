@@ -20,12 +20,12 @@ services:
   ]
 galleryImages:
   [
+    "/images/sora/Sugarlift_1020_Spring_Street_Art_Program_Installation_Photos_6.jpg",
     "/images/sora/Sugarlift_1020_Spring_Street_Art_Program_Installation_Photos_1.jpg",
     "/images/sora/Sugarlift_1020_Spring_Street_Art_Program_Installation_Photos_2.jpg",
     "/images/sora/Sugarlift_1020_Spring_Street_Art_Program_Installation_Photos_3.jpg",
     "/images/sora/Sugarlift_1020_Spring_Street_Art_Program_Installation_Photos_4.jpg",
     "/images/sora/Sugarlift_1020_Spring_Street_Art_Program_Installation_Photos_5.jpg",
-    "/images/sora/Sugarlift_1020_Spring_Street_Art_Program_Installation_Photos_6.jpg",
   ]
 ---
 

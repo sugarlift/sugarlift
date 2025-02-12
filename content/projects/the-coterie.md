@@ -20,12 +20,12 @@ services:
   ]
 galleryImages:
   [
+    "/images/the-coterie/Sugarlift_Install_The_Coterie_6_Web.jpg",
     "/images/the-coterie/Sugarlift_Install_The_Coterie_1_Web.jpg",
     "/images/the-coterie/Sugarlift_Install_The_Coterie_2_Web.jpg",
     "/images/the-coterie/Sugarlift_Install_The_Coterie_3_Web.jpg",
     "/images/the-coterie/Sugarlift_Install_The_Coterie_4_Web.jpg",
     "/images/the-coterie/Sugarlift_Install_The_Coterie_5_Web.jpg",
-    "/images/the-coterie/Sugarlift_Install_The_Coterie_6_Web.jpg",
     "/images/the-coterie/Sugarlift_Install_The_Coterie_7_Web.jpg",
     "/images/the-coterie/Sugarlift_Install_The_Coterie_8_Web.jpg",
     "/images/the-coterie/Sugarlift_Install_The_Coterie_9_Web.jpg",
