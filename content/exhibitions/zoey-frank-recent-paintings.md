@@ -8,20 +8,12 @@ city: "New York"
 galleryImages:
   [
     "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_1.jpg",
-    "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_2.jpg",
-    "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_3.jpg",
-    "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_4.jpg",
-    "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_5.jpg",
     "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_6.jpg",
-    "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_7.jpg",
-    "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_8.jpg",
-    "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_9.jpg",
+    "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_4.jpg",
+    "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_3.jpg",
     "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_10.jpg",
     "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_11.jpg",
     "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_12.jpg",
-    "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_13.jpg",
-    "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_14.jpg",
-    "/images/zoey-frank-recent-paintings/Sugarlift_Gallery_Zoey_Frank_Recent_Paintings_15.jpg",
   ]
 ---
 

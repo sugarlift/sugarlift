@@ -8,24 +8,15 @@ city: "New York"
 galleryImages:
   [
     "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_1.jpg",
-    "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_2.jpg",
-    "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_3.jpg",
-    "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_4.jpg",
     "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_5.jpg",
     "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_6.jpg",
-    "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_7.jpg",
-    "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_8.jpg",
     "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_9.jpg",
     "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_10.jpg",
-    "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_11.jpg",
-    "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_12.jpg",
-    "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_13.jpg",
     "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_14.jpg",
-    "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_15.jpg",
-    "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_16.jpg",
-    "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_17.jpg",
+    "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_13.jpg",
     "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_18.jpg",
     "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_19.jpg",
+    "/images/kenny-nguyen-cham-mapping-identity/Sugarlift_Gallery_Kenny Nguyen_Cham_16.jpg",
   ]
 ---
 

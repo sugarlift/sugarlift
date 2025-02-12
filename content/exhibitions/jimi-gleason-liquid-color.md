@@ -8,14 +8,11 @@ city: "New York"
 galleryImages:
   [
     "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_2.jpg",
-    "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_1.jpg",
-    "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_3.jpg",
-    "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_4.jpg",
     "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_5.jpg",
     "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_6.jpg",
+    "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_3.jpg",
     "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_7.jpg",
     "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_8.jpg",
-    "/images/jimi-gleason-liquid-color/Sugarlift_Gallery_Jimi Gleason_Liquid_Color_2024_9.jpg",
   ]
 ---
 

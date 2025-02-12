@@ -8,15 +8,14 @@ city: "New York"
 galleryImages:
   [
     "/images/maja-dlugolecki-loves-souvenir/Sugarlift_Gallery_Maja_Dlugolecki_Loves_Souvenir_4.jpg",
-    "/images/maja-dlugolecki-loves-souvenir/Sugarlift_Gallery_Maja_Dlugolecki_Loves_Souvenir_1.jpg",
     "/images/maja-dlugolecki-loves-souvenir/Sugarlift_Gallery_Maja_Dlugolecki_Loves_Souvenir_2.jpg",
     "/images/maja-dlugolecki-loves-souvenir/Sugarlift_Gallery_Maja_Dlugolecki_Loves_Souvenir_3.jpg",
+    "/images/maja-dlugolecki-loves-souvenir/Sugarlift_Gallery_Maja_Dlugolecki_Loves_Souvenir_10.jpg",
     "/images/maja-dlugolecki-loves-souvenir/Sugarlift_Gallery_Maja_Dlugolecki_Loves_Souvenir_5.jpg",
-    "/images/maja-dlugolecki-loves-souvenir/Sugarlift_Gallery_Maja_Dlugolecki_Loves_Souvenir_6.jpg",
     "/images/maja-dlugolecki-loves-souvenir/Sugarlift_Gallery_Maja_Dlugolecki_Loves_Souvenir_7.jpg",
+    "/images/maja-dlugolecki-loves-souvenir/Sugarlift_Gallery_Maja_Dlugolecki_Loves_Souvenir_1.jpg",
     "/images/maja-dlugolecki-loves-souvenir/Sugarlift_Gallery_Maja_Dlugolecki_Loves_Souvenir_8.jpg",
     "/images/maja-dlugolecki-loves-souvenir/Sugarlift_Gallery_Maja_Dlugolecki_Loves_Souvenir_9.jpg",
-    "/images/maja-dlugolecki-loves-souvenir/Sugarlift_Gallery_Maja_Dlugolecki_Loves_Souvenir_10.jpg",
   ]
 ---
 

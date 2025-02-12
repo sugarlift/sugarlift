@@ -9,10 +9,8 @@ galleryImages:
   [
     "/images/josh-jefferson-the-big-ruckus/Sugarlift_Gallery_Josh_Jefferson_The_Big_Ruckus_1.jpg",
     "/images/josh-jefferson-the-big-ruckus/Sugarlift_Gallery_Josh_Jefferson_The_Big_Ruckus_2.jpg",
-    "/images/josh-jefferson-the-big-ruckus/Sugarlift_Gallery_Josh_Jefferson_The_Big_Ruckus_3.jpg",
-    "/images/josh-jefferson-the-big-ruckus/Sugarlift_Gallery_Josh_Jefferson_The_Big_Ruckus_4.jpg",
     "/images/josh-jefferson-the-big-ruckus/Sugarlift_Gallery_Josh_Jefferson_The_Big_Ruckus_5.jpg",
-    "/images/josh-jefferson-the-big-ruckus/Sugarlift_Gallery_Josh_Jefferson_The_Big_Ruckus_6.jpg",
+    "/images/josh-jefferson-the-big-ruckus/Sugarlift_Gallery_Josh_Jefferson_The_Big_Ruckus_4.jpg",
   ]
 ---
 

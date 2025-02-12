@@ -7,15 +7,13 @@ location: "507 West 27th Street, New York, NY 10"
 city: "New York"
 galleryImages:
   [
+    "/images/esteban-ocampo-giraldo-de-todo-chill/Sugarlift_Gallery_Esteban_Ocampo_Giraldo_De_Todo_Chill_8.jpg",
     "/images/esteban-ocampo-giraldo-de-todo-chill/Sugarlift_Gallery_Esteban_Ocampo_Giraldo_De_Todo_Chill_1.jpg",
     "/images/esteban-ocampo-giraldo-de-todo-chill/Sugarlift_Gallery_Esteban_Ocampo_Giraldo_De_Todo_Chill_2.jpg",
     "/images/esteban-ocampo-giraldo-de-todo-chill/Sugarlift_Gallery_Esteban_Ocampo_Giraldo_De_Todo_Chill_3.jpg",
     "/images/esteban-ocampo-giraldo-de-todo-chill/Sugarlift_Gallery_Esteban_Ocampo_Giraldo_De_Todo_Chill_4.jpg",
-    "/images/esteban-ocampo-giraldo-de-todo-chill/Sugarlift_Gallery_Esteban_Ocampo_Giraldo_De_Todo_Chill_5.jpg",
     "/images/esteban-ocampo-giraldo-de-todo-chill/Sugarlift_Gallery_Esteban_Ocampo_Giraldo_De_Todo_Chill_6.jpg",
     "/images/esteban-ocampo-giraldo-de-todo-chill/Sugarlift_Gallery_Esteban_Ocampo_Giraldo_De_Todo_Chill_7.jpg",
-    "/images/esteban-ocampo-giraldo-de-todo-chill/Sugarlift_Gallery_Esteban_Ocampo_Giraldo_De_Todo_Chill_8.jpg",
-    "/images/esteban-ocampo-giraldo-de-todo-chill/Sugarlift_Gallery_Esteban_Ocampo_Giraldo_De_Todo_Chill_9.jpg",
   ]
 ---
 

@@ -9,17 +9,12 @@ galleryImages:
   [
     "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_1.jpg",
     "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_2.jpg",
-    "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_3.jpg",
     "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_4.jpg",
     "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_5.jpg",
     "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_6.jpg",
     "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_7.jpg",
     "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_8.jpg",
     "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_9.jpg",
-    "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_10.jpg",
-    "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_11.jpg",
-    "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_12.jpg",
-    "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_13.jpg",
     "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_14.jpg",
     "/images/jac-lahav-the-saffron-thief/Sugarlift_Gallery_Jac_Lahav_The_Saffron_Thief_15.jpg",
   ]

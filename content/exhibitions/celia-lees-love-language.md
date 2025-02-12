@@ -8,8 +8,6 @@ city: "New York"
 galleryImages:
   [
     "/images/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_1.jpg",
-    "/images/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_2.jpg",
-    "/images/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_3.jpg",
     "/images/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_4.jpg",
     "/images/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_5.jpg",
     "/images/celia-lees-love-language/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_6.jpg",

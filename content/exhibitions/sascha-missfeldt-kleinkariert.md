@@ -9,17 +9,11 @@ galleryImages:
   [
     "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_10.jpg",
     "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_1.jpg",
-    "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_2.jpg",
-    "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_3.jpg",
     "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_4.jpg",
-    "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_5.jpg",
-    "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_6.jpg",
-    "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_7.jpg",
     "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_8.jpg",
-    "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_9.jpg",
     "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_11.jpg",
-    "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_12.jpg",
     "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_13.jpg",
+    "/images/sascha-missfeldt-kleinkariert/Sugarlift_Gallery_Sascha_Missfeldt_Kleinkariert_2.jpg",
   ]
 ---
 
