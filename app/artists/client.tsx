@@ -32,15 +32,6 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    initialArtists.forEach((artist) => {
-      if (artist.artist_photo?.[0]) {
-        const img = document.createElement("img");
-        img.src = artist.artist_photo[0].url;
-      }
-    });
-  }, [initialArtists]);
-
-  useEffect(() => {
     const filtered = initialArtists.filter((artist) => {
       const artistName = artist.artist_name.toLowerCase();
       return artistName.includes(searchQuery.toLowerCase());
@@ -87,6 +78,8 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
                       src={artist.artist_photo[0].url}
                       alt={artist.artist_name}
                       fill
+                      loading="lazy"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 25vw"
                       className="object-cover transition-transform duration-300"
                     />
                   )}

@@ -2,12 +2,12 @@ import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Artist } from "@/lib/types";
 import { Metadata } from "next";
-import Image from "next/image";
 import { Instagram, Globe } from "lucide-react";
 import Link from "next/link";
 import { ArtistCard } from "@/components/ArtistCard";
 import { incrementViewCount } from "./actions";
 import { COMPANY_METADATA } from "@/app/lib/constants";
+import { ArtworkGrid } from "./ArtworkGrid";
 
 async function getArtistBySlug(slug: string): Promise<Artist | null> {
   const { data: artists, error: artistError } = await supabase
@@ -153,45 +153,7 @@ export default async function ArtistPage({ params }: { params: Params }) {
       </section>
 
       <section className="container">
-        {artist.artwork && artist.artwork.length > 0 && (
-          <div className="mt-12">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
-              {artist.artwork.map((artwork) => (
-                <div key={artwork.id}>
-                  {artwork.artwork_images && (
-                    <div>
-                      {artwork.artwork_images.map((image, imageIndex) => (
-                        <div
-                          key={imageIndex}
-                          className="relative aspect-square"
-                        >
-                          <Image
-                            src={image.url}
-                            alt={
-                              artwork.title ||
-                              `Artwork ${imageIndex + 1} by ${artist.artist_name}`
-                            }
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <div className="p-4 pl-0">
-                    <h3 className="text-zinc-700">
-                      {artwork.title || "Untitled"}, {artwork.year}
-                    </h3>
-                    <p className="mt-0.5 text-sm tracking-tight text-zinc-500">
-                      {artwork.medium}, {artwork.height}"H x {artwork.width}"W
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <ArtworkGrid artwork={artist.artwork} />
       </section>
     </>
   );
