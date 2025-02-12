@@ -24,7 +24,7 @@ export default async function Home() {
     <>
       <section className="container">
         <div>
-          <h1 className="big-title mb-6 max-w-[940px] text-balance">
+          <h1 className="big-title mb-6 max-w-[750px]">
             Sugarlift started with a simple question: how can we contribute to
             creating better art, putting it into the world, and supporting the
             artists who make it?
@@ -42,45 +42,52 @@ export default async function Home() {
             artists could push the limits of their creativity and create new
             ideas that make the world more interesting and richer as a result.
           </p>
-          <h2 className="mb-8 max-w-3xl text-3xl">
-            There are several beliefs that are fundamental to Sugarlift, some of
-            which we have believed from the beginning and some of which we have
-            learned from experience.
-          </h2>
-          <p className="mb-8 max-w-3xl">
-            <ul>
-              <li className="mb-8 max-w-3xl">
-                <b>We put artists first</b> — the purpose of our gallery is to
-                nurture the development of the artist community. We are always
-                in service of this idea. We believe in building one relationship
-                at a time to understand the goals and needs of each artist, to
-                see how we can form a truly symbiotic relationship. Our goal is
-                to help you realize your potential creatively and in your career
-                growth.
-              </li>
-              <li className="mb-8 max-w-3xl">
-                <b>We believe in the independent artist</b> — the world has
-                changed. Gone are the days when artists needed an exclusive
-                gallery relationship in order to sell their work or grow in
-                their career. Today, artists have more responsibility for
-                developing their own brand and have the ability to communicate
-                directly to certain audiences. We applaud the benefits of this
-                new world for artists; however, we also understand the new
-                challenges it presents.
-              </li>
-              <li className="mb-8 max-w-3xl">
-                <b>
-                  We believe that galleries and in-person exhibitions are still
-                  very important—actually essential.
-                </b>{" "}
-                We believe that in this new world, the independent artist should
-                have several relationships with galleries, curators, and
-                advisors, and also sell directly from their studios. Maximizing
-                each artist’s opportunities should be a shared goal for all of
-                us.
-              </li>
-            </ul>
-          </p>
+        </div>
+      </section>
+
+      <section className="container">
+        <h2 className="mb-8 max-w-3xl text-xl md:text-3xl">
+          There are several beliefs that are fundamental to Sugarlift, some of
+          which we have believed from the beginning and some of which we have
+          learned from experience.
+        </h2>
+
+        <h3 className="mb-2 max-w-3xl text-lg font-semibold">
+          We put artists first
+        </h3>
+        <p className="mb-8 max-w-3xl pl-0 md:pl-8">
+          The purpose of our gallery is to nurture the development of the artist
+          community. We are always in service of this idea. We believe in
+          building one relationship at a time to understand the goals and needs
+          of each artist, to see how we can form a truly symbiotic relationship.
+          Our goal is to help you realize your potential creatively and in your
+          career growth.
+        </p>
+
+        <h3 className="mb-2 max-w-3xl text-lg font-semibold">
+          We believe in the independent artist
+        </h3>
+        <p className="mb-8 max-w-3xl pl-0 md:pl-8">
+          The world has changed. Gone are the days when artists needed an
+          exclusive gallery relationship in order to sell their work or grow in
+          their career. Today, artists have more responsibility for developing
+          their own brand and have the ability to communicate directly to
+          certain audiences.
+        </p>
+
+        <h3 className="mb-2 max-w-3xl text-lg font-semibold">
+          We believe that galleries and in-person exhibitions are still very
+          important
+        </h3>
+        <p className="mb-8 max-w-3xl pl-0 md:pl-8">
+          Actually essential. We believe that in this new world, the independent
+          artist should have several relationships with galleries, curators, and
+          advisors, and also sell directly from their studios. Maximizing each
+          artist’s opportunities should be a shared goal for all of us.
+        </p>
+      </section>
+      <section className="container">
+        <div>
           <p className="mb-8 max-w-3xl">
             We sincerely appreciate the opportunity to build a presence in this
             art world. We hope that our perspective can offer a fresh, new,
@@ -94,7 +101,7 @@ export default async function Home() {
           <p className="mb-8 max-w-3xl">
             Sincerely,
             <br />
-            Wright Harvey
+            <i>Wright Harvey</i>
           </p>
         </div>
       </section>
