@@ -21,7 +21,6 @@ services:
 galleryImages:
   [
     "/images/ocean-club/Sugarlift_Ocean Club_1.jpg",
-    "/images/ocean-club/Sugarlift_Ocean Club_2.jpg",
     "/images/ocean-club/Sugarlift_Ocean Club_3.jpg",
     "/images/ocean-club/Sugarlift_Ocean Club_4.jpg",
     "/images/ocean-club/Sugarlift_Ocean Club_5.jpg",

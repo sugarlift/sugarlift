@@ -30,7 +30,6 @@ galleryImages:
     "/images/the-coterie/Sugarlift_Install_The_Coterie_8_Web.jpg",
     "/images/the-coterie/Sugarlift_Install_The_Coterie_9_Web.jpg",
     "/images/the-coterie/Sugarlift_Install_The_Coterie_10_Web.jpg",
-    "/images/the-coterie/Sugarlift_Install_The_Coterie_11_Web.jpg",
     "/images/the-coterie/Sugarlift_Install_The_Coterie_12_Web.jpg",
     "/images/the-coterie/Sugarlift_Install_The_Coterie_13_Web.jpg",
     "/images/the-coterie/Sugarlift_Install_The_Coterie_14_Web.jpg",

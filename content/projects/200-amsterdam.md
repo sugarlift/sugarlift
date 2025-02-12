@@ -22,18 +22,15 @@ services:
 galleryImages:
   [
     "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_13_Web.jpg",
-    "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_1_Web.jpg",
-    "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_2_Web.jpg",
-    "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_3_Web.jpg",
-    "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_4_Web.jpg",
-    "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_5_Web.jpg",
     "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_6_Web.jpg",
+    "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_4_Web.jpg",
+    "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_3_Web.jpg",
     "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_7_Web.jpg",
-    "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_8_Web.jpg",
-    "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_9_Web.jpg",
     "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_10_Web.jpg",
+    "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_9_Web.jpg",
     "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_11_Web.jpg",
     "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_12_Web.jpg",
+    "/images/200-amsterdam/Sugarlift_Install_200_Amsterdam_1_Web.jpg",
   ]
 ---
 

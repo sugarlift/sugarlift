@@ -22,12 +22,11 @@ galleryImages:
   [
     "/images/the-cortland/Sugarlift_Install_The Cortland_8_Web.jpg",
     "/images/the-cortland/Sugarlift_Install_The Cortland_1_Web.jpg",
-    "/images/the-cortland/Sugarlift_Install_The Cortland_2_Web.jpg",
     "/images/the-cortland/Sugarlift_Install_The Cortland_3_Web.jpg",
-    "/images/the-cortland/Sugarlift_Install_The Cortland_4_Web.jpg",
-    "/images/the-cortland/Sugarlift_Install_The Cortland_5_Web.jpg",
     "/images/the-cortland/Sugarlift_Install_The Cortland_6_Web.jpg",
+    "/images/the-cortland/Sugarlift_Install_The Cortland_5_Web.jpg",
     "/images/the-cortland/Sugarlift_Install_The Cortland_7_Web.jpg",
+    "/images/the-cortland/Sugarlift_Install_The Cortland_4_Web.jpg",
   ]
 ---
 

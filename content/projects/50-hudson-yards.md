@@ -22,10 +22,7 @@ galleryImages:
   [
     "/images/50-hudson-yards/Sugarlift_Install_50_Hudson_Yards_Kenny_Nguyen_6_Web.jpg",
     "/images/50-hudson-yards/Sugarlift_Install_50_Hudson_Yards_Kenny_Nguyen_3_Web.jpg",
-    "/images/50-hudson-yards/Sugarlift_Install_50_Hudson_Yards_Kenny_Nguyen_7_Web.jpg",
-    "/images/50-hudson-yards/Sugarlift_Install_50_Hudson_Yards_Kenny_Nguyen_8_Web.jpg",
     "/images/50-hudson-yards/Sugarlift_Install_50_Hudson_Yards_Kenny_Nguyen_9_Web.jpg",
-    "/images/50-hudson-yards/Sugarlift_Install_50_Hudson_Yards_Kenny_Nguyen_5_Web.jpg",
     "/images/50-hudson-yards/Sugarlift_Install_50_Hudson_Yards_Kenny_Nguyen_11_Web.jpg",
   ]
 ---

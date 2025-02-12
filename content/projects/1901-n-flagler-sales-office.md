@@ -22,11 +22,10 @@ services:
 galleryImages:
   [
     "/images/1901-n-flagler-sales-office/Sugarlift_1901_N_Flagler_Sales_Office_1.jpg",
-    "/images/1901-n-flagler-sales-office/Sugarlift_1901_N_Flagler_Sales_Office_5.jpg",
-    "/images/1901-n-flagler-sales-office/Sugarlift_1901_N_Flagler_Sales_Office_4.jpg",
-    "/images/1901-n-flagler-sales-office/Sugarlift_1901_N_Flagler_Sales_Office_3.jpg",
     "/images/1901-n-flagler-sales-office/Sugarlift_1901_N_Flagler_Sales_Office_6.jpg",
     "/images/1901-n-flagler-sales-office/Sugarlift_1901_N_Flagler_Sales_Office_8.jpg",
+    "/images/1901-n-flagler-sales-office/Sugarlift_1901_N_Flagler_Sales_Office_5.jpg",
+    "/images/1901-n-flagler-sales-office/Sugarlift_1901_N_Flagler_Sales_Office_3.jpg",
     "/images/1901-n-flagler-sales-office/Sugarlift_1901_N_Flagler_Sales_Office_10.jpg",
   ]
 ---

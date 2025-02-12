@@ -14,12 +14,11 @@ services: ["Art Curation", "Art Procurement", "Installation"]
 galleryImages:
   [
     "/images/60-columbus-circle/Sugarlift_Install_60_CC_5_Web.jpg",
-    "/images/60-columbus-circle/Sugarlift_Install_60_CC_1_Web.jpg",
-    "/images/60-columbus-circle/Sugarlift_Install_60_CC_2_Web.jpg",
-    "/images/60-columbus-circle/Sugarlift_Install_60_CC_3_Web.jpg",
     "/images/60-columbus-circle/Sugarlift_Install_60_CC_6_Web.jpg",
+    "/images/60-columbus-circle/Sugarlift_Install_60_CC_1_Web.jpg",
+    "/images/60-columbus-circle/Sugarlift_Install_60_CC_3_Web.jpg",
+    "/images/60-columbus-circle/Sugarlift_Install_60_CC_10_Web.jpg",
     "/images/60-columbus-circle/Sugarlift_Install_60_CC_8_Web.jpg",
-    "/images/60-columbus-circle/Sugarlift_Install_60_CC_9_Web.jpg",
   ]
 ---
 
