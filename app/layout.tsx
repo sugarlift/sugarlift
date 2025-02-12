@@ -4,6 +4,7 @@ import Navigation from "@/components/Navigation/Navigation";
 import Footer from "@/components/Footer";
 import "./styles/globals.scss";
 import { COMPANY_METADATA } from "@/app/lib/constants";
+import Script from "next/script";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -41,6 +42,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Script
+        defer
+        data-domain="sugarlift.com"
+        src="https://plausible.io/js/script.js"
+        strategy="afterInteractive"
+      />
       <body className={`${geistSans.variable} flex flex-col antialiased`}>
         <Navigation />
         <main className="flex-grow">{children}</main>
