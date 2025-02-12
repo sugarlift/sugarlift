@@ -2,7 +2,6 @@ import { FeaturedExhibitions } from "@/components/FeaturedExhibitions";
 import { FeaturedProjects } from "@/components/FeaturedProjects";
 import { FeaturedArtists } from "@/components/FeaturedArtists";
 import { Slider } from "@/components/Slider";
-import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { supabase } from "@/lib/supabase";
 import { FEATURED_EXHIBITIONS, FEATURED_PROJECTS } from "@/app/lib/constants";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -82,8 +81,6 @@ export default async function Home() {
           </Slider>
         </div>
       </section>
-
-      <ConsultationCTA />
     </>
   );
 }

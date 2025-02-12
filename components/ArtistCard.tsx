@@ -25,7 +25,9 @@ export function ArtistCard({
         {artist.state && `, ${artist.state}`}
         {artist.country && `, ${artist.country}`}
       </p>
-      <p className="tracking-tight text-zinc-500">b. {artist.born}</p>
+      {artist.born && (
+        <p className="tracking-tight text-zinc-500">b. {artist.born}</p>
+      )}
     </>
   );
 
@@ -54,7 +56,8 @@ export function ArtistCard({
         {showInquiryButton && (
           <Button asChild className="group">
             <QuickLink
-              href={`/contact?topic=artist&artistName=${encodeURIComponent(artist.artist_name)}#inquiry-form`}
+              // href={`/contact?topic=artist&artistName=${encodeURIComponent(artist.artist_name)}#inquiry-form`}
+              href={`/contact#inquiry-form`}
               className="mr-8 inline-flex w-[calc(100%-10rem)] min-w-[10rem] items-center justify-between rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800"
             >
               Inquire

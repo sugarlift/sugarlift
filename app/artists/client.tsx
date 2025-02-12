@@ -1,6 +1,5 @@
 "use client";
 
-import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { Artist } from "@/lib/types";
 import { ArtistCard } from "@/components/ArtistCard";
 import { useState, useEffect, useRef } from "react";
@@ -221,7 +220,6 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
           </div>
         </div>
       </section>
-      <ConsultationCTA />
     </>
   );
 }

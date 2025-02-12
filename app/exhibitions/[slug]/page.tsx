@@ -7,7 +7,6 @@ import {
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { ArtistCard } from "@/components/ArtistCard";
 import { COMPANY_METADATA } from "@/app/lib/constants";
 
@@ -65,7 +64,7 @@ export default async function ExhibitionPage({ params }: { params: Params }) {
             <div
               key={index}
               className={`relative ${
-                index % 3 === 0 ? "aspect-video md:col-span-2" : "aspect-[4/3]"
+                index % 3 === 0 ? "aspect-[3/2] md:col-span-2" : "aspect-[4/3]"
               } w-full`}
             >
               <Image
@@ -94,7 +93,6 @@ export default async function ExhibitionPage({ params }: { params: Params }) {
           </div>
         </section>
       )}
-      <ConsultationCTA />
     </>
   );
 }

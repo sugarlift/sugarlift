@@ -4,8 +4,9 @@ import { getProjectData, getAllProjects } from "@/app/lib/markdownProjects";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { COMPANY_METADATA } from "@/app/lib/constants";
+import { FAQ } from "@/components/FAQ";
+import { ConsultationCTA } from "@/components/ConsultationCTA";
 export async function generateStaticParams() {
   const projects = await getAllProjects();
   return projects.map((project) => ({
@@ -64,7 +65,7 @@ export default async function ProjectPage({
             <div
               key={index}
               className={`relative ${
-                index % 3 === 0 ? "aspect-video md:col-span-2" : "aspect-[4/3]"
+                index % 3 === 0 ? "aspect-[3/2] md:col-span-2" : "aspect-[4/3]"
               } w-full`}
             >
               <Image
@@ -172,6 +173,9 @@ export default async function ProjectPage({
 
       <section className="prose"></section>
 
+      <div className="border-t border-zinc-200">
+        <FAQ />
+      </div>
       <ConsultationCTA />
     </>
   );

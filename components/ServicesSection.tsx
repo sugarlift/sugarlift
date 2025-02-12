@@ -97,7 +97,7 @@ const DEFAULT_SERVICES: Record<ServiceCategory, ServiceContent> = {
 const ServiceContent: React.FC<{ content: ServiceContent }> = ({ content }) => (
   <div className="container grid grid-cols-1 gap-4 lg:grid-cols-2">
     <div>
-      <div className="relative aspect-video overflow-hidden bg-zinc-100">
+      <div className="relative aspect-[3/2] overflow-hidden bg-zinc-100">
         <Image
           src={content.left.image}
           alt={content.left.title}
@@ -112,7 +112,7 @@ const ServiceContent: React.FC<{ content: ServiceContent }> = ({ content }) => (
     </div>
 
     <div>
-      <div className="relative aspect-video overflow-hidden bg-zinc-100">
+      <div className="relative aspect-[3/2] overflow-hidden bg-zinc-100">
         <Image
           src={content.right.image}
           alt={content.right.title}

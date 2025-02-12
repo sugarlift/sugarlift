@@ -23,12 +23,19 @@ interface ExhibitionFrontmatter {
   galleryImages: string[];
 }
 
+// Add a new interface for handling missing artists
+interface ExhibitionArtist {
+  name: string;
+  slug: string;
+  dbData?: Artist; // Optional database data
+}
+
 interface ProcessedExhibitionFrontmatter
-  extends Omit<ExhibitionFrontmatter, "galleryImages"> {
+  extends Omit<ExhibitionFrontmatter, "galleryImages" | "artists"> {
   status: "current" | "past";
   coverImage: StaticImageData;
   galleryImages: StaticImageData[];
-  artistsData?: Artist[];
+  artists: ExhibitionArtist[]; // Replace artistsData with this
   formattedStartDate: string;
   formattedEndDate: string;
 }
@@ -60,7 +67,7 @@ function determineExhibitionStatus(endDate: string): "current" | "past" {
   return exhibitionEnd >= today ? "current" : "past";
 }
 
-async function getArtistBySlug(slug: string): Promise<Artist | undefined> {
+async function getArtistBySlug(slug: string): Promise<ExhibitionArtist> {
   const artistName = slug
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -75,14 +82,29 @@ async function getArtistBySlug(slug: string): Promise<Artist | undefined> {
       .single();
 
     if (artistError || !artist) {
-      console.error("Error fetching artist:", artistError);
-      return undefined;
+      console.info(
+        `Artist "${artistName}" (slug: ${slug}) not found in database - using fallback name`,
+      );
+      return {
+        name: artistName,
+        slug,
+      };
     }
 
-    return artist;
+    return {
+      name: artist.artist_name,
+      slug,
+      dbData: artist,
+    };
   } catch (error) {
-    console.error("Error in getArtistBySlug:", error);
-    return undefined;
+    console.error(
+      `Error in getArtistBySlug for "${artistName}" (slug: ${slug}):`,
+      error,
+    );
+    return {
+      name: artistName,
+      slug,
+    };
   }
 }
 
@@ -120,7 +142,7 @@ export async function getExhibitionData(
     const calculatedStatus = determineExhibitionStatus(frontmatter.endDate);
 
     // Fetch multiple artists' data
-    const artistsData = await Promise.all(
+    const artists = await Promise.all(
       frontmatter.artists.map((artistSlug) => getArtistBySlug(artistSlug)),
     );
 
@@ -131,9 +153,7 @@ export async function getExhibitionData(
         status: calculatedStatus,
         coverImage: galleryImages[0],
         galleryImages,
-        artistsData: artistsData.filter(
-          (artist): artist is Artist => artist !== undefined,
-        ),
+        artists,
         formattedStartDate: formatDate(frontmatter.startDate),
         formattedEndDate: formatDate(frontmatter.endDate),
       },

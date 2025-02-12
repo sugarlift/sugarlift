@@ -24,7 +24,7 @@ export const ProjectCard = ({
   return (
     <LinkComponent href={`/clients/${project.slug}`}>
       <div className="group">
-        <div className="relative aspect-video w-full overflow-hidden">
+        <div className="relative aspect-[3/2] w-full overflow-hidden">
           <Image
             src={coverImage}
             alt={`Cover image for ${title}`}

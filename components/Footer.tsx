@@ -9,14 +9,14 @@ const Footer = () => {
   return (
     <footer className="mt-auto w-full border-t">
       <div className="container py-10 md:py-[4vw]">
-        <div className="grid grid-cols-2 gap-8 lg:grid-cols-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-6">
           {/* Logo and Description */}
-          <div className="col-span-3 mt-1">
+          <div className="col-span-1 mt-1 md:col-span-3">
             <div className="block">
               <span className="sr-only">{COMPANY_METADATA.name}</span>
               <Logo />
             </div>
-            <p className="mt-4 max-w-none text-sm leading-6 tracking-tight text-zinc-700 md:mb-8 md:max-w-[45ch]">
+            <p className="mt-4 max-w-none text-sm leading-6 tracking-tight text-zinc-700 md:max-w-[45ch]">
               Sugarlift is a contemporary art gallery based in New York City.
             </p>
             <QuickLink
@@ -27,6 +27,9 @@ const Footer = () => {
             >
               Follow @sugarlift on Instagram
             </QuickLink>
+            <p className="mt-12 hidden text-sm text-zinc-700 md:block">
+              @ Sugarlift 2025
+            </p>
           </div>
 
           {/* Navigation Links */}
@@ -39,7 +42,7 @@ const Footer = () => {
                 </QuickLink>
               </li>
             </ul>
-            <h3 className={`${headingStyle} mt-6`}>Exhibitions</h3>
+            <h3 className={`${headingStyle} mt-10`}>Exhibitions</h3>
             <ul>
               <li>
                 <QuickLink href="/exhibitions" className={linkStyle}>
@@ -80,11 +83,21 @@ const Footer = () => {
                   Hospitality
                 </QuickLink>
               </li>
+              <li>
+                <QuickLink href="/clients#faq" className={linkStyle}>
+                  FAQ
+                </QuickLink>
+              </li>
             </ul>
           </div>
 
           <div>
             <h3 className={headingStyle}>Sugarlift</h3>
+            <p className={`${linkStyle}`}>43-01 22nd Street</p>
+            <p className={`${linkStyle}`}>Studio 130 + 131</p>
+            <p className={`${linkStyle} mb-[24px]`}>
+              Long Island City, NY 11101
+            </p>
             <ul>
               <li>
                 <QuickLink href="/about" className={linkStyle}>
@@ -92,53 +105,17 @@ const Footer = () => {
                 </QuickLink>
               </li>
               <li>
-                <QuickLink href="/about#mission" className={linkStyle}>
-                  Mission
-                </QuickLink>
-              </li>
-              <li>
-                <QuickLink href="/about#faq" className={linkStyle}>
-                  FAQ
-                </QuickLink>
-              </li>
-              <li>
-                <QuickLink href="/about#contact" className={linkStyle}>
+                <QuickLink href="/contact" className={linkStyle}>
                   Contact
                 </QuickLink>
               </li>
             </ul>
           </div>
-
-          {/* Gallery Info */}
-          <div>
-            <h3 className={`${headingStyle} mb-2`}>Gallery</h3>
-            <div>
-              <div className="flex justify-between">
-                <p className="mb-1 text-sm text-zinc-700">Tue - Fri</p>
-                <p className="mb-1 text-sm text-zinc-700">10AM – 6PM</p>
-              </div>
-              <div className="flex justify-between">
-                <p className="mb-1 text-sm text-zinc-700">Sat</p>
-                <p className="mb-1 text-sm text-zinc-700">12PM – 6PM</p>
-              </div>
-              <div className="flex justify-between">
-                <p className="mb-1 text-sm text-zinc-700">Sun - Mon</p>
-                <p className="mb-1 text-sm text-zinc-700">Closed</p>
-              </div>
-
-              <QuickLink
-                href="#"
-                className={`${linkStyle} mt-4 leading-6`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="block">508 W 28th Street</span>
-                <span>New York, NY</span>
-              </QuickLink>
-            </div>
-          </div>
         </div>
       </div>
+      <p className="mt-0 block border-t p-8 text-sm text-zinc-700 md:hidden">
+        @ Sugarlift 2025
+      </p>
     </footer>
   );
 };

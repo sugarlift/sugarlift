@@ -1,8 +1,6 @@
-import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { QuickLink } from "@/components/Link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FAQ } from "@/components/FAQ";
 import ContactForm from "@/components/ContactForm";
 import Image from "next/image";
 import GalleryImage from "@/app/images/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_1_2321f22bdb.jpg";
@@ -27,95 +25,79 @@ export default async function Home() {
       <section className="container">
         <div>
           <h1 className="big-title mb-6 max-w-[940px] text-balance">
-            Sugarlift is a mission-driven art gallery founded in 2014 with a
-            dedication to fostering a more sustainable and inspiring art world,
-            focusing on connecting today's best artists with premiere real
-            estate developers, architects, interior designers, and collectors.
+            Sugarlift started with a simple question: how can we contribute to
+            creating better art, putting it into the world, and supporting the
+            artists who make it?
           </h1>
           <p className="mb-8 max-w-3xl">
-            Our unwavering mission is to help more artists create sustainable
-            careers by connecting them with a broader audience. Through
-            embracing technology and innovative strategies, we continually seek
-            new ways for people to engage with and collect artwork, challenging
-            the status quo to benefit artists and dignify their work.
+            From this single concept, Sugarlift has grown from a small gallery
+            in Brooklyn to a platform connecting the most talented artists with
+            collectors and client opportunities across the world.
           </p>
-          <Button asChild className="group">
-            <QuickLink
-              href="/about#contact"
-              className="inline-flex items-center rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800"
-            >
-              Fill an inquiry
-              <ArrowRight
-                className="-me-1 ms-2 mt-0.5 transition-transform group-hover:translate-x-0.5"
-                size={16}
-                strokeWidth={2}
-                aria-hidden="true"
-              />
-            </QuickLink>
-          </Button>
+          <p className="mb-8 max-w-3xl">
+            Sugarlift was founded in 2014 by Wright Harvey. Ever since he was a
+            kid, Wright dreamed of being an artist. In college, while studying
+            painting and printmaking, he told his future wife, Calvine, that one
+            day he would build his version of Andy Warhol’s Factory, where
+            artists could push the limits of their creativity and create new
+            ideas that make the world more interesting and richer as a result.
+          </p>
+          <h2 className="mb-8 max-w-3xl text-3xl">
+            There are several beliefs that are fundamental to Sugarlift, some of
+            which we have believed from the beginning and some of which we have
+            learned from experience.
+          </h2>
+          <p className="mb-8 max-w-3xl">
+            <ul>
+              <li className="mb-8 max-w-3xl">
+                <b>We put artists first</b> — the purpose of our gallery is to
+                nurture the development of the artist community. We are always
+                in service of this idea. We believe in building one relationship
+                at a time to understand the goals and needs of each artist, to
+                see how we can form a truly symbiotic relationship. Our goal is
+                to help you realize your potential creatively and in your career
+                growth.
+              </li>
+              <li className="mb-8 max-w-3xl">
+                <b>We believe in the independent artist</b> — the world has
+                changed. Gone are the days when artists needed an exclusive
+                gallery relationship in order to sell their work or grow in
+                their career. Today, artists have more responsibility for
+                developing their own brand and have the ability to communicate
+                directly to certain audiences. We applaud the benefits of this
+                new world for artists; however, we also understand the new
+                challenges it presents.
+              </li>
+              <li className="mb-8 max-w-3xl">
+                <b>
+                  We believe that galleries and in-person exhibitions are still
+                  very important—actually essential.
+                </b>{" "}
+                We believe that in this new world, the independent artist should
+                have several relationships with galleries, curators, and
+                advisors, and also sell directly from their studios. Maximizing
+                each artist’s opportunities should be a shared goal for all of
+                us.
+              </li>
+            </ul>
+          </p>
+          <p className="mb-8 max-w-3xl">
+            We sincerely appreciate the opportunity to build a presence in this
+            art world. We hope that our perspective can offer a fresh, new,
+            uplifting take, especially for those who feel jaded or cynical about
+            some of the art world’s shortcomings.
+          </p>
+          <p className="mb-8 max-w-3xl">
+            We hope that you will join our efforts, dream big, and find your own
+            way to contribute to building a more successful, vibrant art world.
+          </p>
+          <p className="mb-8 max-w-3xl">
+            Sincerely,
+            <br />
+            Wright Harvey
+          </p>
         </div>
       </section>
-
-      <section className="container flex h-full w-full items-center justify-center">
-        <div className="grid h-full w-full grid-cols-1 grid-rows-2 gap-4 lg:grid-cols-2">
-          <div className="order-1 col-span-1 row-span-1 flex aspect-video items-center justify-center bg-zinc-100">
-            <Image src={TeamImage} alt="Team" className="object-cover" />
-          </div>
-
-          <div className="order-3 col-span-1 row-span-2 flex aspect-square items-center justify-center bg-zinc-100 lg:order-2 lg:aspect-auto">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5250.027678005579!2d-74.0050555225209!3d40.7509231713878!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259bf517702cb%3A0x450277d825f89251!2sSugarlift!5e1!3m2!1sen!2sfi!4v1732540543459!5m2!1sen!2sfi"
-              width="100%"
-              height="100%"
-              className="border-0e"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
-          </div>
-
-          <div className="order-2 col-span-1 row-span-1 flex aspect-video items-center justify-center bg-zinc-100 lg:order-3">
-            <Image src={GalleryImage} alt="Gallery" className="object-cover" />
-          </div>
-        </div>
-      </section>
-
-      <section
-        className="container grid grid-cols-1 gap-8 md:grid-cols-2"
-        id="contact"
-      >
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <div>
-            <h3 className="mb-4">Get in touch</h3>
-            <p className="text-base text-zinc-700">hello@sugarlift.com</p>
-            <p className="text-base text-zinc-700">+1 (617) 981 2370</p>
-            <p className="text-base text-zinc-700">Instagram</p>
-            <p className="mt-8 text-base text-zinc-700">508 W 28th Street</p>
-            <p className="text-base text-zinc-700">New York, NY</p>
-          </div>
-          <div className="max-w-[200px]">
-            <h3 className="mb-4">Gallery hours</h3>
-            <div className="flex justify-between">
-              <p className="text-base text-zinc-700">Tue - Fri</p>
-              <p className="text-base text-zinc-700">10AM – 6PM</p>
-            </div>
-            <div className="flex justify-between">
-              <p className="text-base text-zinc-700">Sat</p>
-              <p className="text-base text-zinc-700">12PM – 6PM</p>
-            </div>
-            <div className="flex justify-between">
-              <p className="text-base text-zinc-700">Sun - Mon</p>
-              <p className="text-base text-zinc-700">Closed</p>
-            </div>
-          </div>
-        </div>
-        <div>
-          <h3 className="mb-5">Inquiry form</h3>
-          <ContactForm />
-        </div>
-      </section>
-
-      <FAQ />
-      <ConsultationCTA />
     </>
   );
 }

@@ -1,6 +1,5 @@
 // app/exhibitions/page.tsx
 
-import { ConsultationCTA } from "@/components/ConsultationCTA";
 import { getAllExhibitions } from "../lib/markdownExhibitions";
 import { ExhibitionCard } from "@/components/ExhibitionCard";
 import { QuickLink } from "@/components/Link";
@@ -84,7 +83,6 @@ export default async function ExhibitionsPage() {
           ))}
         </div>
       </section>
-      <ConsultationCTA />
     </>
   );
 }

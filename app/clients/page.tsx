@@ -8,7 +8,7 @@ import { FEATURED_PROJECTS } from "@/app/lib/constants";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Metadata } from "next";
 import { COMPANY_METADATA } from "@/app/lib/constants";
-
+import { FAQ } from "@/components/FAQ";
 export const metadata: Metadata = {
   title: `${COMPANY_METADATA.name} | Client projects`,
   description:
@@ -66,6 +66,9 @@ export default async function ProjectsPage() {
         </section>
       ))}
 
+      <div className="border-t border-zinc-200">
+        <FAQ />
+      </div>
       <ConsultationCTA />
     </>
   );
