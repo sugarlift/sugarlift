@@ -90,7 +90,7 @@ export default async function ArtistPage({ params }: { params: Params }) {
 
   return (
     <>
-      <section className="container">
+      <section className="container overflow-x-hidden">
         <ArtistCard
           artist={artist}
           disableLink={true}
@@ -99,7 +99,7 @@ export default async function ArtistPage({ params }: { params: Params }) {
       </section>
 
       <section className="container">
-        <div className="grid grid-cols-4 items-start">
+        <div className="gri-cols-1 grid items-start lg:grid-cols-4">
           <div className="flex flex-row">
             {artist.ig_handle && (
               <p>
@@ -126,7 +126,7 @@ export default async function ArtistPage({ params }: { params: Params }) {
               </p>
             )}
           </div>
-          <div className="col-start-2 col-end-4">
+          <div className="mt-12 lg:col-start-2 lg:col-end-4 lg:mt-0">
             <p className="mb-6 inline-block border-b border-zinc-950 pb-6 text-lg text-zinc-950">
               Biography
             </p>

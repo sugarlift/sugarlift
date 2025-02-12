@@ -52,8 +52,8 @@ export function ArtistCard({
 
   const ArtistInfo = () => (
     <>
-      <h2>{artist.artist_name}</h2>
-      <p className="mt-4 tracking-tight text-zinc-500">
+      <h2 className="mt-4 md:mt-0">{artist.artist_name}</h2>
+      <p className="mb-6 mt-0 tracking-tight text-zinc-500 md:mb-0 md:mt-4">
         {artist.city}
         {artist.state && `, ${artist.state}`}
         {artist.country && `, ${artist.country}`}
@@ -71,8 +71,8 @@ export function ArtistCard({
     .replace(/[^a-zA-Z0-9]/g, "-");
 
   return (
-    <div className="grid grid-cols-4 items-start">
-      <div className="flex h-full flex-col justify-between">
+    <div className="grid grid-cols-1 items-start md:grid-cols-4">
+      <div className="order-2 flex h-full flex-col justify-between md:order-1">
         {disableLink ? (
           <div className="text-xl">
             <ArtistInfo />
@@ -104,11 +104,18 @@ export function ArtistCard({
           </Button>
         )}
       </div>
-      <div className="col-span-3">
+
+      <div className="order-1 col-span-3 md:order-2">
         {artist.artist_photo && artist.artist_photo.length > 0 ? (
-          <Slider slidesPerView={3} key={isReady ? "ready" : "loading"}>
+          <Slider
+            slidesPerView={{ mobile: 2, tablet: 2, desktop: 3 }}
+            key={isReady ? "ready" : "loading"}
+          >
             {slides.map((slide) => (
-              <div key={slide.id} className="relative aspect-[2/3] w-full">
+              <div
+                key={slide.id}
+                className="relative aspect-square w-full md:aspect-[2/3]"
+              >
                 {disableLink ? (
                   <Image
                     src={slide.url}

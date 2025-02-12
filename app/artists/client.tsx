@@ -198,7 +198,11 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
         <div className="bg-white pb-16 pt-8 md:py-24">
           <div className="container">
             {filteredArtists.length > 0 ? (
-              <div className={`space-y-${viewMode === "list" ? "36" : "0"}`}>
+              <div
+                className={`space-y-4 md:space-y-36 md:space-y-${
+                  viewMode === "list" ? "36" : "0"
+                }`}
+              >
                 {renderContent()}
               </div>
             ) : (
