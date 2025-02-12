@@ -28,7 +28,7 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredArtists, setFilteredArtists] =
     useState<Artist[]>(initialArtists);
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>("directory");
   const [displayedArtists, setDisplayedArtists] = useState<Artist[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const inputRef = useRef<HTMLInputElement>(null);

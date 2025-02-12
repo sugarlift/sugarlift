@@ -10,6 +10,10 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { Metadata } from "next";
 import { COMPANY_METADATA } from "@/app/lib/constants";
 
+// Add static generation config
+export const dynamic = "force-static";
+export const revalidate = 3600; // Revalidate every hour
+
 export const metadata: Metadata = {
   title: `${COMPANY_METADATA.name} | Exhibitions`,
   description:

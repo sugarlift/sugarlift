@@ -6,7 +6,11 @@ import { Artist } from "@/lib/types";
 import { COMPANY_METADATA } from "@/app/lib/constants";
 import { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+// Change from force-dynamic to force-static
+export const dynamic = "force-static";
+
+// Add revalidation period (e.g., every hour)
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: `${COMPANY_METADATA.name} | Artists`,
