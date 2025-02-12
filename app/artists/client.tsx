@@ -28,12 +28,12 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredArtists, setFilteredArtists] =
     useState<Artist[]>(initialArtists);
-  const [viewMode, setViewMode] = useState<ViewMode>("directory");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [displayedArtists, setDisplayedArtists] = useState<Artist[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const inputRef = useRef<HTMLInputElement>(null);
   const observerRef = useRef<HTMLDivElement>(null);
-  const ARTISTS_PER_PAGE = 10;
+  const ARTISTS_PER_PAGE = 8;
 
   const getSortedArtists = (artists: Artist[], mode: ViewMode) => {
     const sortedByViews = [...artists].sort(
