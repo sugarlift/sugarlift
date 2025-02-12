@@ -225,16 +225,16 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
             </div>
             <div className="flex space-x-4 text-[1.3125rem] tracking-[-0.0375rem] md:space-x-6 lg:text-[2rem] lg:tracking-[-0.0625rem]">
               <button
-                onClick={() => setViewMode("list")}
-                className={`${viewMode === "list" ? "text-zinc-950" : "text-zinc-300"} hover:text-zinc-950`}
-              >
-                List
-              </button>
-              <button
                 onClick={() => setViewMode("grid")}
                 className={`${viewMode === "grid" ? "text-zinc-950" : "text-zinc-300"} hover:text-zinc-950`}
               >
                 Grid
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`${viewMode === "list" ? "text-zinc-950" : "text-zinc-300"} hover:text-zinc-950`}
+              >
+                List
               </button>
               <button
                 onClick={() => setViewMode("directory")}
