@@ -7,6 +7,23 @@ export const metadata: Metadata = {
   title: `${COMPANY_METADATA.name} | About`,
   description:
     "Sugarlift is a contemporary art gallery based in New York, an industry-leading art consulting service, and a global artist community representing today's best and brightest contemporary artists.",
+  alternates: {
+    canonical: `${COMPANY_METADATA.url}/about`,
+  },
+  openGraph: {
+    title: `${COMPANY_METADATA.name} | About`,
+    description:
+      "Sugarlift is a contemporary art gallery based in New York, an industry-leading art consulting service, and a global artist community representing today's best and brightest contemporary artists.",
+    url: `${COMPANY_METADATA.url}/about`,
+    siteName: COMPANY_METADATA.name,
+    images: [
+      {
+        url: `${COMPANY_METADATA.url}/og-image.jpg`,
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
 };
 
 // If you need to revalidate the page periodically (optional)
@@ -31,7 +48,7 @@ export default async function Home() {
             Sugarlift was founded in 2014 by Wright Harvey. Ever since he was a
             kid, Wright dreamed of being an artist. In college, while studying
             painting and printmaking, he told his future wife, Calvine, that one
-            day he would build his version of Andy Warhol’s Factory, where
+            day he would build his version of Andy Warhol's Factory, where
             artists could push the limits of their creativity and create new
             ideas that make the world more interesting and richer as a result.
           </p>
@@ -76,7 +93,7 @@ export default async function Home() {
           Actually essential. We believe that in this new world, the independent
           artist should have several relationships with galleries, curators, and
           advisors, and also sell directly from their studios. Maximizing each
-          artist’s opportunities should be a shared goal for all of us.
+          artist's opportunities should be a shared goal for all of us.
         </p>
       </section>
       <section className="container">
@@ -85,7 +102,7 @@ export default async function Home() {
             We sincerely appreciate the opportunity to build a presence in this
             art world. We hope that our perspective can offer a fresh, new,
             uplifting take, especially for those who feel jaded or cynical about
-            some of the art world’s shortcomings.
+            some of the art world's shortcomings.
           </p>
           <p className="mb-8 max-w-3xl">
             We hope that you will join our efforts, dream big, and find your own

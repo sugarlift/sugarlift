@@ -16,6 +16,23 @@ export const metadata: Metadata = {
   title: `${COMPANY_METADATA.name} | Artists`,
   description:
     "Sugarlift is a contemporary art gallery based in New York, an industry-leading art consulting service, and a global artist community representing today's best and brightest contemporary artists.",
+  alternates: {
+    canonical: `${COMPANY_METADATA.url}/artists`,
+  },
+  openGraph: {
+    title: `${COMPANY_METADATA.name} | Artists`,
+    description:
+      "Sugarlift is a contemporary art gallery based in New York, an industry-leading art consulting service, and a global artist community representing today's best and brightest contemporary artists.",
+    url: `${COMPANY_METADATA.url}/artists`,
+    siteName: COMPANY_METADATA.name,
+    images: [
+      {
+        url: `${COMPANY_METADATA.url}/og-image.jpg`,
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
 };
 
 async function getArtists(): Promise<Artist[]> {

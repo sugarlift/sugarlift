@@ -2,10 +2,27 @@ import { SyncPanel } from "@/components/admin/SyncPanel";
 import { PasswordProtection } from "@/components/admin/PasswordProtection";
 import { Metadata } from "next";
 import { DeployButton } from "./components/DeployButton";
+import { COMPANY_METADATA } from "@/app/lib/constants";
 
 export const metadata: Metadata = {
   title: "Admin | Data Sync",
   description: "Manage Airtable to Supabase synchronization",
+  alternates: {
+    canonical: `${COMPANY_METADATA.url}/admin`,
+  },
+  openGraph: {
+    title: "Admin | Data Sync",
+    description: "Manage Airtable to Supabase synchronization",
+    url: `${COMPANY_METADATA.url}/admin`,
+    siteName: COMPANY_METADATA.name,
+    images: [
+      {
+        url: `${COMPANY_METADATA.url}/og-image.jpg`,
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
 };
 
 export default function AdminPage() {

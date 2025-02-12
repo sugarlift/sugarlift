@@ -32,9 +32,29 @@ export async function generateMetadata({
     };
   }
 
+  const ogImageUrl =
+    exhibition.frontmatter.galleryImages?.[0]?.toString() ||
+    `${COMPANY_METADATA.url}/og-image.jpg`;
+
   return {
     title: `${exhibition.frontmatter.title} | ${COMPANY_METADATA.name}`,
     description: `Exhibition at Sugarlift Gallery`,
+    alternates: {
+      canonical: `${COMPANY_METADATA.url}/exhibitions/${slug}`,
+    },
+    openGraph: {
+      title: `${exhibition.frontmatter.title} | ${COMPANY_METADATA.name}`,
+      description: `Exhibition at Sugarlift Gallery`,
+      url: `${COMPANY_METADATA.url}/exhibitions/${slug}`,
+      siteName: COMPANY_METADATA.name,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
   };
 }
 

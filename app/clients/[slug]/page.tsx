@@ -28,9 +28,29 @@ export async function generateMetadata({
     };
   }
 
+  const ogImageUrl =
+    project.frontmatter.galleryImages?.[0]?.toString() ||
+    `${COMPANY_METADATA.url}/og-image.jpg`;
+
   return {
     title: `${project.frontmatter.title} | ${COMPANY_METADATA.name}`,
     description: `Art consultation project for ${project.frontmatter.developer} by ${COMPANY_METADATA.name}`,
+    alternates: {
+      canonical: `${COMPANY_METADATA.url}/clients/${slug}`,
+    },
+    openGraph: {
+      title: `${project.frontmatter.title} | ${COMPANY_METADATA.name}`,
+      description: `Art consultation project for ${project.frontmatter.developer} by ${COMPANY_METADATA.name}`,
+      url: `${COMPANY_METADATA.url}/clients/${slug}`,
+      siteName: COMPANY_METADATA.name,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
   };
 }
 
