@@ -24,7 +24,7 @@ interface ExhibitionFrontmatter {
 }
 
 // Add a new interface for handling missing artists
-interface ExhibitionArtist {
+export interface ExhibitionArtist {
   name: string;
   slug: string;
   dbData?: Artist; // Optional database data

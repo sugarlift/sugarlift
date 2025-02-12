@@ -1,6 +1,6 @@
 import { getArtistsTable } from "./airtable";
 import { supabaseAdmin } from "./supabase";
-import { Artist, AirtableAttachment, StoredAttachment } from "./types";
+import { AirtableAttachment, StoredAttachment } from "./types";
 import pLimit from "p-limit";
 import Logger from "@/lib/logger";
 import { PostgrestError } from "@supabase/supabase-js";

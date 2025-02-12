@@ -1,10 +1,3 @@
-import { QuickLink } from "@/components/Link";
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import ContactForm from "@/components/ContactForm";
-import Image from "next/image";
-import GalleryImage from "@/app/images/Sugarlift_Gallery_Celia_Lees_Love_Language_2024_1_2321f22bdb.jpg";
-import TeamImage from "@/app/images/Sugarlift_Team_Zoey_web_3770655c98.jpg";
 import { Metadata } from "next";
 import { COMPANY_METADATA } from "@/app/lib/constants";
 // Mark the page as static

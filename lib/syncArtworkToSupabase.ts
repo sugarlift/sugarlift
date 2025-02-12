@@ -26,8 +26,6 @@ type AirtableFields = {
 function convertAirtableRecord(
   record: Record<FieldSet>,
 ): Record<AirtableFields> {
-  // Verify the record has the required fields
-  const fields = record.fields as unknown as AirtableFields;
   return record as unknown as Record<AirtableFields>;
 }
 

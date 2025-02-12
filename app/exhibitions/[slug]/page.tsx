@@ -84,11 +84,30 @@ export default async function ExhibitionPage({ params }: { params: Params }) {
         dangerouslySetInnerHTML={{ __html: exhibition.content }}
       />
 
-      {exhibition.frontmatter.artistsData && (
+      {exhibition.frontmatter.artists && (
         <section className="container">
           <div className="space-y-36">
-            {exhibition.frontmatter.artistsData.map((artist, index) => (
-              <ArtistCard key={index} artist={artist} />
+            {exhibition.frontmatter.artists.map((artist, index) => (
+              <ArtistCard
+                key={index}
+                artist={
+                  artist.dbData || {
+                    id: "",
+                    artist_name: artist.name,
+                    artist_bio: null,
+                    born: null,
+                    city: null,
+                    state: null,
+                    country: null,
+                    ig_handle: null,
+                    website: null,
+                    live_in_production: true,
+                    artist_photo: [],
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                  }
+                }
+              />
             ))}
           </div>
         </section>
