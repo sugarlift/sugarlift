@@ -63,7 +63,7 @@ export function ArtworkModal({ artwork, onClose }: ArtworkModalProps) {
             alt={artwork.title || "Artwork"}
             width={1200}
             height={800}
-            quality={100}
+            quality={20}
             className="h-full w-auto max-w-[90vw] object-contain"
             priority
           />
@@ -122,6 +122,7 @@ export function ArtworkModal({ artwork, onClose }: ArtworkModalProps) {
                   src={image.url}
                   alt={`Thumbnail ${index + 1}`}
                   fill
+                  quality={5}
                   className="object-cover"
                   sizes="64px"
                 />

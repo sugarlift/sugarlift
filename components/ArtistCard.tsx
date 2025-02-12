@@ -121,10 +121,10 @@ export function ArtistCard({
                     src={slide.url}
                     alt={slide.alt}
                     fill
-                    loading="eager"
+                    loading="lazy"
                     className="object-cover"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-                    quality={80}
+                    quality={slide.id === "artist-photo" ? 70 : 10}
                   />
                 ) : (
                   <Link
@@ -135,10 +135,10 @@ export function ArtistCard({
                       src={slide.url}
                       alt={slide.alt}
                       fill
-                      loading="eager"
+                      loading="lazy"
                       className="object-cover"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-                      quality={80}
+                      quality={slide.id === "artist-photo" ? 70 : 10}
                     />
                   </Link>
                 )}

@@ -29,7 +29,33 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
   const [filteredArtists, setFilteredArtists] =
     useState<Artist[]>(initialArtists);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [displayedArtists, setDisplayedArtists] = useState<Artist[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const inputRef = useRef<HTMLInputElement>(null);
+  const observerRef = useRef<HTMLDivElement>(null);
+  const ARTISTS_PER_PAGE = 10;
+
+  const getSortedArtists = (artists: Artist[], mode: ViewMode) => {
+    const sortedByViews = [...artists].sort(
+      (a, b) => (b.view_count || 0) - (a.view_count || 0),
+    );
+
+    const alphabeticalArtists = [...artists].sort((a, b) => {
+      const nameA = splitName(a.artist_name);
+      const nameB = splitName(b.artist_name);
+      const lastNameComparison = nameA.lastName.localeCompare(nameB.lastName);
+      if (lastNameComparison === 0) {
+        return nameA.firstName.localeCompare(nameB.firstName);
+      }
+      return lastNameComparison;
+    });
+
+    return mode === "grid"
+      ? sortedByViews
+      : mode === "directory"
+        ? alphabeticalArtists
+        : artists;
+  };
 
   useEffect(() => {
     const filtered = initialArtists.filter((artist) => {
@@ -37,37 +63,60 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
       return artistName.includes(searchQuery.toLowerCase());
     });
     setFilteredArtists(filtered);
-  }, [searchQuery, initialArtists]);
+    setCurrentPage(1);
+    setDisplayedArtists(
+      viewMode === "directory" ? filtered : filtered.slice(0, ARTISTS_PER_PAGE),
+    );
+  }, [searchQuery, initialArtists, viewMode]);
+
+  useEffect(() => {
+    const sortedArtists = getSortedArtists(filteredArtists, viewMode);
+
+    setCurrentPage(1);
+    setDisplayedArtists(
+      viewMode === "directory"
+        ? sortedArtists
+        : sortedArtists.slice(0, ARTISTS_PER_PAGE),
+    );
+  }, [viewMode, filteredArtists]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          const nextPage = currentPage + 1;
+          const startIndex = currentPage * ARTISTS_PER_PAGE;
+          const endIndex = startIndex + ARTISTS_PER_PAGE;
+
+          const sortedArtists = getSortedArtists(filteredArtists, viewMode);
+          const artistsToAdd = sortedArtists.slice(startIndex, endIndex);
+
+          if (artistsToAdd.length > 0) {
+            setDisplayedArtists((prev) => [...prev, ...artistsToAdd]);
+            setCurrentPage(nextPage);
+          }
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [currentPage, filteredArtists, viewMode]);
 
   const handleSearchClick = () => {
     inputRef.current?.focus();
   };
-
-  const sortedByViews = [...filteredArtists].sort(
-    (a, b) => (b.view_count || 0) - (a.view_count || 0),
-  );
-
-  const alphabeticalArtists = [...filteredArtists].sort((a, b) => {
-    const nameA = splitName(a.artist_name);
-    const nameB = splitName(b.artist_name);
-
-    // First compare last names
-    const lastNameComparison = nameA.lastName.localeCompare(nameB.lastName);
-
-    // If last names are the same, compare first names
-    if (lastNameComparison === 0) {
-      return nameA.firstName.localeCompare(nameB.firstName);
-    }
-
-    return lastNameComparison;
-  });
 
   const renderContent = () => {
     switch (viewMode) {
       case "grid":
         return (
           <div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-4">
-            {sortedByViews.map((artist) => (
+            {displayedArtists.map((artist) => (
               <QuickLink
                 href={`/artists/${generateSlug(artist.artist_name)}`}
                 key={artist.id}
@@ -77,6 +126,7 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
                     <Image
                       src={artist.artist_photo[0].url}
                       alt={artist.artist_name}
+                      quality={50}
                       fill
                       loading="lazy"
                       sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 25vw"
@@ -91,8 +141,8 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
         );
 
       case "directory":
-        // Group artists by first letter of last name
-        const artistsByLetter = alphabeticalArtists.reduce(
+        // Group displayed artists by first letter of last name
+        const artistsByLetter = displayedArtists.reduce(
           (acc, artist) => {
             const { lastName } = splitName(artist.artist_name);
             const firstLetter = lastName[0].toUpperCase();
@@ -146,7 +196,7 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
         );
 
       default:
-        return filteredArtists.map((artist) => (
+        return displayedArtists.map((artist) => (
           <ArtistCard key={artist.id} artist={artist} />
         ));
     }
@@ -198,13 +248,18 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
         <div className="bg-white pb-16 pt-8 md:py-24">
           <div className="container">
             {filteredArtists.length > 0 ? (
-              <div
-                className={`space-y-4 md:space-y-36 md:space-y-${
-                  viewMode === "list" ? "36" : "0"
-                }`}
-              >
-                {renderContent()}
-              </div>
+              <>
+                <div
+                  className={`space-y-4 md:space-y-36 md:space-y-${
+                    viewMode === "list" ? "36" : "0"
+                  }`}
+                >
+                  {renderContent()}
+                </div>
+                {viewMode !== "directory" && (
+                  <div ref={observerRef} className="h-10" />
+                )}
+              </>
             ) : (
               <div className="h-[80dvh] text-center text-lg text-zinc-500">
                 {searchQuery ? (

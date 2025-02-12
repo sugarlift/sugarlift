@@ -28,7 +28,7 @@ export function ArtworkGrid({ artwork }: { artwork: Artist["artwork"] }) {
                       alt={artwork.title || `Artwork by ${artwork.artist_name}`}
                       width={600}
                       height={400}
-                      quality={5}
+                      quality={10}
                       className="h-auto w-full"
                       sizes="(max-width: 768px) 100vw, (max-width: 600px) 50vw, 33vw"
                       priority

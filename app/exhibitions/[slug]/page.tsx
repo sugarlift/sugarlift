@@ -7,7 +7,6 @@ import {
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArtistCard } from "@/components/ArtistCard";
 import { COMPANY_METADATA } from "@/app/lib/constants";
 
 type Params = Promise<{ slug: string }>;
@@ -72,6 +71,7 @@ export default async function ExhibitionPage({ params }: { params: Params }) {
                 alt={`${exhibition.frontmatter.title} - Image ${index + 1}`}
                 sizes="(min-width: 1024px) 90vw, (min-width: 768px) 90vw, 100vw"
                 fill
+                quality={50}
                 className="object-cover"
                 priority={index === 0}
               />
@@ -83,35 +83,6 @@ export default async function ExhibitionPage({ params }: { params: Params }) {
         className="prose"
         dangerouslySetInnerHTML={{ __html: exhibition.content }}
       />
-
-      {exhibition.frontmatter.artists && (
-        <section className="container">
-          <div className="space-y-36">
-            {exhibition.frontmatter.artists.map((artist, index) => (
-              <ArtistCard
-                key={index}
-                artist={
-                  artist.dbData || {
-                    id: "",
-                    artist_name: artist.name,
-                    artist_bio: null,
-                    born: null,
-                    city: null,
-                    state: null,
-                    country: null,
-                    ig_handle: null,
-                    website: null,
-                    live_in_production: true,
-                    artist_photo: [],
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
-                  }
-                }
-              />
-            ))}
-          </div>
-        </section>
-      )}
     </>
   );
 }
