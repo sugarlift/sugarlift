@@ -6,16 +6,13 @@ import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import { QuickLink } from "@/components/Link";
+import { generateSlug } from "@/lib/utils";
 
 type ViewMode = "list" | "grid" | "directory";
 
 interface ArtistsClientProps {
   initialArtists: Artist[];
 }
-
-const generateSlug = (name: string) => {
-  return name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "-");
-};
 
 const splitName = (fullName: string) => {
   const parts = fullName.trim().split(" ");
@@ -59,8 +56,9 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
 
   useEffect(() => {
     const filtered = initialArtists.filter((artist) => {
-      const artistName = artist.artist_name.toLowerCase();
-      return artistName.includes(searchQuery.toLowerCase());
+      const artistName = generateSlug(artist.artist_name);
+      const normalizedQuery = generateSlug(searchQuery);
+      return artistName.includes(normalizedQuery);
     });
     setFilteredArtists(filtered);
     setCurrentPage(1);
@@ -121,7 +119,7 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
                 href={`/artists/${generateSlug(artist.artist_name)}`}
                 key={artist.id}
               >
-                <div className="relative mb-2 aspect-[3/5] overflow-hidden md:mb-4">
+                <div className="group relative mb-2 aspect-[3/5] overflow-hidden md:mb-4">
                   {artist.artist_photo && artist.artist_photo[0] && (
                     <Image
                       src={artist.artist_photo[0].url}
@@ -130,11 +128,13 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
                       fill
                       loading="lazy"
                       sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 25vw"
-                      className="object-cover transition-transform duration-300"
+                      className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                     />
                   )}
                 </div>
-                <h3 className="mb-8">{artist.artist_name}</h3>
+                <h2 className="mb-8 text-base md:text-xl">
+                  {artist.artist_name}
+                </h2>
               </QuickLink>
             ))}
           </div>

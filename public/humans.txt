@@ -1,0 +1,14 @@
+/* TEAM */
+Company: Sugarlift
+Site: https://sugarlift.com
+Location: New York City, USA
+Content: Wright Harvey
+Developer: Janne Koivistoinen
+Designer: Janne Koivistoinen
+
+/* SITE */
+Last update: 2025
+Stack: Next.js, Tailwind CSS, Airtable, Supabase, Framer Motion
+Software: Cursor IDE, Sketch
+
+Built with attention to detail in Äkäslompolo, Finland

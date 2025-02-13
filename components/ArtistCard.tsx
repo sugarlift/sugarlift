@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { generateSlug } from "@/lib/utils";
 
 interface ArtistCardProps {
   artist: Artist;
@@ -52,29 +53,45 @@ export function ArtistCard({
 
   const ArtistInfo = () => (
     <>
-      <h2 className="mt-4 md:mt-0">{artist.artist_name}</h2>
-      <p className="mb-6 mt-0 tracking-tight text-zinc-500 md:mb-0 md:mt-4">
+      <h2
+        className={`${
+          disableLink
+            ? "mt-6 text-2xl md:mt-0 md:text-4xl"
+            : "mt-3 text-base md:mt-0 md:text-3xl"
+        }`}
+      >
+        {artist.artist_name}
+      </h2>
+      <p
+        className={`mt-0 tracking-tight text-zinc-500 ${
+          disableLink
+            ? "mb-4 text-base md:mb-0 md:mt-3 md:text-xl"
+            : "mb-6 text-sm md:mb-0 md:mt-2 md:text-lg"
+        }`}
+      >
         {artist.city}
         {artist.state && `, ${artist.state}`}
         {artist.country && `, ${artist.country}`}
       </p>
       {artist.born && (
-        <p className="tracking-tight text-zinc-500">b. {artist.born}</p>
+        <p
+          className={`tracking-tight text-zinc-500 ${
+            disableLink ? "text-base md:text-xl" : "text-sm md:text-lg"
+          }`}
+        >
+          b. {artist.born}
+        </p>
       )}
     </>
   );
 
-  const artistSlug = artist.artist_name
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9]/g, "-");
+  const artistSlug = generateSlug(artist.artist_name);
 
   return (
     <div className="grid grid-cols-1 items-start md:grid-cols-4">
-      <div className="order-2 flex h-full flex-col justify-between md:order-1">
+      <div className="order-2 flex h-full flex-col justify-between pr-12 md:order-1">
         {disableLink ? (
-          <div className="text-xl">
+          <div>
             <ArtistInfo />
           </div>
         ) : (
@@ -114,7 +131,7 @@ export function ArtistCard({
             {slides.map((slide) => (
               <div
                 key={slide.id}
-                className="relative aspect-square w-full md:aspect-[2/3]"
+                className="group relative aspect-[2/3] w-full"
               >
                 {disableLink ? (
                   <Image
@@ -136,7 +153,7 @@ export function ArtistCard({
                       alt={slide.alt}
                       fill
                       loading="lazy"
-                      className="object-cover"
+                      className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
                       quality={slide.id === "artist-photo" ? 70 : 10}
                     />

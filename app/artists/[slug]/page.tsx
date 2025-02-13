@@ -8,6 +8,7 @@ import { ArtistCard } from "@/components/ArtistCard";
 import { incrementViewCount } from "./actions";
 import { COMPANY_METADATA } from "@/app/lib/constants";
 import { ArtworkGrid } from "./ArtworkGrid";
+import { generateSlug } from "@/lib/utils";
 
 async function getArtistBySlug(slug: string): Promise<Artist | null> {
   const { data: artists, error: artistError } = await supabase
@@ -21,13 +22,7 @@ async function getArtistBySlug(slug: string): Promise<Artist | null> {
   }
 
   const artist = artists.find((artist) => {
-    const normalizedName = artist.artist_name
-      .toLowerCase()
-      .normalize("NFD") // Decompose characters with diacritics
-      .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
-      .replace(/[^a-zA-Z0-9]/g, "-"); // Replace non-alphanumeric with hyphens
-
-    return normalizedName === slug;
+    return generateSlug(artist.artist_name) === slug;
   });
 
   if (!artist) {
@@ -168,11 +163,7 @@ export async function generateStaticParams() {
   if (!artists) return [];
 
   return artists.map((artist) => ({
-    slug: artist.artist_name
-      .toLowerCase()
-      .normalize("NFD") // Decompose characters with diacritics
-      .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
-      .replace(/[^a-zA-Z0-9]/g, "-"), // Replace non-alphanumeric with hyphens
+    slug: generateSlug(artist.artist_name),
   }));
 }
 
