@@ -7,6 +7,7 @@ import { Search } from "lucide-react";
 import Image from "next/image";
 import { QuickLink } from "@/components/Link";
 import { generateSlug } from "@/lib/utils";
+import { REGION_MAPPINGS } from "@/lib/regionMappings";
 
 type ViewMode = "list" | "grid" | "directory";
 
@@ -56,10 +57,37 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
 
   useEffect(() => {
     const filtered = initialArtists.filter((artist) => {
-      const artistName = generateSlug(artist.artist_name);
       const normalizedQuery = generateSlug(searchQuery);
-      return artistName.includes(normalizedQuery);
+
+      // Only check regions if there's a search query
+      if (normalizedQuery) {
+        // Check if search query matches any region
+        const matchingRegion = Object.entries(REGION_MAPPINGS).find(
+          ([region]) => generateSlug(region).includes(normalizedQuery),
+        );
+
+        if (matchingRegion && artist.country) {
+          // If searching for a region, check if artist's country is in that region
+          return matchingRegion[1].some((country) =>
+            generateSlug(artist.country || "").includes(generateSlug(country)),
+          );
+        }
+      }
+
+      // If no search query or no region match, do regular search
+      const searchTerms = [
+        generateSlug(artist.artist_name),
+        generateSlug(artist.city || ""),
+        generateSlug(artist.state || ""),
+        generateSlug(artist.country || ""),
+      ];
+
+      return (
+        normalizedQuery === "" ||
+        searchTerms.some((term) => term.includes(normalizedQuery))
+      );
     });
+
     setFilteredArtists(filtered);
     setCurrentPage(1);
     setDisplayedArtists(
@@ -132,9 +160,14 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
                     />
                   )}
                 </div>
-                <h2 className="mb-8 text-base md:text-xl">
+                <h2 className="mb-0 text-base md:text-xl">
                   {artist.artist_name}
                 </h2>
+                <p className="mb-4 text-sm tracking-tight text-zinc-500 md:mb-8 md:text-base">
+                  {artist.city}
+                  {artist.state && `, ${artist.state}`}
+                  {artist.country && `, ${artist.country}`}
+                </p>
               </QuickLink>
             ))}
           </div>
