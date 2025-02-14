@@ -16,6 +16,32 @@ const nextConfig = {
     ],
   },
   redirects: async () => [
+    // Special cases for accented/special characters
+    {
+      source: "/artist/anna-n%C3%BA%C3%B1ez",
+      destination: "/artists/anna-nunez",
+      permanent: true,
+    },
+    {
+      source: "/artist/daniel-gr%C3%BCttner",
+      destination: "/artists/daniel-gruttner",
+      permanent: true,
+    },
+    {
+      source: "/artist/thorbj%C3%B8rn-bechmann",
+      destination: "/artists/thorbjorn-bechmann",
+      permanent: true,
+    },
+    {
+      source: "/artist/nicholas-o'leary",
+      destination: "/artists/nicholas-o-leary",
+      permanent: true,
+    },
+    {
+      source: "/artist/lorena-fr%C3%ADas",
+      destination: "/artists/lorena-frias",
+      permanent: true,
+    },
     // Artist redirects
     {
       source: "/artist/:slug",
