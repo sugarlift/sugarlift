@@ -7,15 +7,15 @@ import { FEATURED_EXHIBITIONS, FEATURED_PROJECTS } from "@/app/lib/constants";
 import { SectionHeader } from "@/components/SectionHeader";
 import { getPlausibleStats } from "@/lib/plausible";
 
-// Mark the page as static
-export const dynamic = "force-static";
-
-// If you need to revalidate the page periodically (optional)
-export const revalidate = 3600; // revalidate every hour
+// Change from static to dynamic
+export const dynamic = "force-dynamic";
 
 async function getFeaturedData() {
   // Get view counts first
   const viewCounts = await getPlausibleStats();
+
+  // Add debug logging
+  console.log("Plausible view counts in getFeaturedData:", viewCounts);
 
   const { data: artists } = await supabase
     .from("artists")

@@ -7,11 +7,8 @@ import { COMPANY_METADATA } from "@/app/lib/constants";
 import { Metadata } from "next";
 import { getPlausibleStats } from "@/lib/plausible";
 
-// Change from force-dynamic to force-static
-export const dynamic = "force-static";
-
-// Add revalidation period (e.g., every hour)
-export const revalidate = 3600;
+// Change from force-static to dynamic to ensure fresh data
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: `${COMPANY_METADATA.name} | Artists`,
@@ -37,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 async function getArtists(): Promise<Artist[]> {
-  // First get all artists
+  // Add no-cache headers to the fetch requests
   const { data: artists, error: artistError } = await supabase
     .from("artists")
     .select("*")
@@ -50,6 +47,9 @@ async function getArtists(): Promise<Artist[]> {
 
   // Get view counts from Plausible
   const viewCounts = await getPlausibleStats();
+
+  // Add debug logging
+  console.log("Plausible view counts in getArtists:", viewCounts);
 
   // Then get artwork for all artists
   const { data: artworks, error: artworkError } = await supabase
