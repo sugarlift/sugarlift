@@ -5,7 +5,6 @@ import { Metadata } from "next";
 import { Instagram, Globe } from "lucide-react";
 import Link from "next/link";
 import { ArtistCard } from "@/components/ArtistCard";
-import { incrementViewCount } from "./actions";
 import { COMPANY_METADATA } from "@/app/lib/constants";
 import { ArtworkGrid } from "./ArtworkGrid";
 import { generateSlug } from "@/lib/utils";
@@ -80,12 +79,6 @@ export default async function ArtistPage({ params }: { params: Params }) {
   if (!artist) {
     notFound();
   }
-
-  console.log("📝 About to increment view count for:", artist.artist_name);
-
-  await incrementViewCount({ artistName: artist.artist_name });
-
-  console.log("✅ Finished incrementViewCount call");
 
   return (
     <>

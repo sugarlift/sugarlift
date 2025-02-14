@@ -34,10 +34,6 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
   const ARTISTS_PER_PAGE = 8;
 
   const getSortedArtists = (artists: Artist[], mode: ViewMode) => {
-    const sortedByViews = [...artists].sort(
-      (a, b) => (b.view_count || 0) - (a.view_count || 0),
-    );
-
     const alphabeticalArtists = [...artists].sort((a, b) => {
       const nameA = splitName(a.artist_name);
       const nameB = splitName(b.artist_name);
@@ -48,11 +44,7 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
       return lastNameComparison;
     });
 
-    return mode === "grid"
-      ? sortedByViews
-      : mode === "directory"
-        ? alphabeticalArtists
-        : artists;
+    return mode === "directory" ? alphabeticalArtists : artists;
   };
 
   useEffect(() => {

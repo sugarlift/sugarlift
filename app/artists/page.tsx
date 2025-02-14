@@ -41,7 +41,6 @@ async function getArtists(): Promise<Artist[]> {
     .from("artists")
     .select("*")
     .eq("live_in_production", true)
-    .order("view_count", { ascending: false })
     .order("artist_name", { ascending: true });
 
   if (artistError) {
