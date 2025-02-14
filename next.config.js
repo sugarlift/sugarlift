@@ -15,7 +15,41 @@ const nextConfig = {
       },
     ],
   },
-  // ... other config
+  redirects: async () => [
+    // Artist redirects
+    {
+      source: "/artist/:slug",
+      destination: "/artists/:slug",
+      permanent: true,
+    },
+    {
+      source: "/artist",
+      destination: "/artists",
+      permanent: true,
+    },
+    // Exhibition redirects
+    {
+      source: "/exhibition/:slug",
+      destination: "/exhibitions/:slug",
+      permanent: true,
+    },
+    {
+      source: "/exhibition",
+      destination: "/exhibitions",
+      permanent: true,
+    },
+    // Projects redirects
+    {
+      source: "/projects",
+      destination: "/clients",
+      permanent: true,
+    },
+    {
+      source: "/project/:slug",
+      destination: "/clients/:slug",
+      permanent: true,
+    },
+  ],
   sassOptions: {
     silenceDeprecations: ["legacy-js-api"],
   },
