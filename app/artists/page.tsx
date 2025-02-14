@@ -34,7 +34,6 @@ export const metadata: Metadata = {
 };
 
 async function getArtists(): Promise<Artist[]> {
-  // Add no-cache headers to the fetch requests
   const { data: artists, error: artistError } = await supabase
     .from("artists")
     .select("*")
@@ -47,9 +46,6 @@ async function getArtists(): Promise<Artist[]> {
 
   // Get view counts from Plausible
   const viewCounts = await getPlausibleStats();
-
-  // Add debug logging
-  console.log("Plausible view counts in getArtists:", viewCounts);
 
   // Then get artwork for all artists
   const { data: artworks, error: artworkError } = await supabase
@@ -74,19 +70,7 @@ async function getArtists(): Promise<Artist[]> {
   }));
 
   // Sort by view count (highest first)
-  const sortedArtists = artistsWithStats.sort(
-    (a, b) => b.viewCount - a.viewCount,
-  );
-
-  console.log(
-    "Top 5 artists by views:",
-    sortedArtists.slice(0, 5).map((artist) => ({
-      name: artist.artist_name,
-      views: artist.viewCount,
-    })),
-  );
-
-  return sortedArtists;
+  return artistsWithStats.sort((a, b) => b.viewCount - a.viewCount);
 }
 
 export default async function ArtistsPage() {

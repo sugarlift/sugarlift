@@ -14,9 +14,6 @@ async function getFeaturedData() {
   // Get view counts first
   const viewCounts = await getPlausibleStats();
 
-  // Add debug logging
-  console.log("Plausible view counts in getFeaturedData:", viewCounts);
-
   const { data: artists } = await supabase
     .from("artists")
     .select("*")
