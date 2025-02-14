@@ -5,6 +5,7 @@ import { Slider } from "@/components/Slider";
 import { supabase } from "@/lib/supabase";
 import { FEATURED_EXHIBITIONS, FEATURED_PROJECTS } from "@/app/lib/constants";
 import { SectionHeader } from "@/components/SectionHeader";
+import { getPlausibleStats } from "@/lib/plausible";
 
 // Mark the page as static
 export const dynamic = "force-static";
@@ -13,18 +14,27 @@ export const dynamic = "force-static";
 export const revalidate = 3600; // revalidate every hour
 
 async function getFeaturedData() {
+  // Get view counts first
+  const viewCounts = await getPlausibleStats();
+
   const { data: artists } = await supabase
     .from("artists")
     .select("*")
-    .eq("live_in_production", true)
-    .order("view_count", { ascending: false })
-    .order("artist_name", { ascending: true })
-    .limit(9);
+    .eq("live_in_production", true);
+
+  // Add view counts and sort
+  const artistsWithStats = (artists || [])
+    .map((artist) => ({
+      ...artist,
+      viewCount: viewCounts[artist.artist_name] || 0,
+    }))
+    .sort((a, b) => b.viewCount - a.viewCount)
+    .slice(0, 9); // Keep only top 9 artists
 
   return {
     exhibitions: [...FEATURED_EXHIBITIONS],
     projects: [...FEATURED_PROJECTS],
-    artists: artists || [],
+    artists: artistsWithStats,
   };
 }
 

@@ -16,6 +16,7 @@ export interface Artist {
   slug?: string;
   created_at: string;
   updated_at: string;
+  viewCount?: number;
 }
 
 export interface WebhookError extends Error {

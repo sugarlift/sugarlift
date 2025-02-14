@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Artist } from "@/lib/types";
 import { COMPANY_METADATA } from "@/app/lib/constants";
 import { Metadata } from "next";
+import { getPlausibleStats } from "@/lib/plausible";
 
 // Change from force-dynamic to force-static
 export const dynamic = "force-static";
@@ -40,13 +41,15 @@ async function getArtists(): Promise<Artist[]> {
   const { data: artists, error: artistError } = await supabase
     .from("artists")
     .select("*")
-    .eq("live_in_production", true)
-    .order("artist_name", { ascending: true });
+    .eq("live_in_production", true);
 
   if (artistError) {
     console.error("Error fetching artists:", artistError);
     return [];
   }
+
+  // Get view counts from Plausible
+  const viewCounts = await getPlausibleStats();
 
   // Then get artwork for all artists
   const { data: artworks, error: artworkError } = await supabase
@@ -60,14 +63,30 @@ async function getArtists(): Promise<Artist[]> {
     return artists || [];
   }
 
-  // Combine artists with their artwork
-  return (artists || []).map((artist) => ({
+  // Combine artists with their artwork and sort by view count
+  const artistsWithStats = (artists || []).map((artist) => ({
     ...artist,
     artwork:
       artworks?.filter(
         (artwork) => artwork.artist_name === artist.artist_name,
       ) || [],
+    viewCount: viewCounts[artist.artist_name] || 0,
   }));
+
+  // Sort by view count (highest first)
+  const sortedArtists = artistsWithStats.sort(
+    (a, b) => b.viewCount - a.viewCount,
+  );
+
+  console.log(
+    "Top 5 artists by views:",
+    sortedArtists.slice(0, 5).map((artist) => ({
+      name: artist.artist_name,
+      views: artist.viewCount,
+    })),
+  );
+
+  return sortedArtists;
 }
 
 export default async function ArtistsPage() {
