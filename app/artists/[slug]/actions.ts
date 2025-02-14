@@ -11,11 +11,18 @@ export async function incrementViewCount({
 }: {
   artistName: string;
 }) {
+  console.log("🔍 VIEW COUNT FUNCTION CALLED", {
+    artistName,
+    env: process.env.NODE_ENV,
+    isEdge: process.env.NEXT_RUNTIME === "edge",
+    isBuild: process.env.BUILD_TIME === "true",
+  });
+
   console.log(`Attempting to increment view count for ${artistName}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
 
-  // Only increment view count in production
-  if (process.env.NODE_ENV === "production") {
+  // Only increment view count in production AND not during build time
+  if (process.env.NODE_ENV === "production" && !process.env.BUILD_TIME) {
     try {
       // Check if this artist was viewed recently
       const lastView = recentViews.get(artistName);
@@ -68,6 +75,8 @@ export async function incrementViewCount({
       console.error("Unexpected error in incrementViewCount:", error);
     }
   } else {
-    console.log("View count not incremented - not in production");
+    console.log(
+      "View count not incremented - not in production or is build time",
+    );
   }
 }

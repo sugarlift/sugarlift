@@ -81,7 +81,11 @@ export default async function ArtistPage({ params }: { params: Params }) {
     notFound();
   }
 
+  console.log("📝 About to increment view count for:", artist.artist_name);
+
   await incrementViewCount({ artistName: artist.artist_name });
+
+  console.log("✅ Finished incrementViewCount call");
 
   return (
     <>
