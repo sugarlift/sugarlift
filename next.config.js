@@ -6,6 +6,15 @@ const nextConfig = {
         ? "true"
         : "false",
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "ndnxcumwsgbbvfwjxkdi.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
+  },
   // ... other config
 };
 
