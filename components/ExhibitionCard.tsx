@@ -33,12 +33,12 @@ export const ExhibitionCard = ({
           <Image
             src={coverImage}
             alt={`Cover image for ${title}`}
-            quality={100}
+            quality={50}
             fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+            sizes="(min-width: 1280px) 1440px, (min-width: 768px) 50vw, 100vw"
             className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-            loading={priority ? "eager" : "lazy"}
             priority={priority}
+            loading={priority ? "eager" : "lazy"}
           />
         </div>
         <div className="p-3 pl-0 md:p-4 md:pl-0">
