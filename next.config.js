@@ -42,6 +42,12 @@ const nextConfig = {
       destination: "/artists/lorena-frias",
       permanent: true,
     },
+    // Artwork page redirects to artist page
+    {
+      source: "/artist/:slug/:artwork*",
+      destination: "/artists/:slug",
+      permanent: true,
+    },
     // Artist redirects
     {
       source: "/artist/:slug",

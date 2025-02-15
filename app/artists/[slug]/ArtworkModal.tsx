@@ -65,6 +65,7 @@ export function ArtworkModal({ artwork, onClose }: ArtworkModalProps) {
             height={800}
             quality={20}
             className="h-full w-auto max-w-[90vw] object-contain"
+            sizes="(max-width: 768px) 100vw, (max-width: 600px) 50vw, 33vw"
             priority
           />
 
