@@ -44,9 +44,8 @@ export function DeployButton() {
             </h3>
             <div className="mt-1 flex items-center space-x-2">
               <p className="text-sm text-gray-500">
-                Deploy if you have made changes to the artists' names or
-                added/removed artists. <br />
-                The process usually takes 1-2 minutes to complete.
+                To see the synced changes in production, you must deploy a new
+                version to Vercel.
               </p>
             </div>
           </div>
