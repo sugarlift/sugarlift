@@ -42,23 +42,16 @@ type SyncMode = "bulk" | "incremental";
 //   description?: string;
 // }
 
-// Add this as a new component to handle status display
+// Simplify the StatusDisplay component
 function StatusDisplay({
   error,
   result,
   isLoading,
-  progress,
   elapsedTime,
 }: {
   error: string | null;
   result: SyncResult | null;
   isLoading: boolean;
-  progress: {
-    current: number;
-    total: number;
-    currentBatch: number;
-    totalBatches: number;
-  } | null;
   elapsedTime: number;
 }) {
   return (
@@ -79,30 +72,13 @@ function StatusDisplay({
 
       {isLoading && (
         <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-700">
-          <div className="mb-2 flex items-center justify-between">
-            <p>Syncing in progress...</p>
-            <p className="font-mono">{formatDuration(elapsedTime)}</p>
-          </div>
-          {progress && (
-            <div className="mt-2">
-              <div className="h-2 w-full rounded-full bg-blue-200">
-                <div
-                  className="h-2 rounded-full bg-blue-600 transition-all"
-                  style={{
-                    width: `${(progress.current / progress.total) * 100}%`,
-                  }}
-                />
-              </div>
-              <div className="mt-1 flex justify-between text-xs">
-                <p>
-                  Batch {progress.currentBatch} of {progress.totalBatches}
-                </p>
-                <p>
-                  {progress.current} of {progress.total} records
-                </p>
-              </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-700 border-t-transparent" />
+              <p className="text-sm font-medium">Syncing in progress...</p>
             </div>
-          )}
+            <p className="text-sm font-medium">{formatDuration(elapsedTime)}</p>
+          </div>
         </div>
       )}
     </div>
@@ -117,12 +93,6 @@ export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
   const [syncMode, setSyncMode] = useState<SyncMode>("incremental");
   const [batchSize, setBatchSize] = useState(25);
   const [concurrency, setConcurrency] = useState(2);
-  const [progress, setProgress] = useState<{
-    current: number;
-    total: number;
-    currentBatch: number;
-    totalBatches: number;
-  } | null>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [incrementalProcessImages, setIncrementalProcessImages] =
@@ -130,28 +100,8 @@ export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
   const [bulkProcessImages, setBulkProcessImages] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Update the progress endpoint URL
-  const progressEndpoint = "/api/sync/progress";
-
   useEffect(() => {
-    let eventSource: EventSource | null = null;
     let intervalId: NodeJS.Timeout;
-
-    if (isLoading) {
-      console.log("Initializing SSE connection");
-      eventSource = new EventSource(progressEndpoint);
-
-      eventSource.onmessage = (event) => {
-        console.log("SSE Progress update:", event.data);
-        const progress = JSON.parse(event.data);
-        setProgress(progress);
-      };
-
-      eventSource.onerror = (error) => {
-        console.error("SSE Error:", error);
-        eventSource?.close();
-      };
-    }
 
     if (isLoading && startTime) {
       intervalId = setInterval(() => {
@@ -160,13 +110,9 @@ export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
     }
 
     return () => {
-      if (eventSource) {
-        console.log("Closing SSE connection");
-        eventSource.close();
-      }
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isLoading, startTime, progressEndpoint]);
+  }, [isLoading, startTime]);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -207,7 +153,6 @@ export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
     setIsLoading(true);
     setError(null);
     setResult(null);
-    setProgress(null);
     setStartTime(Date.now());
     setElapsedTime(0);
 
@@ -244,7 +189,6 @@ export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
     } finally {
       setIsLoading(false);
       setStartTime(null);
-      setProgress(null);
     }
   }
 
@@ -283,7 +227,7 @@ export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
                     }}
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    Reset
+                    Reset database...
                   </button>
                 </div>
               </div>
@@ -347,7 +291,6 @@ export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
               error={error}
               result={result}
               isLoading={isLoading}
-              progress={progress}
               elapsedTime={elapsedTime}
             />
           )}
@@ -448,7 +391,6 @@ export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
                       error={error}
                       result={result}
                       isLoading={isLoading}
-                      progress={progress}
                       elapsedTime={elapsedTime}
                     />
                   )}
