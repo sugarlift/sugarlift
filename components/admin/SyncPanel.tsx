@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { HelpCircle, Check } from "lucide-react";
 
 interface SyncPanelProps {
   title: string;
@@ -35,12 +34,12 @@ function formatDuration(ms: number): string {
 // Add this type for sync modes
 type SyncMode = "bulk" | "incremental";
 
-// Add these interfaces at the top
-interface ColumnConfig {
-  key: string;
-  label: string;
-  description?: string;
-}
+// Remove the unused ColumnConfig interface
+// interface ColumnConfig {
+//   key: string;
+//   label: string;
+//   description?: string;
+// }
 
 export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
   const [isLoading, setIsLoading] = useState(false);

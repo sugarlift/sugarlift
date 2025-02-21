@@ -17,13 +17,15 @@ export function FeaturedArtists({ artist }: FeaturedArtistsProps) {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-zA-Z0-9]/g, "-");
 
+  const validPhotoUrl = artist.artist_photo?.[0]?.url;
+
   return (
     <Link href={`/artists/${artistSlug}`} className="block">
       <div className="group">
         <div className="relative aspect-[2/3] w-full overflow-hidden">
-          {artist.artist_photo && artist.artist_photo.length > 0 && (
+          {validPhotoUrl && (
             <Image
-              src={artist.artist_photo[0].url}
+              src={validPhotoUrl}
               alt={artist.artist_name}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"

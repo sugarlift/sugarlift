@@ -10,6 +10,13 @@ import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { generateSlug } from "@/lib/utils";
 
+// Add interface for slide type
+interface ArtworkSlide {
+  url: string; // Make this required and non-null
+  alt: string;
+  id: string;
+}
+
 interface ArtistCardProps {
   artist: Artist;
   disableLink?: boolean;
@@ -24,25 +31,34 @@ export function ArtistCard({
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // Simple delay to ensure DOM is updated
     if (artist.artwork) {
       setTimeout(() => setIsReady(true), 100);
     }
   }, [artist.artwork]);
 
-  // Create slides array only when ready
-  const slides = isReady
+  // Create slides array with proper type checking
+  const slides: ArtworkSlide[] = isReady
     ? [
         // First slide - Artist photo
-        {
-          url: artist.artist_photo[0].url,
-          alt: artist.artist_name,
-          id: "artist-photo",
-        },
-        // First 4 artwork slides
+        ...(artist.artist_photo?.[0]?.url
+          ? [
+              {
+                url: artist.artist_photo[0].url,
+                alt: artist.artist_name,
+                id: "artist-photo",
+              },
+            ]
+          : []),
+        // First 2 artwork slides
         ...(artist.artwork ?? [])
           .slice(0, 2)
-          .filter((artwork) => artwork.artwork_images?.[0])
+          .filter(
+            (
+              artwork,
+            ): artwork is typeof artwork & {
+              artwork_images: [{ url: string }];
+            } => !!artwork.artwork_images?.[0]?.url,
+          )
           .map((artwork) => ({
             url: artwork.artwork_images[0].url,
             alt: `${artist.artist_name} - ${artwork.title || "Artwork"}`,

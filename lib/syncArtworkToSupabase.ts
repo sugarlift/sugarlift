@@ -7,8 +7,7 @@ import {
   SyncError,
 } from "./types";
 import Logger from "./logger";
-import { Record, Attachment, FieldSet } from "airtable";
-import { progressEmitter } from "@/lib/utils/progressEmitter";
+import { Record, FieldSet } from "airtable";
 
 // Define the fields interface for Airtable records
 export interface AirtableFields {
@@ -67,8 +66,18 @@ function convertAirtableRecord(
   return converted;
 }
 
-// Add this helper function to convert Airtable Attachment to AirtableAttachment
-function convertAttachment(att: any): AirtableAttachment {
+// Add this interface near other interfaces
+interface RawAirtableAttachment {
+  id: string;
+  url: string;
+  filename: string;
+  type: string;
+  width?: number;
+  height?: number;
+}
+
+// Update the function to use the new interface
+function convertAttachment(att: RawAirtableAttachment): AirtableAttachment {
   return {
     id: att.id,
     url: att.url,
@@ -210,6 +219,13 @@ export function emitProgress(progress: {
   }
 }
 
+// Add this interface near the top with other interfaces
+interface ExistingArtwork {
+  id: string;
+  updated_at: string;
+  live_in_production: boolean;
+}
+
 export async function syncArtworkToSupabase(
   options: SyncOptions = { mode: "incremental" },
 ) {
@@ -231,7 +247,7 @@ export async function syncArtworkToSupabase(
 
   try {
     // Get existing records with last update time
-    let existingArtworks = [];
+    let existingArtworks: ExistingArtwork[] = [];
     if (!skipExistingCheck) {
       const { data: existing } = await supabaseAdmin
         .from("artwork")
@@ -478,22 +494,6 @@ async function processArtworkRecord(
   return artwork as Artwork;
 }
 
-// Fix the type error in getExistingFieldValue
-async function getExistingFieldValue(
-  recordId: string,
-  field: string,
-): Promise<string | null> {
-  const { data } = await supabaseAdmin
-    .from("artwork")
-    .select(field)
-    .eq("id", recordId)
-    .single();
-
-  // Ensure we only return string or null
-  const value = data?.[field as keyof typeof data];
-  return typeof value === "string" ? value : null;
-}
-
 // Separate function for image processing
 async function processArtworkImages(
   record: Record<AirtableRecord>,
@@ -506,7 +506,7 @@ async function processArtworkImages(
     for (const [index, att] of rawAttachments.entries()) {
       try {
         const attachment = await uploadArtworkImageToSupabase(
-          convertAttachment(att),
+          convertAttachment(att as RawAirtableAttachment),
           { title },
         );
         if (attachment.url) {

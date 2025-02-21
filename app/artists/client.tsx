@@ -134,34 +134,39 @@ export function ArtistsClient({ initialArtists }: ArtistsClientProps) {
       case "grid":
         return (
           <div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-4">
-            {displayedArtists.map((artist) => (
-              <QuickLink
-                href={`/artists/${generateSlug(artist.artist_name)}`}
-                key={artist.id}
-              >
-                <div className="group relative mb-2 aspect-[3/5] overflow-hidden md:mb-4">
-                  {artist.artist_photo && artist.artist_photo[0] && (
-                    <Image
-                      src={artist.artist_photo[0].url}
-                      alt={artist.artist_name}
-                      quality={50}
-                      fill
-                      loading="lazy"
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 25vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                    />
-                  )}
-                </div>
-                <h2 className="mb-0 text-base md:text-xl">
-                  {artist.artist_name}
-                </h2>
-                <p className="mb-4 text-sm tracking-tight text-zinc-500 md:mb-8 md:text-base">
-                  {artist.city}
-                  {artist.state && `, ${artist.state}`}
-                  {artist.country && `, ${artist.country}`}
-                </p>
-              </QuickLink>
-            ))}
+            {displayedArtists.map((artist) => {
+              // Add type guard for artist photos
+              const validPhoto = artist.artist_photo?.[0]?.url;
+
+              return (
+                <QuickLink
+                  href={`/artists/${generateSlug(artist.artist_name)}`}
+                  key={artist.id}
+                >
+                  <div className="group relative mb-2 aspect-[3/5] overflow-hidden md:mb-4">
+                    {validPhoto && (
+                      <Image
+                        src={validPhoto}
+                        alt={artist.artist_name}
+                        quality={50}
+                        fill
+                        loading="lazy"
+                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 25vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                      />
+                    )}
+                  </div>
+                  <h2 className="mb-0 text-base md:text-xl">
+                    {artist.artist_name}
+                  </h2>
+                  <p className="mb-4 text-sm tracking-tight text-zinc-500 md:mb-8 md:text-base">
+                    {artist.city}
+                    {artist.state && `, ${artist.state}`}
+                    {artist.country && `, ${artist.country}`}
+                  </p>
+                </QuickLink>
+              );
+            })}
           </div>
         );
 

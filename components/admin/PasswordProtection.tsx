@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 const AUTH_KEY = "admin_auth_status";
 const AUTH_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
@@ -15,7 +14,6 @@ export function PasswordProtection({ children }: PasswordProtectionProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     // Check localStorage for existing auth
@@ -28,7 +26,7 @@ export function PasswordProtection({ children }: PasswordProtectionProps) {
         } else {
           localStorage.removeItem(AUTH_KEY);
         }
-      } catch (e) {
+      } catch {
         localStorage.removeItem(AUTH_KEY);
       }
     }

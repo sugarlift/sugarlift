@@ -12,6 +12,22 @@ interface SyncError {
   error: Error | PostgrestError;
 }
 
+interface Artist {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  artist_name: string;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  born: string | null;
+  artist_bio: string | null;
+  artist_photo?: StoredAttachment[];
+  website: string | null;
+  ig_handle: string | null;
+  live_in_production: boolean;
+}
+
 async function uploadArtistPhotoToSupabase(
   attachment: AirtableAttachment,
   artist: { artist_name: string },
@@ -149,10 +165,6 @@ export async function syncArtistsToSupabase({
     Math.min(1000 * Math.pow(2, attempt), 30000);
   const maxRetries = 3;
 
-  // Determine if we should skip images based on selected columns
-  const shouldSkipImages =
-    skipImages || (columns.length > 0 && !columns.includes("artist_photo"));
-
   Logger.info("Starting artist sync", {
     mode,
     batchSize,
@@ -163,7 +175,7 @@ export async function syncArtistsToSupabase({
   });
 
   // Helper function to handle Supabase upsert with retries
-  async function upsertWithRetry(data: any[], attempt = 0) {
+  async function upsertWithRetry(data: Partial<Artist>[], attempt = 0) {
     try {
       // Validate and clean the data before sending
       const cleanedData = data.map((record) => {
@@ -198,17 +210,17 @@ export async function syncArtistsToSupabase({
           });
         }
 
-        const cleaned = {
+        const cleaned: Partial<Artist> = {
           id: record.id,
-          artist_name: record.artist_name?.slice(0, 255) || null,
-          city: record.city?.slice(0, 255) || null,
-          state: record.state?.slice(0, 255) || null,
-          country: record.country?.slice(0, 255) || null,
-          born: record.born?.slice(0, 255) || null,
-          artist_bio: record.artist_bio?.slice(0, 10000) || null,
+          artist_name: record.artist_name || undefined,
+          city: record.city || undefined,
+          state: record.state || undefined,
+          country: record.country || undefined,
+          born: record.born || undefined,
+          artist_bio: record.artist_bio || undefined,
           artist_photo: cleanedPhotos,
-          website: record.website?.slice(0, 255) || null,
-          ig_handle: record.ig_handle?.slice(0, 255) || null,
+          website: record.website || undefined,
+          ig_handle: record.ig_handle || undefined,
           live_in_production: !!record.live_in_production,
         };
 
@@ -216,7 +228,7 @@ export async function syncArtistsToSupabase({
         Logger.debug("Cleaned record structure:", {
           id: cleaned.id,
           hasName: !!cleaned.artist_name,
-          photoCount: cleaned.artist_photo.length,
+          photoCount: cleaned.artist_photo?.length ?? 0,
           recordSize: JSON.stringify(cleaned).length,
         });
 
@@ -288,9 +300,9 @@ export async function syncArtistsToSupabase({
         error: errorDetails,
         dataLength: data.length,
         firstRecordId: data[0]?.id,
-        statusCode: (error as any)?.code,
-        hint: (error as any)?.hint,
-        details: (error as any)?.details,
+        statusCode: (error as PostgrestError)?.code,
+        hint: (error as PostgrestError)?.hint,
+        details: (error as PostgrestError)?.details,
       });
       throw error;
     }
@@ -365,7 +377,8 @@ export async function syncArtistsToSupabase({
             );
 
             const validArtistData = artistData.filter(
-              (artist): artist is NonNullable<typeof artist> => artist !== null,
+              (artist: Partial<Artist> | null): artist is Partial<Artist> =>
+                artist !== null,
             );
 
             if (validArtistData.length === 0) {
@@ -375,7 +388,13 @@ export async function syncArtistsToSupabase({
             if (mode === "incremental" || mode === "bulk") {
               const chunkSize = 3;
               for (let i = 0; i < validArtistData.length; i += chunkSize) {
-                const chunk = validArtistData.slice(i, i + chunkSize);
+                const chunk = validArtistData
+                  .slice(i, i + chunkSize)
+                  .filter(
+                    (data): data is Partial<Artist> & { id: string } =>
+                      data !== null,
+                  );
+
                 try {
                   await upsertWithRetry(chunk);
                 } catch (error) {
@@ -417,9 +436,9 @@ export async function syncArtistsToSupabase({
             Logger.error("Batch processing error:", {
               error: error instanceof Error ? error.message : "Unknown error",
               batchSize: batch.length,
-              statusCode: (error as any)?.code,
-              hint: (error as any)?.hint,
-              details: (error as any)?.details,
+              statusCode: (error as PostgrestError)?.code,
+              hint: (error as PostgrestError)?.hint,
+              details: (error as PostgrestError)?.details,
             });
             errors.push({
               message: error instanceof Error ? error.message : "Unknown error",
@@ -493,15 +512,4 @@ async function processArtistRecord(
   // This will preserve existing image data in Supabase
 
   return result;
-}
-
-// Add helper function to get existing values
-async function getExistingFieldValue(recordId: string, field: string) {
-  const { data } = await supabaseAdmin
-    .from("artists")
-    .select(field)
-    .eq("id", recordId)
-    .single();
-
-  return data?.[field as keyof typeof data] || null;
 }

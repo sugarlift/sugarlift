@@ -12,7 +12,9 @@ interface ArtworkModalProps {
 
 export function ArtworkModal({ artwork, onClose }: ArtworkModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const images = artwork.artwork_images || [];
+  const images = (artwork.artwork_images || []).filter(
+    (img): img is typeof img & { url: string } => !!img.url,
+  );
   const hasMultipleImages = images.length > 1;
 
   // Close on escape key
