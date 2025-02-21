@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Rocket, HelpCircle } from "lucide-react";
+import { Loader2, Rocket } from "lucide-react";
 
 export function DeployButton() {
   const [isDeploying, setIsDeploying] = useState(false);
@@ -44,22 +44,10 @@ export function DeployButton() {
             </h3>
             <div className="mt-1 flex items-center space-x-2">
               <p className="text-sm text-gray-500">
-                Deploy your changes to the live website
+                Deploy if you have made changes to the artists' names or
+                added/removed artists. <br />
+                The process usually takes 1-2 minutes to complete.
               </p>
-              <div className="group relative">
-                <HelpCircle
-                  size={16}
-                  className="text-gray-400 hover:text-gray-600"
-                />
-                <div className="absolute bottom-full left-1/2 mb-2 hidden w-[300px] -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-sm text-white group-hover:block">
-                  <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                  <div className="max-w-xs">
-                    This will deploy your latest changes to the production
-                    environment. The process usually takes 1-2 minutes to
-                    complete.
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
           <button
