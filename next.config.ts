@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "ndnxcumwsgbbvfwjxkdi.supabase.co",
       },
+      {
+        protocol: "https",
+        hostname: "v5.airtableusercontent.com",
+      },
     ],
   },
   sassOptions: {

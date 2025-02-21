@@ -12,15 +12,26 @@ type SyncProgress = {
 
 export async function POST(request: Request) {
   try {
-    const { batchSize = 50, concurrency = 3 } = await request.json();
+    const {
+      mode = "bulk",
+      batchSize = 50,
+      concurrency = 3,
+      processImages = false,
+    } = await request.json();
 
-    Logger.debug("Starting artwork sync", { batchSize, concurrency });
-
-    const result = await syncArtworkToSupabase({
-      mode: "bulk",
+    Logger.info("Starting artwork sync", {
+      mode,
       batchSize,
       concurrency,
-      skipExistingCheck: true,
+      processImages: processImages ? "yes" : "no",
+    });
+
+    const result = await syncArtworkToSupabase({
+      mode,
+      batchSize,
+      concurrency,
+      skipExistingCheck: mode === "bulk",
+      skipImages: !processImages,
       onProgress: (progress: SyncProgress) => {
         progressEmitter.emitProgress({
           type: "artwork",

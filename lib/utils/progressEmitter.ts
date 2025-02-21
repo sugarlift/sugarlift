@@ -8,7 +8,7 @@ export interface SyncProgress {
   message?: string;
 }
 
-class ProgressEmitter extends EventEmitter {
+export class ProgressEmitter extends EventEmitter {
   private static instance: ProgressEmitter;
 
   private constructor() {
@@ -20,6 +20,10 @@ class ProgressEmitter extends EventEmitter {
       ProgressEmitter.instance = new ProgressEmitter();
     }
     return ProgressEmitter.instance;
+  }
+
+  reset() {
+    // No need to reset any state
   }
 
   emitProgress(progress: SyncProgress) {

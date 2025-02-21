@@ -12,15 +12,22 @@ export async function POST(request: Request) {
       mode = "bulk",
       batchSize = 50,
       concurrency = 3,
+      processImages = false,
     } = await request.json();
 
-    Logger.debug("Starting artist sync", { mode, batchSize, concurrency });
+    Logger.debug("Starting artist sync", {
+      mode,
+      batchSize,
+      concurrency,
+      processImages: processImages ? "yes" : "no",
+    });
 
     const result = await syncArtistsToSupabase({
       mode,
       batchSize,
       concurrency,
       skipExistingCheck: mode === "bulk",
+      skipImages: !processImages,
       onProgress: (progress: SyncProgress) => {
         progressEmitter.emitProgress({
           type: "artists",

@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import { QuickLink } from "../Link";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+const AUTH_KEY = "admin_auth_status";
+const AUTH_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
 interface PasswordProtectionProps {
   children: React.ReactNode;
 }
@@ -12,59 +14,111 @@ export function PasswordProtection({ children }: PasswordProtectionProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Check localStorage for existing auth
+    const authData = localStorage.getItem(AUTH_KEY);
+    if (authData) {
+      try {
+        const { timestamp } = JSON.parse(authData);
+        if (Date.now() - timestamp < AUTH_DURATION) {
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem(AUTH_KEY);
+        }
+      } catch (e) {
+        localStorage.removeItem(AUTH_KEY);
+      }
+    }
+    setIsLoading(false);
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you'd want to store this in an env variable
-    // and use proper authentication
-    if (password === "andytheai") {
-      setIsAuthenticated(true);
-      setError("");
-    } else {
-      setError("Incorrect password");
+    setError("");
+
+    try {
+      const response = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      if (response.ok) {
+        // Store auth status with timestamp
+        localStorage.setItem(
+          AUTH_KEY,
+          JSON.stringify({ timestamp: Date.now() }),
+        );
+        setIsAuthenticated(true);
+      } else {
+        setError("Incorrect password");
+        setPassword("");
+      }
+    } catch (error) {
+      setError("Authentication failed. Please try again.");
+      console.error("Auth error:", error);
     }
   };
 
-  if (isAuthenticated) {
-    return <>{children}</>;
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+      </div>
+    );
   }
 
-  return (
-    <main className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 py-24 text-center">
-      <h1 className="text-4xl">Admin Dashboard</h1>
-      <p className="text-xl text-gray-600">
-        Please enter the password to access the admin area
-      </p>
-      <form
-        onSubmit={handleSubmit}
-        className="mt-4 flex w-full max-w-sm flex-col gap-4"
-      >
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded border px-4 py-3 text-lg"
-          placeholder="Enter password"
-          required
-        />
-        {error && <p className="text-red-500">{error}</p>}
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+        <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-6 shadow-md">
+          <div>
+            <h2 className="text-center text-2xl font-bold text-gray-900">
+              Admin Access
+            </h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              Please enter the admin password to continue
+            </p>
+          </div>
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="password" className="sr-only">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                className="relative block w-full appearance-none rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
 
-        <Button type="submit" asChild className="group mt-4">
-          <QuickLink
-            href="/"
-            className="inline-flex items-center rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800"
-          >
-            Log in
-            <ArrowRight
-              className="-me-1 ms-2 mt-0.5 transition-transform group-hover:translate-x-0.5"
-              size={16}
-              strokeWidth={2}
-              aria-hidden="true"
-            />
-          </QuickLink>
-        </Button>
-      </form>
-    </main>
-  );
+            {error && (
+              <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              Continue
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return children;
 }

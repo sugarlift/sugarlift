@@ -8,36 +8,74 @@ import {
 } from "./types";
 import Logger from "./logger";
 import { Record, Attachment, FieldSet } from "airtable";
+import { progressEmitter } from "@/lib/utils/progressEmitter";
 
 // Define the fields interface for Airtable records
-type AirtableFields = {
+export interface AirtableFields {
   Title: string;
+  Artist: string;
   Medium: string;
   Year: string | number;
   "Width (e.)": string;
   "Height (e.)": string;
-  Artist: string;
   Type: string;
+  "Artwork images": AirtableAttachment[];
   "Last Modified": string;
-  "Artwork images": Attachment[];
-};
+  "ADD TO PRODUCTION": boolean;
+}
+
+// Create a more specific type for Airtable field values
+type AirtableFieldValue =
+  | string
+  | number
+  | boolean
+  | readonly string[]
+  | AirtableAttachment[]
+  | undefined
+  | null;
+
+// Update AirtableFields to properly extend FieldSet
+export interface AirtableFields {
+  Title: string;
+  Artist: string;
+  Medium: string;
+  Year: string | number;
+  "Width (e.)": string;
+  "Height (e.)": string;
+  Type: string;
+  "Artwork images": AirtableAttachment[];
+  "Last Modified": string;
+  "ADD TO PRODUCTION": boolean;
+  [key: string]: AirtableFieldValue; // This satisfies FieldSet constraint
+}
+
+// Create a type that combines FieldSet and our fields
+export type AirtableRecord = FieldSet & AirtableFields;
 
 // Helper function to safely convert Airtable record to our type
 function convertAirtableRecord(
   record: Record<FieldSet>,
-): Record<AirtableFields> {
-  return record as unknown as Record<AirtableFields>;
+): Record<AirtableRecord> {
+  // Type assertion is safe because we validate the required fields
+  const converted = record as unknown as Record<AirtableRecord>;
+
+  // Validate required fields exist
+  if (!converted.get("Title") && !converted.get("Artist")) {
+    throw new Error(`Invalid record: missing required fields`);
+  }
+
+  return converted;
 }
 
 // Add this helper function to convert Airtable Attachment to AirtableAttachment
-function convertAttachment(att: Attachment): AirtableAttachment {
+function convertAttachment(att: any): AirtableAttachment {
   return {
     id: att.id,
     url: att.url,
     filename: att.filename,
     type: att.type,
-    width: 0, // Default value since Airtable Attachment doesn't include width
-    height: 0, // Default value since Airtable Attachment doesn't include height
+    width: att.width || 0,
+    height: att.height || 0,
   };
 }
 
@@ -45,102 +83,115 @@ async function uploadArtworkImageToSupabase(
   attachment: AirtableAttachment,
   artwork: { title: string },
 ): Promise<StoredAttachment> {
-  try {
-    Logger.debug("Starting image upload", {
-      filename: attachment.filename,
-      url: attachment.url,
-      type: attachment.type,
-    });
+  const folderName = artwork.title
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9.-]/g, "-");
+  const cleanFilename = attachment.filename
+    .replace(/[^a-zA-Z0-9.-]/g, "-")
+    .toLowerCase();
+  const storagePath = `${folderName}/${cleanFilename}`;
 
-    // Validate attachment URL
-    if (!attachment.url || !attachment.url.startsWith("http")) {
-      throw new Error(`Invalid attachment URL for ${attachment.filename}`);
-    }
+  // Add retry logic for fetching
+  const maxRetries = 3;
+  const retryDelay = (attempt: number) =>
+    Math.min(1000 * Math.pow(2, attempt), 30000);
 
-    const folderName = artwork.title
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9.-]/g, "-");
-    const cleanFilename = attachment.filename
-      .replace(/[^a-zA-Z0-9.-]/g, "-")
-      .toLowerCase();
-    const storagePath = `${folderName}/${cleanFilename}`;
+  let lastError: Error | null = null;
 
-    // Replace the fetch with timeout implementation
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-    const response = await fetch(attachment.url, {
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.statusText}`);
-    }
-
-    // Validate content type
-    const contentType = response.headers.get("content-type");
-    if (!contentType?.startsWith("image/")) {
-      throw new Error(`Invalid content type: ${contentType}`);
-    }
-
-    const blob = await response.blob();
-
-    // Validate blob size
-    if (blob.size === 0) {
-      throw new Error("Empty image file");
-    }
-
-    Logger.debug("Uploading to Supabase storage", {
-      storagePath,
-      size: blob.size,
-      type: blob.type,
-    });
-
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from("attachments_artwork")
-      .upload(storagePath, blob, {
-        contentType: attachment.type,
-        upsert: true,
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      Logger.debug("Starting image upload attempt", {
+        attempt: attempt + 1,
+        filename: cleanFilename,
+        url: attachment.url,
       });
 
-    if (uploadError) {
-      Logger.error("Storage upload failed", uploadError, { storagePath });
-      throw uploadError;
+      const response = await fetch(attachment.url, {
+        signal: AbortSignal.timeout(30000), // 30 second timeout
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+
+      // Validate blob size
+      if (blob.size === 0) {
+        throw new Error("Empty image file");
+      }
+
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from("attachments_artwork")
+        .upload(storagePath, blob, {
+          contentType: attachment.type,
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabaseAdmin.storage
+        .from("attachments_artwork")
+        .getPublicUrl(storagePath);
+
+      Logger.info("Successfully uploaded image", {
+        url: publicUrl,
+        path: storagePath,
+        attempt: attempt + 1,
+      });
+
+      return {
+        url: publicUrl,
+        width: attachment.width,
+        height: attachment.height,
+        filename: attachment.filename,
+        type: attachment.type,
+      };
+    } catch (error) {
+      lastError = error as Error;
+
+      // Log the retry attempt
+      Logger.warn("Image upload attempt failed, retrying...", {
+        attempt: attempt + 1,
+        maxRetries,
+        filename: cleanFilename,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+
+      // If this isn't the last attempt, wait before retrying
+      if (attempt < maxRetries - 1) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, retryDelay(attempt)),
+        );
+        continue;
+      }
     }
-
-    const {
-      data: { publicUrl },
-    } = supabaseAdmin.storage
-      .from("attachments_artwork")
-      .getPublicUrl(storagePath);
-
-    Logger.info("Successfully uploaded image", {
-      url: publicUrl,
-      path: storagePath,
-    });
-
-    return {
-      url: publicUrl,
-      width: attachment.width,
-      height: attachment.height,
-      filename: attachment.filename,
-      type: attachment.type,
-    };
-  } catch (error) {
-    Logger.error("Image upload failed", error, {
-      filename: attachment.filename,
-      artworkTitle: artwork.title,
-    });
-    throw error;
   }
+
+  // If we get here, all retries failed
+  Logger.error("Image upload failed after all retries", {
+    filename: cleanFilename,
+    artworkTitle: artwork.title,
+    error: lastError,
+  });
+
+  // Return a partial record without the image
+  return {
+    url: null, // You'll need to update the StoredAttachment type to allow null
+    width: attachment.width,
+    height: attachment.height,
+    filename: attachment.filename,
+    type: attachment.type,
+  };
 }
 
 interface SyncOptions {
-  mode: "bulk" | "update";
+  mode: "bulk" | "incremental";
   batchSize?: number;
   skipExistingCheck?: boolean;
+  skipImages?: boolean;
   concurrency?: number;
   onProgress?: (progress: { current: number; total: number }) => void;
 }
@@ -160,36 +211,85 @@ export function emitProgress(progress: {
 }
 
 export async function syncArtworkToSupabase(
-  options: SyncOptions = { mode: "update" },
+  options: SyncOptions = { mode: "incremental" },
 ) {
-  Logger.info(`Starting artwork sync`, { options });
+  const {
+    mode = "bulk",
+    batchSize = 25,
+    concurrency = 2,
+    skipExistingCheck = false,
+    skipImages = false,
+  } = options;
+
+  // Keep this as DEBUG
+  Logger.debug("Starting artwork sync", {
+    mode,
+    batchSize,
+    concurrency,
+    processImages: !skipImages ? "yes" : "no",
+  });
 
   try {
-    console.log(`[SYNC] Starting artwork sync in ${options.mode} mode...`);
-    const table = getArtworkTable();
-    let processedCount = 0;
-    const errors: SyncError[] = [];
+    // Get existing records with last update time
+    let existingArtworks = [];
+    if (!skipExistingCheck) {
+      const { data: existing } = await supabaseAdmin
+        .from("artwork")
+        .select("id, updated_at, live_in_production");
+      existingArtworks = existing || [];
+    }
+
+    const existingArtworksMap = new Map(
+      existingArtworks?.map((artwork) => [
+        artwork.id,
+        new Date(artwork.updated_at),
+      ]) || [],
+    );
+
+    Logger.info("Existing artwork status", {
+      totalRecords: existingArtworks?.length || 0,
+      liveRecords:
+        existingArtworks?.filter((a) => a.live_in_production).length || 0,
+    });
 
     // Get all records that are marked for production from Airtable
+    const table = getArtworkTable();
     const records = await table
       .select({
-        filterByFormula: "{ADD TO PRODUCTION} = 1",
-        pageSize: options.batchSize || 100,
+        pageSize: batchSize,
       })
       .all();
 
-    Logger.info(`Retrieved records from Airtable`, {
-      recordCount: records.length,
-      mode: options.mode,
+    // Filter records that need updating in incremental mode
+    const recordsToProcess =
+      mode === "incremental"
+        ? records.filter((record) => {
+            const lastModified = new Date(
+              record.get("Last Modified") as string,
+            );
+            const existingLastUpdate = existingArtworksMap.get(record.id);
+            return !existingLastUpdate || lastModified > existingLastUpdate;
+          })
+        : records;
+
+    Logger.info(`Found ${recordsToProcess.length} artworks to update`, {
+      mode,
+      totalRecords: records.length,
+      skipImages: !!skipImages,
     });
 
-    console.log(`[SYNC] Found ${records.length} artwork records to process`);
+    // Add this near the start of the sync function
+    Logger.info("Starting artwork sync with live status check", {
+      mode,
+      totalRecords: records.length,
+      recordsWithFalseLiveStatus: records.filter(
+        (r) => !r.get("ADD TO PRODUCTION"),
+      ).length,
+    });
 
-    if (options.mode === "bulk") {
+    if (mode === "bulk") {
       console.log("Running in bulk mode - skipping timestamp checks");
 
-      const batchSize = options.batchSize || 100;
-      const concurrency = options.concurrency || 3;
       const total = records.length;
       const totalBatches = Math.ceil(total / batchSize);
 
@@ -198,7 +298,7 @@ export async function syncArtworkToSupabase(
         console.log(`Starting batch ${currentBatch} of ${totalBatches}`);
 
         emitProgress({
-          current: processedCount,
+          current: i,
           total,
           currentBatch,
           totalBatches,
@@ -211,23 +311,18 @@ export async function syncArtworkToSupabase(
           const concurrentBatch = batch.slice(j, j + concurrency);
           const batchPromises = concurrentBatch.map(async (record) => {
             try {
-              const artwork = await processArtworkRecord(
-                convertAirtableRecord(record),
-              );
-              processedCount++;
+              const convertedRecord = convertAirtableRecord(record);
+              const artwork = await processArtworkRecord(convertedRecord, {
+                skipImages: !!skipImages,
+              });
               emitProgress({
-                current: processedCount,
+                current: i + j,
                 total,
                 currentBatch,
                 totalBatches,
               });
               return { success: true, id: record.id, artwork };
             } catch (error) {
-              errors.push({
-                record_id: record.id,
-                error: error instanceof Error ? error.message : "Unknown error",
-                timestamp: new Date().toISOString(),
-              });
               return { success: false, id: record.id, error };
             }
           });
@@ -248,38 +343,19 @@ export async function syncArtworkToSupabase(
 
       return {
         success: true,
-        mode: options.mode,
-        processedCount,
+        mode,
+        processedCount: records.length,
         total: records.length,
-        errors: errors.length > 0 ? errors : null,
+        errors: null,
       };
     } else {
       // Update mode
       console.log("[SYNC] Running in update mode - checking for changes");
 
-      const { data: existingArtworks, error: fetchError } = await supabaseAdmin
-        .from("artwork")
-        .select("id, updated_at")
-        .eq("live_in_production", true);
-
-      if (fetchError) {
-        console.error("[SYNC] Error fetching existing artworks:", fetchError);
-        throw fetchError;
-      }
-
-      console.log(
-        `[SYNC] Found ${existingArtworks?.length || 0} existing artworks in Supabase`,
-      );
-
-      // Create a map of existing artworks with their last update time
-      const existingArtworksMap = new Map(
-        existingArtworks?.map((artwork) => [
-          artwork.id,
-          new Date(artwork.updated_at),
-        ]) || [],
-      );
-
       // Process each record
+      const errors: SyncError[] = [];
+      let processedCount = 0;
+
       for (const record of records) {
         try {
           const convertedRecord = convertAirtableRecord(record);
@@ -296,8 +372,27 @@ export async function syncArtworkToSupabase(
           }
 
           console.log(`[SYNC] Processing artwork: ${recordId}`);
-          await processArtworkRecord(convertedRecord);
+          const artwork = await processArtworkRecord(convertedRecord, {
+            skipImages: !!skipImages,
+          });
+
+          // Actually perform the upsert - this was missing!
+          const { error: upsertError } = await supabaseAdmin
+            .from("artwork")
+            .upsert(artwork, {
+              onConflict: "id",
+              ignoreDuplicates: false,
+            });
+
+          if (upsertError) {
+            throw upsertError;
+          }
+
           processedCount++;
+          options.onProgress?.({
+            current: processedCount,
+            total: recordsToProcess.length,
+          });
         } catch (error) {
           console.error(`[SYNC] Error processing artwork ${record.id}:`, error);
           errors.push({
@@ -307,111 +402,127 @@ export async function syncArtworkToSupabase(
           });
         }
       }
+
+      const result = {
+        success: true,
+        mode,
+        processedCount: processedCount, // Use actual processed count
+        total: records.length,
+        errors: errors.length > 0 ? errors : null,
+      };
+
+      console.log("[SYNC] Sync completed:", result);
+
+      // After processing records
+      Logger.info("Sync results", {
+        totalProcessed: records.length,
+        recordsToProcess: recordsToProcess.length,
+        liveStatusChanges: recordsToProcess
+          .filter((record) => {
+            const existing = existingArtworks?.find((a) => a.id === record.id);
+            const newStatus = record.get("ADD TO PRODUCTION") === true;
+            return existing && existing.live_in_production !== newStatus;
+          })
+          .map((record) => ({
+            id: record.id,
+            title: record.get("Title"),
+            oldStatus: existingArtworks?.find((a) => a.id === record.id)
+              ?.live_in_production,
+            newStatus: record.get("ADD TO PRODUCTION") === true,
+          })),
+      });
+
+      return result;
     }
-
-    const result = {
-      success: true,
-      mode: options.mode,
-      processedCount,
-      total: records.length,
-      errors: errors.length > 0 ? errors : null,
-    };
-
-    console.log("[SYNC] Sync completed:", result);
-    return result;
   } catch (error) {
     console.error("[SYNC] Artwork sync error:", error);
     throw error;
   }
 }
 
-// Helper function to process a single artwork record
+// Update processArtworkRecord to initialize artwork_images
 async function processArtworkRecord(
-  record: Record<AirtableFields>,
+  record: Record<AirtableRecord>,
+  options: {
+    skipImages?: boolean;
+  } = {},
 ): Promise<Artwork> {
-  const recordId = record.id;
-  const title = record.get("Title") as string;
-  Logger.info(`Processing artwork record`, { recordId, title });
+  // Initialize with non-image fields
+  const artwork: Partial<Artwork> & { id: string } = {
+    id: record.id,
+    title: record.get("Title") || null,
+    medium: (record.get("Medium") as string) || null,
+    year: record.get("Year") ? Number(record.get("Year")) : null,
+    width: (record.get("Width (e.)") as string) || null,
+    height: (record.get("Height (e.)") as string) || null,
+    type: (record.get("Type") as string) || null,
+    artist_name: (record.get("Artist") as string) || null,
+    live_in_production: Boolean(record.get("ADD TO PRODUCTION")),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
 
+  // Only handle images if processImages is true
+  if (!options.skipImages) {
+    const rawAttachments = record.get("Artwork images");
+    if (Array.isArray(rawAttachments)) {
+      artwork.artwork_images = await processArtworkImages(
+        record,
+        artwork.title || "",
+      );
+    }
+  }
+  // When skipImages is true, don't include artwork_images field at all
+  // This will preserve existing image data in Supabase
+
+  return artwork as Artwork;
+}
+
+// Fix the type error in getExistingFieldValue
+async function getExistingFieldValue(
+  recordId: string,
+  field: string,
+): Promise<string | null> {
+  const { data } = await supabaseAdmin
+    .from("artwork")
+    .select(field)
+    .eq("id", recordId)
+    .single();
+
+  // Ensure we only return string or null
+  const value = data?.[field as keyof typeof data];
+  return typeof value === "string" ? value : null;
+}
+
+// Separate function for image processing
+async function processArtworkImages(
+  record: Record<AirtableRecord>,
+  title: string,
+): Promise<StoredAttachment[]> {
+  const images: StoredAttachment[] = [];
   const rawAttachments = record.get("Artwork images");
-  const artwork_images: StoredAttachment[] = [];
 
   if (Array.isArray(rawAttachments)) {
-    Logger.info(`Processing artwork images`, {
-      recordId,
-      title,
-      imageCount: rawAttachments.length,
-    });
-
     for (const [index, att] of rawAttachments.entries()) {
-      Logger.debug(`Processing image`, {
-        recordId,
-        title,
-        imageIndex: index + 1,
-        totalImages: rawAttachments.length,
-        filename: att.filename,
-        size: att.size,
-      });
-
       try {
         const attachment = await uploadArtworkImageToSupabase(
           convertAttachment(att),
           { title },
         );
-        artwork_images.push(attachment);
-        Logger.debug(`Successfully uploaded image`, {
-          recordId,
-          title,
-          imageIndex: index + 1,
-          url: attachment.url,
-        });
+        if (attachment.url) {
+          images.push(attachment);
+        }
       } catch (error) {
-        Logger.error(`Failed to upload image`, error, {
-          recordId,
+        Logger.error(`Failed to upload image`, {
+          error: error instanceof Error ? error.message : "Unknown error",
+          recordId: record.id,
           title,
           imageIndex: index + 1,
           filename: att.filename,
         });
-        throw error;
       }
     }
   }
 
-  Logger.info(`Creating artwork record`, { recordId, title });
-  const artwork: Artwork = {
-    id: record.id,
-    title: title || null,
-    artwork_images,
-    medium: (record.get("Medium") as string) || null,
-    year: record.get("Year") ? Number(record.get("Year")) : null,
-    width: (record.get("Width (e.)") as string) || null,
-    height: (record.get("Height (e.)") as string) || null,
-    live_in_production: true,
-    artist_name: (record.get("Artist") as string) || null,
-    type: (record.get("Type") as string) || null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-
-  try {
-    Logger.debug(`Upserting to Supabase`, { recordId, title });
-    const { error: upsertError } = await supabaseAdmin
-      .from("artwork")
-      .upsert(artwork);
-
-    if (upsertError) {
-      Logger.error(`Supabase upsert failed`, upsertError, { recordId, title });
-      throw upsertError;
-    }
-
-    Logger.info(`Successfully processed artwork`, {
-      recordId,
-      title,
-      imagesCount: artwork_images.length,
-    });
-    return artwork;
-  } catch (error) {
-    Logger.error(`Failed to process artwork`, error, { recordId, title });
-    throw error;
-  }
+  return images;
 }

@@ -13,6 +13,10 @@ const nextConfig = {
         hostname: "ndnxcumwsgbbvfwjxkdi.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },
+      {
+        protocol: "https",
+        hostname: "v5.airtableusercontent.com",
+      },
     ],
   },
   redirects: async () => [

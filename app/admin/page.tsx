@@ -33,12 +33,12 @@ export default function AdminPage() {
         <div className="grid grid-cols-1 space-y-8 md:grid-cols-2 md:space-x-8 md:space-y-0">
           <SyncPanel
             title="Artwork Sync"
-            description="Sync artwork data from Airtable to Supabase"
+            description="Sync artworks from Airtable to Supabase"
             endpoint="/api/sync/artwork"
           />
           <SyncPanel
             title="Artist Sync"
-            description="Sync artist data from Airtable to Supabase"
+            description="Sync artists from Airtable to Supabase"
             endpoint="/api/sync/artists"
           />
         </div>

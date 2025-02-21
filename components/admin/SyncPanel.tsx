@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Check } from "lucide-react";
 
 interface SyncPanelProps {
   title: string;
@@ -32,13 +32,23 @@ function formatDuration(ms: number): string {
   return parts.join(" ");
 }
 
+// Add this type for sync modes
+type SyncMode = "bulk" | "incremental";
+
+// Add these interfaces at the top
+interface ColumnConfig {
+  key: string;
+  label: string;
+  description?: string;
+}
+
 export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SyncResult | null>(null);
-  const [isBulkMode, setIsBulkMode] = useState(false);
-  const [batchSize, setBatchSize] = useState(50);
-  const [concurrency, setConcurrency] = useState(3);
+  const [syncMode, setSyncMode] = useState<SyncMode>("incremental");
+  const [batchSize, setBatchSize] = useState(25);
+  const [concurrency, setConcurrency] = useState(2);
   const [progress, setProgress] = useState<{
     current: number;
     total: number;
@@ -47,6 +57,7 @@ export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
   } | null>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [processImages, setProcessImages] = useState(false);
 
   // Update the progress endpoint URL
   const progressEndpoint = "/api/sync/progress";
@@ -103,7 +114,8 @@ export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
         body: JSON.stringify({
           batchSize,
           concurrency,
-          mode: isBulkMode ? "bulk" : "update",
+          mode: syncMode,
+          processImages,
         }),
       });
 
@@ -137,35 +149,39 @@ export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
       </div>
       <div className="p-6">
         <div className="space-y-6">
-          <div className="flex items-center space-x-3">
-            <label className="relative inline-flex cursor-pointer items-center">
-              <input
-                type="checkbox"
-                className="peer sr-only"
-                checked={isBulkMode}
-                onChange={(e) => setIsBulkMode(e.target.checked)}
-              />
-              <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"></div>
+          {/* Sync Mode Section */}
+          <div>
+            <label className="text-sm font-medium text-gray-900">
+              Sync Mode
             </label>
-            <span className="text-sm font-medium text-gray-900">Bulk Mode</span>
-            <div className="group relative">
-              <HelpCircle
-                size={16}
-                className="text-gray-400 hover:text-gray-600"
-              />
-              <div className="absolute bottom-full left-1/2 mb-2 hidden w-[300px] -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-sm text-white group-hover:block">
-                <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                <div className="max-w-xs">
-                  Bulk mode processes records in batches with concurrent
-                  operations, significantly speeding up large syncs. Regular
-                  mode processes one record at a time, which is safer but
-                  slower.
-                </div>
-              </div>
+            <div className="mt-2 flex items-center space-x-4">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  className="h-4 w-4 text-blue-600"
+                  checked={syncMode === "incremental"}
+                  onChange={() => setSyncMode("incremental")}
+                />
+                <span className="text-sm text-gray-900">Incremental</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  className="h-4 w-4 text-blue-600"
+                  checked={syncMode === "bulk"}
+                  onChange={() => setSyncMode("bulk")}
+                />
+                <span className="text-sm text-gray-900">Bulk</span>
+              </label>
             </div>
+            <p className="mt-1.5 text-sm text-gray-500">
+              Incremental mode only processes records that have changed since
+              the last sync. Bulk mode processes all records in batches.
+            </p>
           </div>
 
-          {isBulkMode && (
+          {/* Batch Settings (only show in bulk mode) */}
+          {syncMode === "bulk" && (
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label
@@ -204,13 +220,39 @@ export function SyncPanel({ title, description, endpoint }: SyncPanelProps) {
             </div>
           )}
 
-          <button
-            onClick={handleSync}
-            disabled={isLoading}
-            className="w-full rounded-lg bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:opacity-50"
-          >
-            {isLoading ? "Syncing..." : "Start Sync"}
-          </button>
+          {/* Image Processing Checkbox */}
+          <div className="space-y-2">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id={`process-images-${endpoint}`}
+                checked={processImages}
+                onChange={(e) => setProcessImages(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600"
+              />
+              <label
+                htmlFor={`process-images-${endpoint}`}
+                className="ml-2 text-sm font-medium text-gray-900"
+              >
+                Process images
+              </label>
+            </div>
+            <p className="pl-6 text-xs text-gray-500">
+              When enabled, images will be downloaded from Airtable and uploaded
+              to Supabase. When disabled, no image data will be processed and
+              current image order will be preserved.
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={handleSync}
+              disabled={isLoading}
+              className="flex-1 rounded-lg bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:opacity-50"
+            >
+              {isLoading ? "Syncing..." : "Start Sync"}
+            </button>
+          </div>
 
           {error && (
             <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700">

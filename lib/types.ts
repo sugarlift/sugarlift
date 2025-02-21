@@ -1,3 +1,9 @@
+import {
+  FieldSet,
+  Attachment as AirtableAttachmentType,
+  Collaborator,
+} from "airtable";
+
 export interface Artist {
   id: string;
   artist_name: string;
@@ -10,13 +16,11 @@ export interface Artist {
   website: string | null;
   live_in_production: boolean;
   artist_photo: StoredAttachment[];
-  view_count?: number;
   artwork?: Artwork[];
   featured_image?: string;
   slug?: string;
   created_at: string;
   updated_at: string;
-  viewCount?: number;
 }
 
 export interface WebhookError extends Error {
@@ -43,9 +47,9 @@ export interface AirtableAttachment {
 }
 
 export interface StoredAttachment {
-  url: string;
-  width: number;
-  height: number;
+  url: string | null;
+  width: number | null;
+  height: number | null;
   filename: string;
   type: string;
 }
@@ -78,4 +82,69 @@ export interface ArtistTable {
   live_in_production: boolean;
   artist_photo: StoredAttachment[];
   slug: string;
+}
+
+// Create a more specific type for Airtable field values
+type AirtableFieldValue =
+  | string
+  | number
+  | boolean
+  | readonly string[]
+  | Collaborator
+  | readonly Collaborator[]
+  | readonly AirtableAttachmentType[]
+  | AirtableAttachment[]
+  | undefined
+  | null;
+
+// First, let's create a type for the specific fields
+export interface AirtableFieldTypes {
+  Title: string;
+  Artist: string;
+  Medium: string;
+  Year: string | number;
+  "Width (e.)": string;
+  "Height (e.)": string;
+  Type: string;
+  "Artwork images": AirtableAttachment[];
+  "Last Modified": string;
+  "ADD TO PRODUCTION": boolean;
+}
+
+// Then update AirtableFields to use a more flexible index signature
+export interface AirtableFields extends AirtableFieldTypes {
+  [key: string]:
+    | AirtableFieldValue
+    | AirtableFieldTypes[keyof AirtableFieldTypes];
+}
+
+// Create a type that combines FieldSet and our fields
+export type AirtableRecord = FieldSet & AirtableFields;
+
+export interface ArtistAirtableFields {
+  "Artist Name": string;
+  "Artist Bio": string;
+  Born: string;
+  City: string;
+  "State (USA)": string;
+  Country: string;
+  Website: string;
+  "IG Handle": string;
+  "Artist Photo": AirtableAttachment[];
+  "Last Modified": string;
+  "Add to Website": boolean;
+}
+
+export interface SyncProgress {
+  current: number;
+  total: number;
+}
+
+export interface SyncOptions {
+  mode: "bulk" | "incremental";
+  batchSize?: number;
+  concurrency?: number;
+  skipExistingCheck?: boolean;
+  skipImages?: boolean;
+  onProgress?: (progress: SyncProgress) => void;
 }
