@@ -21,6 +21,7 @@ export interface Artist {
   slug?: string;
   created_at: string;
   updated_at: string;
+  brand_value: string | null;
 }
 
 export interface WebhookError extends Error {
@@ -82,6 +83,7 @@ export interface ArtistTable {
   live_in_production: boolean;
   artist_photo: StoredAttachment[];
   slug: string;
+  brand_value: string | null;
 }
 
 // Create a more specific type for Airtable field values
@@ -133,6 +135,7 @@ export interface ArtistAirtableFields {
   "Artist Photo": AirtableAttachment[];
   "Last Modified": string;
   "Add to Website": boolean;
+  "Brand Value": string;
 }
 
 export interface SyncProgress {

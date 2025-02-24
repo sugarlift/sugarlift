@@ -69,8 +69,15 @@ async function getArtists(): Promise<Artist[]> {
     viewCount: viewCounts[artist.artist_name] || 0,
   }));
 
-  // Sort by view count (highest first)
-  return artistsWithStats.sort((a, b) => b.viewCount - a.viewCount);
+  // Sort first by brand_value (highest first), then by viewCount
+  return artistsWithStats.sort((a, b) => {
+    // First compare brand_value
+    if (b.brand_value !== a.brand_value) {
+      return b.brand_value - a.brand_value;
+    }
+    // If brand_value is equal, compare viewCount
+    return b.viewCount - a.viewCount;
+  });
 }
 
 export default async function ArtistsPage() {

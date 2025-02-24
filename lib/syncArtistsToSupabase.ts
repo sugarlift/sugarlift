@@ -26,6 +26,7 @@ interface Artist {
   website: string | null;
   ig_handle: string | null;
   live_in_production: boolean;
+  brand_value: string | null;
 }
 
 async function uploadArtistPhotoToSupabase(
@@ -218,11 +219,16 @@ export async function syncArtistsToSupabase({
           country: record.country || undefined,
           born: record.born || undefined,
           artist_bio: record.artist_bio || undefined,
-          artist_photo: cleanedPhotos,
           website: record.website || undefined,
           ig_handle: record.ig_handle || undefined,
           live_in_production: !!record.live_in_production,
+          brand_value: record.brand_value || undefined,
         };
+
+        // Only include artist_photo if it exists
+        if (record.artist_photo) {
+          cleaned.artist_photo = record.artist_photo;
+        }
 
         // Log the cleaned record structure
         Logger.debug("Cleaned record structure:", {
@@ -491,9 +497,10 @@ async function processArtistRecord(
     website: record.get("Website") as string,
     ig_handle: record.get("IG Handle") as string,
     live_in_production: record.get("Add to Website") as boolean,
+    brand_value: record.get("Brand Value") as string,
   };
 
-  // Only handle images if processImages is true
+  // Only include artist_photo field if we're processing images
   if (!options.skipImages) {
     const photos = record.get(
       "Artist Photo",

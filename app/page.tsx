@@ -19,13 +19,20 @@ async function getFeaturedData() {
     .select("*")
     .eq("live_in_production", true);
 
-  // Add view counts and sort
+  // Add view counts and sort by brand_value first, then viewCount
   const artistsWithStats = (artists || [])
     .map((artist) => ({
       ...artist,
       viewCount: viewCounts[artist.artist_name] || 0,
     }))
-    .sort((a, b) => b.viewCount - a.viewCount)
+    .sort((a, b) => {
+      // First compare brand_value
+      if (b.brand_value !== a.brand_value) {
+        return b.brand_value - a.brand_value;
+      }
+      // If brand_value is equal, compare viewCount
+      return b.viewCount - a.viewCount;
+    })
     .slice(0, 9); // Keep only top 9 artists
 
   return {

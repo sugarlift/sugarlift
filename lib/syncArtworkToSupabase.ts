@@ -392,10 +392,17 @@ export async function syncArtworkToSupabase(
             skipImages: !!skipImages,
           });
 
-          // Actually perform the upsert - this was missing!
+          // Inside the bulk mode section, before the upsert
+          const cleanedArtwork = { ...artwork };
+          // Only include artwork_images if it exists
+          if (!artwork.artwork_images) {
+            delete cleanedArtwork.artwork_images;
+          }
+
+          // Update the upsert to use cleanedArtwork
           const { error: upsertError } = await supabaseAdmin
             .from("artwork")
-            .upsert(artwork, {
+            .upsert(cleanedArtwork, {
               onConflict: "id",
               ignoreDuplicates: false,
             });
@@ -456,7 +463,7 @@ export async function syncArtworkToSupabase(
   }
 }
 
-// Update processArtworkRecord to initialize artwork_images
+// Update processArtworkRecord to not include artwork_images when skipImages is true
 async function processArtworkRecord(
   record: Record<AirtableRecord>,
   options: {
@@ -478,7 +485,7 @@ async function processArtworkRecord(
     updated_at: new Date().toISOString(),
   };
 
-  // Only handle images if processImages is true
+  // Only include artwork_images field if we're processing images
   if (!options.skipImages) {
     const rawAttachments = record.get("Artwork images");
     if (Array.isArray(rawAttachments)) {
