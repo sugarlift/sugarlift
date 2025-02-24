@@ -189,15 +189,25 @@ export async function syncArtistsToSupabase({
           });
         }
 
-        // Create cleaned record with only defined values
-        const cleaned: Partial<Artist> = {
-          ...Object.entries(record).reduce((acc, [key, value]) => {
-            if (value !== undefined) {
-              acc[key as keyof Artist] = value;
-            }
-            return acc;
-          }, {} as Partial<Artist>),
-        };
+        // Create cleaned record with only defined non-null values
+        const cleaned = Object.entries(record).reduce((acc, [key, value]) => {
+          // Skip undefined or null values
+          if (value !== undefined && value !== null) {
+            // Use Record type for type-safe dynamic key assignment
+            (acc as Record<keyof Artist, Artist[keyof Artist]>)[
+              key as keyof Artist
+            ] = value;
+          }
+          return acc;
+        }, {} as Partial<Artist>);
+
+        // Ensure required fields are present
+        if (record.id) {
+          cleaned.id = record.id;
+        }
+        if (record.live_in_production !== undefined) {
+          cleaned.live_in_production = record.live_in_production;
+        }
 
         // Log the cleaned record structure
         Logger.debug("Cleaned record structure:", {
