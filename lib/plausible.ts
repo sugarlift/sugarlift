@@ -58,7 +58,8 @@ export async function getPlausibleStats(): Promise<Record<string, number>> {
           .split("-")
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(" ")
-          .replace("N Ez", "Núñez");
+          .replace("N Ez", "Núñez")
+          .replace("O Leary", "O'Leary");
 
         viewCounts[displayName] = result.metrics[0];
         console.log(`📊 ${displayName}: ${result.metrics[0]} visitors`);
