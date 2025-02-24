@@ -189,46 +189,15 @@ export async function syncArtistsToSupabase({
           });
         }
 
-        // Ensure artist_photo is properly structured
-        let cleanedPhotos: StoredAttachment[] = [];
-        try {
-          if (Array.isArray(record.artist_photo)) {
-            cleanedPhotos = record.artist_photo.map(
-              (photo: StoredAttachment) => ({
-                url: photo.url || null,
-                width: photo.width || null,
-                height: photo.height || null,
-                filename: photo.filename,
-                type: photo.type,
-              }),
-            );
-          }
-        } catch (photoError) {
-          Logger.error("Error processing artist photos:", {
-            artistId: record.id,
-            error: photoError,
-            photoData: record.artist_photo,
-          });
-        }
-
+        // Create cleaned record with only defined values
         const cleaned: Partial<Artist> = {
-          id: record.id,
-          artist_name: record.artist_name || undefined,
-          city: record.city || undefined,
-          state: record.state || undefined,
-          country: record.country || undefined,
-          born: record.born || undefined,
-          artist_bio: record.artist_bio || undefined,
-          website: record.website || undefined,
-          ig_handle: record.ig_handle || undefined,
-          live_in_production: !!record.live_in_production,
-          brand_value: record.brand_value || undefined,
+          ...Object.entries(record).reduce((acc, [key, value]) => {
+            if (value !== undefined) {
+              acc[key as keyof Artist] = value;
+            }
+            return acc;
+          }, {} as Partial<Artist>),
         };
-
-        // Only include artist_photo if it exists
-        if (record.artist_photo) {
-          cleaned.artist_photo = record.artist_photo;
-        }
 
         // Log the cleaned record structure
         Logger.debug("Cleaned record structure:", {

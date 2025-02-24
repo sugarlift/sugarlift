@@ -393,11 +393,14 @@ export async function syncArtworkToSupabase(
           });
 
           // Inside the bulk mode section, before the upsert
-          const cleanedArtwork = { ...artwork };
-          // Only include artwork_images if it exists
-          if (!artwork.artwork_images) {
-            delete cleanedArtwork.artwork_images;
-          }
+          const cleanedArtwork: Partial<Artwork> = {
+            ...Object.entries(artwork).reduce((acc, [key, value]) => {
+              if (value !== undefined) {
+                acc[key as keyof Artwork] = value;
+              }
+              return acc;
+            }, {} as Partial<Artwork>),
+          };
 
           // Update the upsert to use cleanedArtwork
           const { error: upsertError } = await supabaseAdmin
