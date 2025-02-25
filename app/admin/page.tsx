@@ -1,5 +1,5 @@
 import { SyncPanel } from "@/components/admin/SyncPanel";
-import { PasswordProtection } from "@/components/admin/PasswordProtection";
+import * as Auth from "@/components/admin/PasswordProtection";
 import { Metadata } from "next";
 import { DeployButton } from "./components/DeployButton";
 import { COMPANY_METADATA } from "@/app/lib/constants";
@@ -27,9 +27,12 @@ export const metadata: Metadata = {
 
 export default function AdminPage() {
   return (
-    <PasswordProtection>
+    <Auth.PasswordProtection>
       <div className="container min-h-[65vh] py-16">
-        <h1 className="mb-8 text-2xl font-semibold">Data Synchronization</h1>
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-2xl font-semibold">Data Synchronization</h1>
+          <Auth.LogoutButton />
+        </div>
         <div className="grid grid-cols-1 space-y-8 md:grid-cols-2 md:space-x-8 md:space-y-0">
           <SyncPanel
             title="Artwork Sync"
@@ -47,6 +50,6 @@ export default function AdminPage() {
           <DeployButton />
         </div>
       </div>
-    </PasswordProtection>
+    </Auth.PasswordProtection>
   );
 }
