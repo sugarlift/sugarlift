@@ -8,6 +8,38 @@ import {
 } from "./types";
 import Logger from "./logger";
 import { Record, FieldSet } from "airtable";
+import pLimit from "p-limit"; // Add import for pLimit
+
+// Configuration constants for better readability and maintenance
+const CONFIG = {
+  RETRY: {
+    MAX_RETRIES: 3,
+    MAX_DELAY_MS: 30000, // 30 seconds
+    BASE_DELAY_MS: 1000,
+  },
+  UPLOAD: {
+    TIMEOUT_MS: 30000, // 30 seconds
+  },
+  PAYLOAD: {
+    MAX_SIZE_BYTES: 1_000_000, // 1MB Supabase payload limit
+  },
+  STORAGE: {
+    BUCKET_NAME: "attachments_artwork",
+  },
+  BATCH: {
+    DEFAULT_SIZE: 25,
+    DEFAULT_CONCURRENCY: 2,
+    UPSERT_CHUNK_SIZE: 3,
+  },
+};
+
+// Add this below the CONFIG object
+// Standard retryDelay function that uses CONFIG values
+const retryDelay = (attempt: number) =>
+  Math.min(
+    CONFIG.RETRY.BASE_DELAY_MS * Math.pow(2, attempt),
+    CONFIG.RETRY.MAX_DELAY_MS,
+  );
 
 // Define the fields interface for Airtable records
 export interface AirtableFields {
@@ -88,6 +120,7 @@ function convertAttachment(att: RawAirtableAttachment): AirtableAttachment {
   };
 }
 
+// Update the uploadArtworkImageToSupabase function to use CONFIG
 async function uploadArtworkImageToSupabase(
   attachment: AirtableAttachment,
   artwork: { title: string },
@@ -101,10 +134,7 @@ async function uploadArtworkImageToSupabase(
   const storagePath = `${folderName}/${cleanFilename}`;
 
   // Add retry logic for fetching
-  const maxRetries = 3;
-  const retryDelay = (attempt: number) =>
-    Math.min(1000 * Math.pow(2, attempt), 30000);
-
+  const maxRetries = CONFIG.RETRY.MAX_RETRIES;
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -112,11 +142,11 @@ async function uploadArtworkImageToSupabase(
       Logger.debug("Starting image upload attempt", {
         attempt: attempt + 1,
         filename: cleanFilename,
-        url: attachment.url,
+        url: attachment.url.substring(0, 50) + "...", // Truncate for logging
       });
 
       const response = await fetch(attachment.url, {
-        signal: AbortSignal.timeout(30000), // 30 second timeout
+        signal: AbortSignal.timeout(CONFIG.UPLOAD.TIMEOUT_MS),
       });
 
       if (!response.ok) {
@@ -130,8 +160,13 @@ async function uploadArtworkImageToSupabase(
         throw new Error("Empty image file");
       }
 
+      Logger.debug(`Uploading image to Supabase: ${storagePath}`, {
+        size: blob.size,
+        type: blob.type,
+      });
+
       const { error: uploadError } = await supabaseAdmin.storage
-        .from("attachments_artwork")
+        .from(CONFIG.STORAGE.BUCKET_NAME)
         .upload(storagePath, blob, {
           contentType: attachment.type,
           upsert: true,
@@ -142,12 +177,12 @@ async function uploadArtworkImageToSupabase(
       const {
         data: { publicUrl },
       } = supabaseAdmin.storage
-        .from("attachments_artwork")
+        .from(CONFIG.STORAGE.BUCKET_NAME)
         .getPublicUrl(storagePath);
 
       Logger.info("Successfully uploaded image", {
-        url: publicUrl,
         path: storagePath,
+        publicUrl: publicUrl.substring(0, 50) + "...", // Truncate for logging
         attempt: attempt + 1,
       });
 
@@ -161,13 +196,20 @@ async function uploadArtworkImageToSupabase(
     } catch (error) {
       lastError = error as Error;
 
-      // Log the retry attempt
-      Logger.warn("Image upload attempt failed, retrying...", {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      const errorDetails = {
         attempt: attempt + 1,
         maxRetries,
         filename: cleanFilename,
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
+        error: errorMessage,
+        artworkTitle: artwork.title,
+        errorType:
+          error instanceof Error ? error.constructor.name : typeof error,
+      };
+
+      // Log the retry attempt
+      Logger.warn("Image upload attempt failed, retrying...", errorDetails);
 
       // If this isn't the last attempt, wait before retrying
       if (attempt < maxRetries - 1) {
@@ -183,7 +225,9 @@ async function uploadArtworkImageToSupabase(
   Logger.error("Image upload failed after all retries", {
     filename: cleanFilename,
     artworkTitle: artwork.title,
-    error: lastError,
+    error: lastError?.message || "Unknown error",
+    stack: lastError?.stack,
+    attempts: maxRetries,
   });
 
   // Return a partial record without the image
@@ -226,22 +270,158 @@ interface ExistingArtwork {
   live_in_production: boolean;
 }
 
+// Add after the existing interfaces and before syncArtworkToSupabase function
+
+// Reusable function for upserting artwork data with retry logic
+async function upsertWithRetry(
+  data: Partial<Artwork>[],
+  attempt = 0,
+  maxRetries = CONFIG.RETRY.MAX_RETRIES,
+): Promise<void> {
+  try {
+    // Validate and clean the data before sending
+    const cleanedData = data.map((record) => {
+      // Log problematic records
+      if (!record.id || !record.title) {
+        Logger.warn("Invalid artwork record found:", {
+          id: record.id,
+          title: record.title,
+          recordKeys: Object.keys(record),
+        });
+      }
+
+      // Create cleaned record with only defined non-null values
+      const cleaned = Object.entries(record).reduce((acc, [key, value]) => {
+        // Skip undefined or null values
+        if (value !== undefined && value !== null) {
+          // Type-safe dynamic key assignment
+          (acc as any)[key] = value;
+        }
+        return acc;
+      }, {} as Partial<Artwork>);
+
+      // Ensure required fields are present
+      if (record.id) {
+        cleaned.id = record.id;
+      }
+      if (record.live_in_production !== undefined) {
+        cleaned.live_in_production = record.live_in_production;
+      }
+
+      // Log the cleaned record structure at debug level
+      Logger.debug("Cleaned artwork record structure:", {
+        id: cleaned.id,
+        hasTitle: !!cleaned.title,
+        imageCount: cleaned.artwork_images?.length ?? 0,
+        recordSize: JSON.stringify(cleaned).length,
+      });
+
+      return cleaned;
+    });
+
+    // Log the total payload size
+    const payloadSize = JSON.stringify(cleanedData).length;
+    Logger.info("Attempting artwork upsert:", {
+      recordCount: cleanedData.length,
+      payloadSizeBytes: payloadSize,
+      attempt,
+    });
+
+    // If payload is too large, split before attempting
+    if (payloadSize > CONFIG.PAYLOAD.MAX_SIZE_BYTES) {
+      // 1MB limit
+      Logger.warn("Artwork payload too large, splitting preemptively");
+      const mid = Math.floor(cleanedData.length / 2);
+      const batch1 = cleanedData.slice(0, mid);
+      const batch2 = cleanedData.slice(mid);
+
+      await upsertWithRetry(batch1, 0, maxRetries);
+      await upsertWithRetry(batch2, 0, maxRetries);
+      return;
+    }
+
+    const { error } = await supabaseAdmin.from("artwork").upsert(cleanedData, {
+      onConflict: "id",
+      ignoreDuplicates: false,
+    });
+
+    if (error) {
+      Logger.error("Artwork upsert attempt failed:", {
+        attempt,
+        errorCode: error.code,
+        errorMessage: error.message,
+        errorDetails: error.details,
+        dataLength: cleanedData.length,
+        firstRecordId: cleanedData[0]?.id,
+        payloadSize,
+      });
+
+      // Handle rate limiting
+      if (error.code === "429") {
+        if (attempt < maxRetries) {
+          const delay = retryDelay(attempt);
+          Logger.warn(`Rate limited, retrying in ${delay}ms...`);
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          return upsertWithRetry(data, attempt + 1, maxRetries);
+        }
+      }
+
+      // Handle payload size issues
+      if (error.code === "400" && cleanedData.length > 1) {
+        Logger.warn("400 error, splitting batch");
+        const mid = Math.floor(cleanedData.length / 2);
+        const batch1 = cleanedData.slice(0, mid);
+        const batch2 = cleanedData.slice(mid);
+
+        await upsertWithRetry(batch1, 0, maxRetries);
+        await upsertWithRetry(batch2, 0, maxRetries);
+        return;
+      }
+
+      throw error;
+    }
+  } catch (error) {
+    const errorDetails =
+      error instanceof Error ? error.message : "Unknown error";
+    Logger.error("Artwork upsert error:", {
+      error: errorDetails,
+      dataLength: data.length,
+      firstRecordId: data[0]?.id,
+      statusCode: (error as any)?.code,
+      hint: (error as any)?.hint,
+      details: (error as any)?.details,
+    });
+    throw error;
+  }
+}
+
 export async function syncArtworkToSupabase(
   options: SyncOptions = { mode: "incremental" },
-) {
+): Promise<{
+  success: boolean;
+  mode: string;
+  processedCount: number;
+  total: number;
+  errors: SyncError[] | null;
+}> {
   const {
     mode = "bulk",
-    batchSize = 25,
-    concurrency = 2,
+    batchSize = CONFIG.BATCH.DEFAULT_SIZE,
+    concurrency = CONFIG.BATCH.DEFAULT_CONCURRENCY,
     skipExistingCheck = false,
     skipImages = false,
   } = options;
 
-  // Keep this as DEBUG
-  Logger.debug("Starting artwork sync", {
+  const errors: SyncError[] = [];
+  let processedCount = 0;
+  let totalRecords = 0;
+
+  // Use Logger instead of console.log
+  Logger.info("Starting artwork sync", {
     mode,
     batchSize,
     concurrency,
+    skipExistingCheck,
     processImages: !skipImages ? "yes" : "no",
   });
 
@@ -249,26 +429,27 @@ export async function syncArtworkToSupabase(
     // Get existing records with last update time
     let existingArtworks: ExistingArtwork[] = [];
     if (!skipExistingCheck) {
-      const { data: existing } = await supabaseAdmin
+      Logger.info("Fetching existing artworks from database");
+      const { data: existing, error } = await supabaseAdmin
         .from("artwork")
         .select("id, updated_at, live_in_production");
+
+      if (error) {
+        throw new Error(`Failed to fetch existing artworks: ${error.message}`);
+      }
+
       existingArtworks = existing || [];
+      Logger.info(
+        `Found ${existingArtworks.length} existing artworks in database`,
+        {
+          liveArtworks: existingArtworks.filter((a) => a.live_in_production)
+            .length,
+        },
+      );
     }
 
-    const existingArtworksMap = new Map(
-      existingArtworks?.map((artwork) => [
-        artwork.id,
-        new Date(artwork.updated_at),
-      ]) || [],
-    );
-
-    Logger.info("Existing artwork status", {
-      totalRecords: existingArtworks?.length || 0,
-      liveRecords:
-        existingArtworks?.filter((a) => a.live_in_production).length || 0,
-    });
-
-    // Get all records that are marked for production from Airtable
+    // Get all records from Airtable
+    Logger.info("Fetching artworks from Airtable");
     const table = getArtworkTable();
     const records = await table
       .select({
@@ -276,192 +457,154 @@ export async function syncArtworkToSupabase(
       })
       .all();
 
+    totalRecords = records.length;
+    Logger.info(`Found ${totalRecords} artworks in Airtable`);
+
     // Filter records that need updating in incremental mode
     const recordsToProcess =
       mode === "incremental"
-        ? records.filter((record) => {
-            const lastModified = new Date(
-              record.get("Last Modified") as string,
-            );
-            const existingLastUpdate = existingArtworksMap.get(record.id);
-            return !existingLastUpdate || lastModified > existingLastUpdate;
-          })
+        ? filterRecordsForIncrementalSync(records, existingArtworks)
         : records;
 
     Logger.info(`Found ${recordsToProcess.length} artworks to update`, {
       mode,
-      totalRecords: records.length,
+      totalRecords,
       skipImages: !!skipImages,
     });
 
-    // Add this near the start of the sync function
-    Logger.info("Starting artwork sync with live status check", {
-      mode,
-      totalRecords: records.length,
-      recordsWithFalseLiveStatus: records.filter(
-        (r) => !r.get("ADD TO PRODUCTION"),
-      ).length,
-    });
+    // Process in batches with concurrency limit
+    const limit = pLimit(concurrency);
+    const batches = [];
 
-    if (mode === "bulk") {
-      console.log("Running in bulk mode - skipping timestamp checks");
+    for (let i = 0; i < recordsToProcess.length; i += batchSize) {
+      const batch = recordsToProcess.slice(i, i + batchSize);
+      batches.push(batch);
+    }
 
-      const total = records.length;
-      const totalBatches = Math.ceil(total / batchSize);
+    Logger.info(`Created ${batches.length} batches of max size ${batchSize}`);
 
-      for (let i = 0; i < records.length; i += batchSize) {
-        const currentBatch = Math.floor(i / batchSize) + 1;
-        console.log(`Starting batch ${currentBatch} of ${totalBatches}`);
+    await Promise.all(
+      batches.map((batch, batchIndex) =>
+        limit(async () => {
+          try {
+            const currentBatch = batchIndex + 1;
+            Logger.info(`Processing batch ${currentBatch}/${batches.length}`);
 
-        emitProgress({
-          current: i,
-          total,
-          currentBatch,
-          totalBatches,
-        });
-
-        const batch = records.slice(i, i + batchSize);
-
-        // Process in chunks based on concurrency
-        for (let j = 0; j < batch.length; j += concurrency) {
-          const concurrentBatch = batch.slice(j, j + concurrency);
-          const batchPromises = concurrentBatch.map(async (record) => {
-            try {
-              const convertedRecord = convertAirtableRecord(record);
-              const artwork = await processArtworkRecord(convertedRecord, {
-                skipImages: !!skipImages,
-              });
-              emitProgress({
-                current: i + j,
-                total,
-                currentBatch,
-                totalBatches,
-              });
-              return { success: true, id: record.id, artwork };
-            } catch (error) {
-              return { success: false, id: record.id, error };
-            }
-          });
-
-          await Promise.all(
-            batchPromises.map((promise) =>
-              promise.catch((error) => ({ success: false, error })),
-            ),
-          );
-        }
-
-        console.log(
-          `Processed batch ${i / batchSize + 1}/${Math.ceil(
-            records.length / batchSize,
-          )}`,
-        );
-      }
-
-      return {
-        success: true,
-        mode,
-        processedCount: records.length,
-        total: records.length,
-        errors: null,
-      };
-    } else {
-      // Update mode
-      console.log("[SYNC] Running in update mode - checking for changes");
-
-      // Process each record
-      const errors: SyncError[] = [];
-      let processedCount = 0;
-
-      for (const record of records) {
-        try {
-          const convertedRecord = convertAirtableRecord(record);
-          const recordId = convertedRecord.id;
-          const lastModified = new Date(
-            convertedRecord.get("Last Modified") as string,
-          );
-
-          // Skip if record exists and hasn't been modified since last sync
-          const existingLastUpdate = existingArtworksMap.get(recordId);
-          if (existingLastUpdate && lastModified <= existingLastUpdate) {
-            console.log(`[SYNC] Skipping unchanged artwork: ${recordId}`);
-            continue;
-          }
-
-          console.log(`[SYNC] Processing artwork: ${recordId}`);
-          const artwork = await processArtworkRecord(convertedRecord, {
-            skipImages: !!skipImages,
-          });
-
-          // Inside the bulk mode section, before the upsert
-          const cleanedArtwork: Partial<Artwork> = {
-            ...Object.entries(artwork).reduce((acc, [key, value]) => {
-              if (value !== undefined) {
-                acc[key as keyof Artwork] = value;
-              }
-              return acc;
-            }, {} as Partial<Artwork>),
-          };
-
-          // Update the upsert to use cleanedArtwork
-          const { error: upsertError } = await supabaseAdmin
-            .from("artwork")
-            .upsert(cleanedArtwork, {
-              onConflict: "id",
-              ignoreDuplicates: false,
+            // Emit progress
+            emitProgress({
+              current: processedCount,
+              total: totalRecords,
+              currentBatch,
+              totalBatches: batches.length,
             });
 
-          if (upsertError) {
-            throw upsertError;
+            // Process artwork records in the batch
+            const artworkData = await processArtworkBatch(batch, {
+              skipImages,
+            });
+
+            if (artworkData.length === 0) {
+              Logger.info(
+                `Batch ${currentBatch} had no valid records to process`,
+              );
+              return;
+            }
+
+            // Upsert to database in smaller chunks to avoid payload size issues
+            await upsertArtworkData(artworkData, mode);
+
+            processedCount += artworkData.length;
+
+            // Update progress
+            emitProgress({
+              current: processedCount,
+              total: totalRecords,
+              currentBatch,
+              totalBatches: batches.length,
+            });
+
+            // Call onProgress if provided
+            options.onProgress?.({
+              current: processedCount,
+              total: recordsToProcess.length,
+            });
+
+            Logger.info(`Completed batch ${currentBatch}/${batches.length}`, {
+              processedInBatch: artworkData.length,
+              totalProcessed: processedCount,
+            });
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : "Unknown error";
+            Logger.error(`Error processing batch ${batchIndex + 1}`, {
+              error: errorMessage,
+              batchSize: batch.length,
+            });
+
+            errors.push({
+              record_id: batch[0]?.id || "unknown",
+              error: errorMessage,
+              timestamp: new Date().toISOString(),
+            });
           }
+        }),
+      ),
+    );
 
-          processedCount++;
-          options.onProgress?.({
-            current: processedCount,
-            total: recordsToProcess.length,
-          });
-        } catch (error) {
-          console.error(`[SYNC] Error processing artwork ${record.id}:`, error);
-          errors.push({
-            record_id: record.id,
-            error: error instanceof Error ? error.message : "Unknown error",
-            timestamp: new Date().toISOString(),
-          });
-        }
+    // Log live status changes for better visibility
+    if (existingArtworks.length > 0) {
+      const liveStatusChanges = recordsToProcess
+        .filter((record) => {
+          const existing = existingArtworks.find((a) => a.id === record.id);
+          const newStatus = Boolean(record.get("ADD TO PRODUCTION"));
+          return existing && existing.live_in_production !== newStatus;
+        })
+        .map((record) => ({
+          id: record.id,
+          title: record.get("Title"),
+          oldStatus: existingArtworks.find((a) => a.id === record.id)
+            ?.live_in_production,
+          newStatus: Boolean(record.get("ADD TO PRODUCTION")),
+        }));
+
+      if (liveStatusChanges.length > 0) {
+        Logger.info(
+          `Found ${liveStatusChanges.length} artworks with live status changes`,
+          {
+            liveStatusChanges,
+          },
+        );
       }
-
-      const result = {
-        success: true,
-        mode,
-        processedCount: processedCount, // Use actual processed count
-        total: records.length,
-        errors: errors.length > 0 ? errors : null,
-      };
-
-      console.log("[SYNC] Sync completed:", result);
-
-      // After processing records
-      Logger.info("Sync results", {
-        totalProcessed: records.length,
-        recordsToProcess: recordsToProcess.length,
-        liveStatusChanges: recordsToProcess
-          .filter((record) => {
-            const existing = existingArtworks?.find((a) => a.id === record.id);
-            const newStatus = record.get("ADD TO PRODUCTION") === true;
-            return existing && existing.live_in_production !== newStatus;
-          })
-          .map((record) => ({
-            id: record.id,
-            title: record.get("Title"),
-            oldStatus: existingArtworks?.find((a) => a.id === record.id)
-              ?.live_in_production,
-            newStatus: record.get("ADD TO PRODUCTION") === true,
-          })),
-      });
-
-      return result;
     }
+
+    // Handle any errors that occurred during processing
+    if (errors.length > 0) {
+      Logger.warn(`Sync completed with ${errors.length} errors`, {
+        errorCount: errors.length,
+        totalProcessed: processedCount,
+        totalRecords,
+      });
+    } else {
+      Logger.info("Artwork sync completed successfully", {
+        processedCount,
+        totalRecords,
+        mode,
+      });
+    }
+
+    return {
+      success: true,
+      mode,
+      processedCount,
+      total: totalRecords,
+      errors: errors.length > 0 ? errors : null,
+    };
   } catch (error) {
-    console.error("[SYNC] Artwork sync error:", error);
+    Logger.error("Error syncing artworks:", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
     throw error;
   }
 }
@@ -535,4 +678,88 @@ async function processArtworkImages(
   }
 
   return images;
+}
+
+// Helper function to filter records that need updating in incremental mode
+function filterRecordsForIncrementalSync(
+  records: readonly Record<FieldSet>[],
+  existingArtworks: ExistingArtwork[],
+): Record<FieldSet>[] {
+  return records.filter((record) => {
+    const lastModified = new Date(record.get("Last Modified") as string);
+    const existingArtwork = existingArtworks.find((a) => a.id === record.id);
+
+    // Include if:
+    // 1. Record doesn't exist in database yet
+    // 2. Record was modified after the last database update
+    // 3. Live status has changed
+    return (
+      !existingArtwork ||
+      lastModified > new Date(existingArtwork.updated_at) ||
+      Boolean(record.get("ADD TO PRODUCTION")) !==
+        existingArtwork.live_in_production
+    );
+  });
+}
+
+// Process a batch of artwork records
+async function processArtworkBatch(
+  batch: Record<FieldSet>[],
+  options: { skipImages?: boolean } = {},
+): Promise<Artwork[]> {
+  const results = await Promise.all(
+    batch.map(async (record) => {
+      try {
+        // Convert to our expected record type
+        const convertedRecord = convertAirtableRecord(record);
+        return await processArtworkRecord(convertedRecord, options);
+      } catch (error) {
+        Logger.error("Failed to process artwork record", {
+          recordId: record.id,
+          title: record.get("Title"),
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
+        return null;
+      }
+    }),
+  );
+
+  // Filter out null results
+  return results.filter((artwork): artwork is Artwork => artwork !== null);
+}
+
+// Upsert artwork data to database in smaller chunks
+async function upsertArtworkData(
+  artworkData: Artwork[],
+  mode: string,
+): Promise<void> {
+  if (
+    artworkData.length === 0 ||
+    !(mode === "incremental" || mode === "bulk")
+  ) {
+    return;
+  }
+
+  // Use smaller chunks to avoid payload size issues
+  const chunkSize = CONFIG.BATCH.UPSERT_CHUNK_SIZE;
+  for (let i = 0; i < artworkData.length; i += chunkSize) {
+    const chunk = artworkData.slice(i, i + chunkSize);
+
+    try {
+      await upsertWithRetry(chunk);
+      Logger.debug(
+        `Upserted artwork chunk ${Math.floor(i / chunkSize) + 1}/${Math.ceil(artworkData.length / chunkSize)}`,
+        {
+          chunkSize: chunk.length,
+        },
+      );
+    } catch (error) {
+      Logger.error("Failed to upsert artwork chunk", {
+        chunkIndex: Math.floor(i / chunkSize) + 1,
+        totalChunks: Math.ceil(artworkData.length / chunkSize),
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+      throw error;
+    }
+  }
 }

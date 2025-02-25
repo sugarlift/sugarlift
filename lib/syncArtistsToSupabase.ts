@@ -6,6 +6,24 @@ import Logger from "@/lib/logger";
 import { PostgrestError } from "@supabase/supabase-js";
 import { Record as AirtableRecord, FieldSet } from "airtable";
 
+// Configuration constants for better readability and maintenance
+const CONFIG = {
+  RETRY: {
+    MAX_RETRIES: 3,
+    MAX_DELAY_MS: 30000, // 30 seconds
+    BASE_DELAY_MS: 1000,
+  },
+  UPLOAD: {
+    TIMEOUT_MS: 30000, // 30 seconds
+  },
+  PAYLOAD: {
+    MAX_SIZE_BYTES: 1_000_000, // 1MB Supabase payload limit
+  },
+  STORAGE: {
+    BUCKET_NAME: "attachments_artists",
+  },
+};
+
 interface SyncError {
   message: string;
   details: string;
@@ -29,6 +47,13 @@ interface Artist {
   brand_value: string | null;
 }
 
+// Replace retryDelay function with one that uses constants
+const retryDelay = (attempt: number) =>
+  Math.min(
+    CONFIG.RETRY.BASE_DELAY_MS * Math.pow(2, attempt),
+    CONFIG.RETRY.MAX_DELAY_MS,
+  );
+
 async function uploadArtistPhotoToSupabase(
   attachment: AirtableAttachment,
   artist: { artist_name: string },
@@ -42,17 +67,28 @@ async function uploadArtistPhotoToSupabase(
   const storagePath = `${folderName}/${cleanFilename}`;
 
   // Add retry logic for fetching
-  const maxRetries = 3;
+  const maxRetries = CONFIG.RETRY.MAX_RETRIES;
   const retryDelay = (attempt: number) =>
-    Math.min(1000 * Math.pow(2, attempt), 30000);
+    Math.min(
+      CONFIG.RETRY.BASE_DELAY_MS * Math.pow(2, attempt),
+      CONFIG.RETRY.MAX_DELAY_MS,
+    );
 
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
+      Logger.debug(
+        `Fetching image for ${artist.artist_name}, attempt ${attempt + 1}`,
+        {
+          filename: cleanFilename,
+          url: attachment.url.substring(0, 50) + "...", // Truncate the URL for logging
+        },
+      );
+
       const response = await fetch(attachment.url, {
         // Add timeout options
-        signal: AbortSignal.timeout(30000), // 30 second timeout
+        signal: AbortSignal.timeout(CONFIG.UPLOAD.TIMEOUT_MS),
       });
 
       if (!response.ok) {
@@ -61,8 +97,13 @@ async function uploadArtistPhotoToSupabase(
 
       const blob = await response.blob();
 
+      Logger.debug(`Uploading image to Supabase: ${storagePath}`, {
+        size: blob.size,
+        type: blob.type,
+      });
+
       const { error: uploadError } = await supabaseAdmin.storage
-        .from("attachments_artists")
+        .from(CONFIG.STORAGE.BUCKET_NAME)
         .upload(storagePath, blob, {
           contentType: attachment.type,
           upsert: true,
@@ -73,8 +114,13 @@ async function uploadArtistPhotoToSupabase(
       const {
         data: { publicUrl },
       } = supabaseAdmin.storage
-        .from("attachments_artists")
+        .from(CONFIG.STORAGE.BUCKET_NAME)
         .getPublicUrl(storagePath);
+
+      Logger.debug(`Successfully uploaded image for ${artist.artist_name}`, {
+        path: storagePath,
+        publicUrl: publicUrl.substring(0, 50) + "...", // Truncate for logging
+      });
 
       return {
         url: publicUrl,
@@ -86,13 +132,20 @@ async function uploadArtistPhotoToSupabase(
     } catch (error) {
       lastError = error as Error;
 
-      // Log the retry attempt
-      Logger.warn("Image upload attempt failed, retrying...", {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      const errorDetails = {
         attempt: attempt + 1,
         maxRetries,
         filename: cleanFilename,
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
+        error: errorMessage,
+        artistName: artist.artist_name,
+        errorType:
+          error instanceof Error ? error.constructor.name : typeof error,
+      };
+
+      // Log the retry attempt
+      Logger.warn("Image upload attempt failed, retrying...", errorDetails);
 
       // If this isn't the last attempt, wait before retrying
       if (attempt < maxRetries - 1) {
@@ -107,8 +160,10 @@ async function uploadArtistPhotoToSupabase(
   // If we get here, all retries failed
   Logger.error("Image upload failed after all retries", {
     filename: cleanFilename,
-    artworkTitle: artist.artist_name,
-    error: lastError,
+    artistName: artist.artist_name,
+    error: lastError?.message || "Unknown error",
+    stack: lastError?.stack,
+    attempts: maxRetries,
   });
 
   // Return a partial record without the image
@@ -147,6 +202,128 @@ interface ExistingArtist {
   live_in_production: boolean;
 }
 
+// Extract this function outside the main sync function to make it reusable
+async function upsertWithRetry(
+  data: Partial<Artist>[],
+  attempt = 0,
+  maxRetries = CONFIG.RETRY.MAX_RETRIES,
+): Promise<void> {
+  try {
+    // Validate and clean the data before sending
+    const cleanedData = data.map((record) => {
+      // Log problematic records
+      if (!record.id || !record.artist_name) {
+        Logger.warn("Invalid record found:", {
+          id: record.id,
+          artist_name: record.artist_name,
+          recordKeys: Object.keys(record),
+        });
+      }
+
+      // Create cleaned record with only defined non-null values
+      const cleaned = Object.entries(record).reduce((acc, [key, value]) => {
+        // Skip undefined or null values
+        if (value !== undefined && value !== null) {
+          // Use Record type for type-safe dynamic key assignment
+          (acc as Record<keyof Artist, Artist[keyof Artist]>)[
+            key as keyof Artist
+          ] = value;
+        }
+        return acc;
+      }, {} as Partial<Artist>);
+
+      // Ensure required fields are present
+      if (record.id) {
+        cleaned.id = record.id;
+      }
+      if (record.live_in_production !== undefined) {
+        cleaned.live_in_production = record.live_in_production;
+      }
+
+      // Log the cleaned record structure
+      Logger.debug("Cleaned record structure:", {
+        id: cleaned.id,
+        hasName: !!cleaned.artist_name,
+        photoCount: cleaned.artist_photo?.length ?? 0,
+        recordSize: JSON.stringify(cleaned).length,
+      });
+
+      return cleaned;
+    });
+
+    // Log the total payload size
+    const payloadSize = JSON.stringify(cleanedData).length;
+    Logger.info("Attempting upsert:", {
+      recordCount: cleanedData.length,
+      payloadSizeBytes: payloadSize,
+      attempt,
+    });
+
+    // If payload is too large, split before attempting
+    if (payloadSize > CONFIG.PAYLOAD.MAX_SIZE_BYTES) {
+      // 1MB limit
+      Logger.warn("Payload too large, splitting preemptively");
+      const mid = Math.floor(cleanedData.length / 2);
+      const batch1 = cleanedData.slice(0, mid);
+      const batch2 = cleanedData.slice(mid);
+
+      await upsertWithRetry(batch1, 0, maxRetries);
+      await upsertWithRetry(batch2, 0, maxRetries);
+      return;
+    }
+
+    const { error } = await supabaseAdmin.from("artists").upsert(cleanedData);
+
+    if (error) {
+      Logger.error("Upsert attempt failed:", {
+        attempt,
+        errorCode: error.code,
+        errorMessage: error.message,
+        errorDetails: error.details,
+        dataLength: cleanedData.length,
+        firstRecordId: cleanedData[0]?.id,
+        payloadSize,
+      });
+
+      // Handle rate limiting
+      if (error.code === "429") {
+        if (attempt < maxRetries) {
+          const delay = retryDelay(attempt);
+          Logger.warn(`Rate limited, retrying in ${delay}ms...`);
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          return upsertWithRetry(data, attempt + 1, maxRetries);
+        }
+      }
+
+      // Handle payload size issues
+      if (error.code === "400" && cleanedData.length > 1) {
+        Logger.warn("400 error, splitting batch");
+        const mid = Math.floor(cleanedData.length / 2);
+        const batch1 = cleanedData.slice(0, mid);
+        const batch2 = cleanedData.slice(mid);
+
+        await upsertWithRetry(batch1, 0, maxRetries);
+        await upsertWithRetry(batch2, 0, maxRetries);
+        return;
+      }
+
+      throw error;
+    }
+  } catch (error) {
+    const errorDetails =
+      error instanceof Error ? error.message : "Unknown error";
+    Logger.error("Upsert error:", {
+      error: errorDetails,
+      dataLength: data.length,
+      firstRecordId: data[0]?.id,
+      statusCode: (error as PostgrestError)?.code,
+      hint: (error as PostgrestError)?.hint,
+      details: (error as PostgrestError)?.details,
+    });
+    throw error;
+  }
+}
+
 export async function syncArtistsToSupabase({
   mode = "bulk",
   batchSize = 25,
@@ -161,10 +338,7 @@ export async function syncArtistsToSupabase({
   let totalRecords = 0;
   const errors: SyncError[] = [];
 
-  // Add retry logic for rate limits
-  const retryDelay = (attempt: number) =>
-    Math.min(1000 * Math.pow(2, attempt), 30000);
-  const maxRetries = 3;
+  const maxRetries = CONFIG.RETRY.MAX_RETRIES;
 
   Logger.info("Starting artist sync", {
     mode,
@@ -175,153 +349,35 @@ export async function syncArtistsToSupabase({
     columns,
   });
 
-  // Helper function to handle Supabase upsert with retries
-  async function upsertWithRetry(data: Partial<Artist>[], attempt = 0) {
-    try {
-      // Validate and clean the data before sending
-      const cleanedData = data.map((record) => {
-        // Log problematic records
-        if (!record.id || !record.artist_name) {
-          Logger.warn("Invalid record found:", {
-            id: record.id,
-            artist_name: record.artist_name,
-            recordKeys: Object.keys(record),
-          });
-        }
-
-        // Create cleaned record with only defined non-null values
-        const cleaned = Object.entries(record).reduce((acc, [key, value]) => {
-          // Skip undefined or null values
-          if (value !== undefined && value !== null) {
-            // Use Record type for type-safe dynamic key assignment
-            (acc as Record<keyof Artist, Artist[keyof Artist]>)[
-              key as keyof Artist
-            ] = value;
-          }
-          return acc;
-        }, {} as Partial<Artist>);
-
-        // Ensure required fields are present
-        if (record.id) {
-          cleaned.id = record.id;
-        }
-        if (record.live_in_production !== undefined) {
-          cleaned.live_in_production = record.live_in_production;
-        }
-
-        // Log the cleaned record structure
-        Logger.debug("Cleaned record structure:", {
-          id: cleaned.id,
-          hasName: !!cleaned.artist_name,
-          photoCount: cleaned.artist_photo?.length ?? 0,
-          recordSize: JSON.stringify(cleaned).length,
-        });
-
-        return cleaned;
-      });
-
-      // Log the total payload size
-      const payloadSize = JSON.stringify(cleanedData).length;
-      Logger.info("Attempting upsert:", {
-        recordCount: cleanedData.length,
-        payloadSizeBytes: payloadSize,
-        attempt,
-      });
-
-      // If payload is too large, split before attempting
-      if (payloadSize > 1_000_000) {
-        // 1MB limit
-        Logger.warn("Payload too large, splitting preemptively");
-        const mid = Math.floor(cleanedData.length / 2);
-        const batch1 = cleanedData.slice(0, mid);
-        const batch2 = cleanedData.slice(mid);
-
-        await upsertWithRetry(batch1, 0);
-        await upsertWithRetry(batch2, 0);
-        return;
-      }
-
-      const { error } = await supabaseAdmin.from("artists").upsert(cleanedData);
-
-      if (error) {
-        Logger.error("Upsert attempt failed:", {
-          attempt,
-          errorCode: error.code,
-          errorMessage: error.message,
-          errorDetails: error.details,
-          dataLength: cleanedData.length,
-          firstRecordId: cleanedData[0]?.id,
-          payloadSize,
-        });
-
-        // Handle rate limiting
-        if (error.code === "429") {
-          if (attempt < maxRetries) {
-            const delay = retryDelay(attempt);
-            Logger.warn(`Rate limited, retrying in ${delay}ms...`);
-            await new Promise((resolve) => setTimeout(resolve, delay));
-            return upsertWithRetry(data, attempt + 1);
-          }
-        }
-
-        // Handle payload size issues
-        if (error.code === "400" && cleanedData.length > 1) {
-          Logger.warn("400 error, splitting batch");
-          const mid = Math.floor(cleanedData.length / 2);
-          const batch1 = cleanedData.slice(0, mid);
-          const batch2 = cleanedData.slice(mid);
-
-          await upsertWithRetry(batch1, 0);
-          await upsertWithRetry(batch2, 0);
-          return;
-        }
-
-        throw error;
-      }
-    } catch (error) {
-      const errorDetails =
-        error instanceof Error ? error.message : "Unknown error";
-      Logger.error("Upsert error:", {
-        error: errorDetails,
-        dataLength: data.length,
-        firstRecordId: data[0]?.id,
-        statusCode: (error as PostgrestError)?.code,
-        hint: (error as PostgrestError)?.hint,
-        details: (error as PostgrestError)?.details,
-      });
-      throw error;
-    }
-  }
-
   try {
     // Get existing artists from Supabase with last update time
     let existingArtists: ExistingArtist[] = [];
     if (!skipExistingCheck) {
-      const { data: existing } = await supabaseAdmin
+      Logger.info("Fetching existing artists from database");
+      const { data: existing, error } = await supabaseAdmin
         .from("artists")
         .select("id, updated_at, live_in_production");
+
+      if (error) {
+        throw new Error(`Failed to fetch existing artists: ${error.message}`);
+      }
+
       existingArtists = existing || [];
+      Logger.info(
+        `Found ${existingArtists.length} existing artists in database`,
+      );
     }
 
     // Fetch records from Airtable
+    Logger.info("Fetching artists from Airtable");
     const records = await artistsTable.select().all();
     totalRecords = records.length;
+    Logger.info(`Found ${totalRecords} artists in Airtable`);
 
     // Filter records that need updating in incremental mode
     const recordsToProcess =
       mode === "incremental"
-        ? records.filter((record) => {
-            const lastModified = new Date(
-              record.get("Last Modified") as string,
-            );
-            const existingLastUpdate = existingArtists.find(
-              (a: ExistingArtist) => a.id === record.id,
-            );
-            return (
-              !existingLastUpdate ||
-              lastModified > new Date(existingLastUpdate.updated_at)
-            );
-          })
+        ? filterRecordsForIncrementalSync(records, existingArtists)
         : records;
 
     Logger.info(`Found ${recordsToProcess.length} artists to update`, {
@@ -340,102 +396,60 @@ export async function syncArtistsToSupabase({
       batches.push(batch);
     }
 
+    Logger.info(`Created ${batches.length} batches of max size ${batchSize}`);
+
     await Promise.all(
-      batches.map((batch) =>
+      batches.map((batch, batchIndex) =>
         limit(async () => {
           try {
-            const artistData = await Promise.all(
-              batch.map(async (record) => {
-                try {
-                  return await processArtistRecord(record, {
-                    skipImages,
-                  });
-                } catch (error) {
-                  Logger.error("Failed to process artist record", {
-                    recordId: record.id,
-                    error:
-                      error instanceof Error ? error.message : "Unknown error",
-                  });
-                  return null;
-                }
-              }),
-            );
+            Logger.info(`Processing batch ${batchIndex + 1}/${batches.length}`);
 
-            const validArtistData = artistData.filter(
-              (artist: Partial<Artist> | null): artist is Partial<Artist> =>
-                artist !== null,
-            );
+            // Process artist records in the batch
+            const artistData = await processArtistBatch(batch, { skipImages });
 
-            if (validArtistData.length === 0) {
+            if (artistData.length === 0) {
+              Logger.info(
+                `Batch ${batchIndex + 1} had no valid records to process`,
+              );
               return;
             }
 
-            if (mode === "incremental" || mode === "bulk") {
-              const chunkSize = 3;
-              for (let i = 0; i < validArtistData.length; i += chunkSize) {
-                const chunk = validArtistData
-                  .slice(i, i + chunkSize)
-                  .filter(
-                    (data): data is Partial<Artist> & { id: string } =>
-                      data !== null,
-                  );
+            // Upsert to database in smaller chunks to avoid payload size issues
+            await upsertArtistData(artistData, mode);
 
-                try {
-                  await upsertWithRetry(chunk);
-                } catch (error) {
-                  errors.push({
-                    message:
-                      error instanceof Error ? error.message : "Unknown error",
-                    details: `Failed to upsert chunk of artists (${i} to ${i + chunkSize})`,
-                    error: error as Error,
-                  });
-                }
-              }
-            }
-
-            processedCount += validArtistData.length;
+            processedCount += artistData.length;
             onProgress?.({ current: processedCount, total: totalRecords });
 
-            // Add logging after processing
-            Logger.info("Sync results", {
+            Logger.info(`Completed batch ${batchIndex + 1}/${batches.length}`, {
+              processedInBatch: artistData.length,
               totalProcessed: processedCount,
-              recordsToProcess: recordsToProcess.length,
-              liveStatusChanges: recordsToProcess
-                .filter((record) => {
-                  const existing = existingArtists.find(
-                    (a: ExistingArtist) => a.id === record.id,
-                  );
-                  const newStatus = Boolean(record.get("Add to Website"));
-                  return existing && existing.live_in_production !== newStatus;
-                })
-                .map((record) => ({
-                  id: record.id,
-                  name: record.get("Artist Name"),
-                  oldStatus: existingArtists.find(
-                    (a: ExistingArtist) => a.id === record.id,
-                  )?.live_in_production,
-                  newStatus: Boolean(record.get("Add to Website")),
-                })),
             });
           } catch (error) {
-            Logger.error("Batch processing error:", {
-              error: error instanceof Error ? error.message : "Unknown error",
+            const errorMessage =
+              error instanceof Error ? error.message : "Unknown error";
+            Logger.error(`Error processing batch ${batchIndex + 1}`, {
+              error: errorMessage,
               batchSize: batch.length,
-              statusCode: (error as PostgrestError)?.code,
-              hint: (error as PostgrestError)?.hint,
-              details: (error as PostgrestError)?.details,
             });
+
             errors.push({
-              message: error instanceof Error ? error.message : "Unknown error",
-              details: "Failed to process batch",
-              error: error as Error,
+              message: errorMessage,
+              details: `Failed to process batch ${batchIndex + 1}/${batches.length}`,
+              error: error as Error | PostgrestError,
             });
           }
         }),
       ),
     );
 
+    // Handle any errors that occurred during processing
     if (errors.length > 0) {
+      Logger.warn(`Sync completed with ${errors.length} errors`, {
+        errorCount: errors.length,
+        totalProcessed: processedCount,
+        totalRecords,
+      });
+
       throw new Error(
         `Sync completed with ${errors.length} errors: ${errors
           .map((e: SyncError) => e.message)
@@ -443,7 +457,7 @@ export async function syncArtistsToSupabase({
       );
     }
 
-    Logger.info("Artist sync completed", {
+    Logger.info("Artist sync completed successfully", {
       processedCount,
       totalRecords,
       mode,
@@ -453,6 +467,86 @@ export async function syncArtistsToSupabase({
   } catch (error) {
     Logger.error("Error syncing artists:", error);
     throw error;
+  }
+}
+
+// Helper function to filter records that need updating in incremental mode
+function filterRecordsForIncrementalSync(
+  records: readonly AirtableRecord<FieldSet>[],
+  existingArtists: ExistingArtist[],
+): AirtableRecord<FieldSet>[] {
+  return records.filter((record) => {
+    const lastModified = new Date(record.get("Last Modified") as string);
+    const existingArtist = existingArtists.find((a) => a.id === record.id);
+
+    // Include if:
+    // 1. Record doesn't exist in database yet
+    // 2. Record was modified after the last database update
+    // 3. Live status has changed
+    return (
+      !existingArtist ||
+      lastModified > new Date(existingArtist.updated_at) ||
+      Boolean(record.get("Add to Website")) !==
+        existingArtist.live_in_production
+    );
+  });
+}
+
+// Process a batch of artist records
+async function processArtistBatch(
+  batch: AirtableRecord<FieldSet>[],
+  options: { skipImages?: boolean } = {},
+): Promise<(Partial<Artist> & { id: string })[]> {
+  const results = await Promise.all(
+    batch.map(async (record) => {
+      try {
+        return await processArtistRecord(record, options);
+      } catch (error) {
+        Logger.error("Failed to process artist record", {
+          recordId: record.id,
+          artistName: record.get("Artist Name"),
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
+        return null;
+      }
+    }),
+  );
+
+  return results.filter(
+    (artist): artist is Partial<Artist> & { id: string } => artist !== null,
+  );
+}
+
+// Upsert artist data to database in smaller chunks
+async function upsertArtistData(
+  artistData: (Partial<Artist> & { id: string })[],
+  mode: string,
+): Promise<void> {
+  if (artistData.length === 0 || !(mode === "incremental" || mode === "bulk")) {
+    return;
+  }
+
+  // Use smaller chunks to avoid payload size issues
+  const chunkSize = 3;
+  for (let i = 0; i < artistData.length; i += chunkSize) {
+    const chunk = artistData.slice(i, i + chunkSize);
+
+    try {
+      await upsertWithRetry(chunk);
+      Logger.debug(
+        `Upserted chunk ${Math.floor(i / chunkSize) + 1}/${Math.ceil(artistData.length / chunkSize)}`,
+        {
+          chunkSize: chunk.length,
+        },
+      );
+    } catch (error) {
+      Logger.error("Failed to upsert artist chunk", {
+        chunkIndex: Math.floor(i / chunkSize) + 1,
+        totalChunks: Math.ceil(artistData.length / chunkSize),
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+      throw error;
+    }
   }
 }
 
