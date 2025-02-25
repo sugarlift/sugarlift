@@ -9,6 +9,7 @@ import {
 import Logger from "./logger";
 import { Record, FieldSet } from "airtable";
 import pLimit from "p-limit"; // Add import for pLimit
+import { PostgrestError } from "@supabase/supabase-js";
 
 // Configuration constants for better readability and maintenance
 const CONFIG = {
@@ -291,14 +292,53 @@ async function upsertWithRetry(
       }
 
       // Create cleaned record with only defined non-null values
-      const cleaned = Object.entries(record).reduce((acc, [key, value]) => {
-        // Skip undefined or null values
-        if (value !== undefined && value !== null) {
-          // Type-safe dynamic key assignment
-          (acc as any)[key] = value;
+      const cleaned = Object.entries(record).reduce<Partial<Artwork>>(
+        (acc, [key, value]) => {
+          // Skip undefined or null values
+          if (value !== undefined && value !== null) {
+            const artworkKey = key as keyof Artwork;
+            if (isValidArtworkValue(artworkKey, value)) {
+              Object.assign(acc, { [artworkKey]: value });
+            }
+          }
+          return acc;
+        },
+        {} as Partial<Artwork>,
+      );
+
+      // Type guard function to validate both key and value
+      function isValidArtworkValue<K extends keyof Artwork>(
+        key: K,
+        value: unknown,
+      ): value is Artwork[K] {
+        switch (key) {
+          case "id":
+          case "title":
+          case "medium":
+          case "width":
+          case "height":
+          case "type":
+          case "artist_name":
+            return typeof value === "string";
+          case "year":
+            return typeof value === "number";
+          case "live_in_production":
+            return typeof value === "boolean";
+          case "artwork_images":
+            return (
+              Array.isArray(value) &&
+              value.every(
+                (item) =>
+                  typeof item === "object" && item !== null && "url" in item,
+              )
+            );
+          case "created_at":
+          case "updated_at":
+            return typeof value === "string" && !isNaN(Date.parse(value));
+          default:
+            return false;
         }
-        return acc;
-      }, {} as Partial<Artwork>);
+      }
 
       // Ensure required fields are present
       if (record.id) {
@@ -387,9 +427,9 @@ async function upsertWithRetry(
       error: errorDetails,
       dataLength: data.length,
       firstRecordId: data[0]?.id,
-      statusCode: (error as any)?.code,
-      hint: (error as any)?.hint,
-      details: (error as any)?.details,
+      statusCode: (error as PostgrestError)?.code || undefined,
+      hint: (error as PostgrestError)?.hint || undefined,
+      details: (error as PostgrestError)?.details || undefined,
     });
     throw error;
   }

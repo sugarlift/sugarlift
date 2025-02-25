@@ -338,8 +338,6 @@ export async function syncArtistsToSupabase({
   let totalRecords = 0;
   const errors: SyncError[] = [];
 
-  const maxRetries = CONFIG.RETRY.MAX_RETRIES;
-
   Logger.info("Starting artist sync", {
     mode,
     batchSize,
