@@ -692,32 +692,42 @@ async function processArtworkImages(
   record: Record<AirtableRecord>,
   title: string,
 ): Promise<StoredAttachment[]> {
-  const images: StoredAttachment[] = [];
   const rawAttachments = record.get("Artwork images");
 
   if (Array.isArray(rawAttachments)) {
-    for (const [index, att] of rawAttachments.entries()) {
-      try {
-        const attachment = await uploadArtworkImageToSupabase(
-          convertAttachment(att as RawAirtableAttachment),
-          { title },
-        );
-        if (attachment.url) {
-          images.push(attachment);
+    // Reverse the array to match the order in Airtable UI
+    // This is needed because Airtable returns images in reverse order compared to the UI
+    const reversedAttachments = [...rawAttachments].reverse();
+
+    // Use Promise.all with map to maintain the order (same approach as in syncArtistsToSupabase.ts)
+    const results = await Promise.all(
+      reversedAttachments.map(async (att, index) => {
+        try {
+          const attachment = await uploadArtworkImageToSupabase(
+            convertAttachment(att as RawAirtableAttachment),
+            { title },
+          );
+          return attachment.url ? attachment : null;
+        } catch (error) {
+          Logger.error(`Failed to upload image`, {
+            error: error instanceof Error ? error.message : "Unknown error",
+            recordId: record.id,
+            title,
+            imageIndex: index + 1,
+            filename: att.filename,
+          });
+          return null;
         }
-      } catch (error) {
-        Logger.error(`Failed to upload image`, {
-          error: error instanceof Error ? error.message : "Unknown error",
-          recordId: record.id,
-          title,
-          imageIndex: index + 1,
-          filename: att.filename,
-        });
-      }
-    }
+      }),
+    );
+
+    // Filter out null results (failed uploads)
+    return results.filter(
+      (attachment): attachment is StoredAttachment => attachment !== null,
+    );
   }
 
-  return images;
+  return [];
 }
 
 // Helper function to filter records that need updating in incremental mode
