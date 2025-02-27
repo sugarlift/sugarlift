@@ -68,6 +68,9 @@ export interface Artwork {
   type: string | null;
   created_at: string;
   updated_at: string;
+  likes?: number;
+  dislikes?: number;
+  loves?: number;
 }
 
 export interface ArtistTable {
