@@ -91,7 +91,7 @@ export default async function ExhibitionPage({ params }: { params: Params }) {
                 alt={`${exhibition.frontmatter.title} - Image ${index + 1}`}
                 sizes="(min-width: 1024px) 90vw, (min-width: 768px) 90vw, 100vw"
                 fill
-                quality={50}
+                quality={70}
                 className="object-cover"
                 priority={index === 0}
               />
