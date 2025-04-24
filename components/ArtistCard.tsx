@@ -157,7 +157,7 @@ export function ArtistCard({
                     loading="lazy"
                     className="object-cover"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-                    quality={slide.id === "artist-photo" ? 70 : 10}
+                    quality={slide.id === "artist-photo" ? 50 : 50}
                   />
                 ) : (
                   <Link
@@ -171,7 +171,7 @@ export function ArtistCard({
                       loading="lazy"
                       className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-                      quality={slide.id === "artist-photo" ? 70 : 10}
+                      quality={slide.id === "artist-photo" ? 50 : 50}
                     />
                   </Link>
                 )}

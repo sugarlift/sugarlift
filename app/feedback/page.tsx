@@ -480,7 +480,7 @@ export default function FeedbackPage() {
               }`}
               sizes="(max-width: 768px) 100vw, (max-width: 1440px) 100vw, 1440px"
               priority
-              quality={40}
+              quality={50}
               onLoadingComplete={() => {
                 setImageLoaded(true);
 
@@ -641,7 +641,7 @@ export default function FeedbackPage() {
         </div>
 
         {/* Empty right column on mobile, info button on desktop */}
-        <div className="hidden sm:block sm:flex sm:justify-end">
+        <div className="hidden sm:flex sm:justify-end">
           <div className="relative">
             <Button
               onClick={() => setInfoOpen(!infoOpen)}
