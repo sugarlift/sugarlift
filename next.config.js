@@ -7,7 +7,7 @@ const nextConfig = {
         : "false",
   },
   images: {
-    unoptimized: true,
+    unoptimized: false,
     minimumCacheTTL: 60 * 60 * 24 * 7,
     remotePatterns: [
       {
