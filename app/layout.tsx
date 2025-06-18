@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import "./styles/globals.scss";
 import { COMPANY_METADATA } from "@/app/lib/constants";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -87,6 +88,7 @@ export default function RootLayout({
         <Navigation />
         <main className="flex-grow">{children}</main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
