@@ -20,11 +20,24 @@ async function getArtistBySlug(slug: string): Promise<Artist | null> {
     return null;
   }
 
+  // Debug: Log all artist slugs for comparison
+  if (process.env.NODE_ENV === "development") {
+    console.log("Looking for slug:", slug);
+    console.log(
+      "Available artist slugs:",
+      artists.map((a) => ({
+        name: a.artist_name,
+        slug: generateSlug(a.artist_name),
+      })),
+    );
+  }
+
   const artist = artists.find((artist) => {
     return generateSlug(artist.artist_name) === slug;
   });
 
   if (!artist) {
+    console.error(`Artist not found for slug: ${slug}`);
     return null;
   }
 
@@ -164,5 +177,4 @@ export async function generateStaticParams() {
   }));
 }
 
-export const dynamic = "force-static";
 export const revalidate = 3600;

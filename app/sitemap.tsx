@@ -4,14 +4,11 @@ import { getAllProjects } from "@/app/lib/markdownProjects";
 import { getAllExhibitions } from "@/app/lib/markdownExhibitions";
 import { supabase } from "@/lib/supabase";
 import { PostgrestError } from "@supabase/supabase-js";
+import { generateSlug } from "@/lib/utils";
 
 type ArtistRow = {
   artist_name: string;
 };
-
-function generateSlug(name: string): string {
-  return name.toLowerCase().replace(/[^a-zA-Z0-9]/g, "-");
-}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { domain } = COMPANY_METADATA;
