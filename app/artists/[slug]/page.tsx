@@ -20,17 +20,15 @@ async function getArtistBySlug(slug: string): Promise<Artist | null> {
     return null;
   }
 
-  // Debug: Log all artist slugs for comparison
-  if (process.env.NODE_ENV === "development") {
-    console.log("Looking for slug:", slug);
-    console.log(
-      "Available artist slugs:",
-      artists.map((a) => ({
-        name: a.artist_name,
-        slug: generateSlug(a.artist_name),
-      })),
-    );
-  }
+  // Debug: Log all artist slugs for comparison (works in production too for debugging)
+  console.log("Looking for slug:", slug);
+  console.log(
+    "Available artist slugs:",
+    artists.map((a) => ({
+      name: a.artist_name,
+      slug: generateSlug(a.artist_name),
+    })),
+  );
 
   const artist = artists.find((artist) => {
     return generateSlug(artist.artist_name) === slug;
@@ -38,6 +36,24 @@ async function getArtistBySlug(slug: string): Promise<Artist | null> {
 
   if (!artist) {
     console.error(`Artist not found for slug: ${slug}`);
+    // Also check if artist exists but is not live
+    const { data: allArtists } = await supabase
+      .from("artists")
+      .select("artist_name, live_in_production")
+      .ilike(
+        "artist_name",
+        slug
+          .split("-")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" "),
+      );
+
+    if (allArtists && allArtists.length > 0) {
+      console.error(
+        `Artist exists but live_in_production is false for slug: ${slug}`,
+        allArtists,
+      );
+    }
     return null;
   }
 
@@ -178,3 +194,4 @@ export async function generateStaticParams() {
 }
 
 export const revalidate = 3600;
+export const dynamicParams = true; // Allow dynamic generation of paths not in generateStaticParams
