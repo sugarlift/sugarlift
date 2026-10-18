@@ -17,14 +17,14 @@ export const revalidate = 3600; // Revalidate every hour
 export const metadata: Metadata = {
   title: `${COMPANY_METADATA.name} | Client projects`,
   description:
-    "Sugarlift is a contemporary art gallery based in New York, an industry-leading art consulting service, and a global artist community representing today's best and brightest contemporary artists.",
+    "Sugarlift is an art consultancy that creates art programs for developers, hotels and designers, with a contemporary art gallery in New York.",
   alternates: {
     canonical: `${COMPANY_METADATA.url}/clients`,
   },
   openGraph: {
     title: `${COMPANY_METADATA.name} | Client projects`,
     description:
-      "Sugarlift is a contemporary art gallery based in New York, an industry-leading art consulting service, and a global artist community representing today's best and brightest contemporary artists.",
+      "Sugarlift is an art consultancy that creates art programs for developers, hotels and designers, with a contemporary art gallery in New York.",
     url: `${COMPANY_METADATA.url}/clients`,
     siteName: COMPANY_METADATA.name,
     images: [
