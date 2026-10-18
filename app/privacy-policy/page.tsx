@@ -6,7 +6,7 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: `${COMPANY_METADATA.name} | Privacy Policy`,
   description:
-    "Privacy Policy for Sugarlift, a contemporary art gallery based in New York City.",
+    "Privacy Policy for Sugarlift, an art consultancy and contemporary art gallery in New York City.",
   alternates: {
     canonical: `${COMPANY_METADATA.url}/privacy-policy`,
   },
@@ -32,8 +32,8 @@ export default async function PrivacyPolicy() {
             Introduction
           </h2>
           <p className="mb-8">
-            Sugarlift (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is a contemporary art gallery and
-            art consultancy based in New York City. This Privacy Policy explains
+            Sugarlift (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is an art consultancy and contemporary
+            art gallery based in New York City. This Privacy Policy explains
             how we collect, use, and protect your personal information when you
             visit our website, engage with our services, or interact with our
             business tools.

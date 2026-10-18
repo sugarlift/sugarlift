@@ -17,7 +17,7 @@ const Footer = () => {
               <Logo />
             </div>
             <p className="mt-4 max-w-none text-sm leading-6 tracking-tight text-zinc-700 md:max-w-[45ch]">
-              Sugarlift is a contemporary art gallery based in New York City.
+              Sugarlift is an art consultancy that creates art programs for developers, hotels and designers, with a contemporary art gallery in New York.
             </p>
             <QuickLink
               href="https://instagram.com/sugarlift"
