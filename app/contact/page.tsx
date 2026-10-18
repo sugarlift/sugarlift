@@ -5,14 +5,14 @@ import { COMPANY_METADATA } from "@/app/lib/constants";
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
-  title: `${COMPANY_METADATA.name} | About`,
+  title: `${COMPANY_METADATA.name} | Contact`,
   description:
     "Sugarlift is an art consultancy that creates art programs for developers, hotels and designers, with a contemporary art gallery in New York.",
   alternates: {
     canonical: `${COMPANY_METADATA.url}/contact`,
   },
   openGraph: {
-    title: `${COMPANY_METADATA.name} | About`,
+    title: `${COMPANY_METADATA.name} | Contact`,
     description:
       "Sugarlift is an art consultancy that creates art programs for developers, hotels and designers, with a contemporary art gallery in New York.",
     url: `${COMPANY_METADATA.url}/contact`,
