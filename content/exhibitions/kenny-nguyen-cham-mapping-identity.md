@@ -28,6 +28,6 @@ In Chạm: Mapping Identity, Nguyen navigates the complexities of diaspora and b
 
 Nguyen's work merges traditional and contemporary elements, evoking the rapid globalization and cultural shifts he witnessed in his homeland. Each piece is imbued with textures that feel etched by time: layered pigments, embossed motifs, and imprints that echo Vietnam's evolving landscape and its enduring cultural essence. Paintings, mixed media works, and installations invite viewers to experience the delicate balance of continuity and change.
 
-Through this exhibition, Nguyen reflects on the transformative power of re-engagement—how encountering the unfamiliar in the familiar can forge a deeper, more resilient understanding of oneself and one's heritage. As Nguyen explains, "Through embracing change, we can forge a deeper connection with our roots and ultimately find a renewed sense of self in an ever-changing world."
+Through this exhibition, Nguyen reflects on the transformative power of re-engagement—how encountering the unfamiliar in the familiar can forge a deeper, more resilient understanding of oneself and one's heritage. Through embracing change, we can forge a deeper connection with our roots and, ultimately, find a renewed sense of self in an ever-changing world.
 
 Sugarlift is pleased to present Kenny Nguyen: Chạm: Mapping Identity, a solo exhibition on view from December 1, 2023, through January 31, 2024, at 507 West 27th Street, New York, NY.

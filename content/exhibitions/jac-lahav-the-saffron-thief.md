@@ -24,7 +24,7 @@ galleryImages:
 
 Inspired by Lahav's journey as a foster parent and a newfound connection to plant cultivation, the exhibition unfolds as a rich exploration of care, resilience, and transformation. Blue felt vines cascade from a central vessel sculpture, enveloping the gallery in organic forms, while abstract canvases adorned with lines of saffron, gold leaf, and site-specific wall drawings invite viewers into an otherworldly experience.
 
-"Becoming a foster parent has been one of the most emotional, challenging, and rewarding experiences of my life," Lahav reflects. "The process has taught me the heart's remarkable capacity for love and strength, and this journey has deeply influenced my work." Since becoming a foster parent in 2021, Lahav has used the studio as a space to process the profound emotional spectrum of this experience, channeling it into abstract works that are both conceptually layered and visually arresting.
+Of foster care, Lahav says, "This is hard, emotional, and wonderful labor all at once and I'm constantly shocked at the heart's ability to generate love and gain strength." Since becoming a foster parent in 2021, Lahav has used the studio as a space to process the profound emotional spectrum of this experience, channeling it into abstract works that are both conceptually layered and visually arresting.
 
 The exhibition draws inspiration from the saffron crocus, a plant whose labor-intensive cultivation and mysterious narcotic effects echo the intricate nature of caregiving. With threads of powdered saffron and 24k gold leaf embedded in the paintings, The Saffron Thief parallels the delicate, painstaking process of fostering connection and growth.
 

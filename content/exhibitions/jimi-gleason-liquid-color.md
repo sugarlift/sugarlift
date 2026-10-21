@@ -2,7 +2,7 @@
 title: "Jimi Gleason: LIQUID COLOR"
 artists: ["jimi-gleason"]
 startDate: "2024-02-28"
-endDate: "2024-03-28"
+endDate: "2024-03-27"
 location: "507 West 27th Street, New York, NY 10"
 city: "New York"
 galleryImages:
